@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
+
+:root {
+  --main-color: #003C43;
+  --second-color: #135D66;
+  --third-color: #77B0AA;
+  --fourth-color: #E3FEF7;
+  --font-size: 18px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Quicksand", sans-serif;
+}
+
+body {
+  @apply bg-main;
+  font-optical-sizing: auto;
+  font-style: var(--font-size);
+}
+
+h1 {
+  font-size: 3rem;
+}
+
+h2 {
+  font-size: 2.5rem;
+}
+
+h3 {
+  font-size: 2rem;
+}
+
+h4 {
+  font-size: 1.5rem;
+}
+
+h5 {
+  font-size: 1rem;
+}
+
+.text-main {
+  color: var(--main-color);
+}
+
+.text-second {
+  color: var(--second-color);
+}
+
+.text-third {
+  color: var(--third-color);
+}
+
+.text-fourth {
+  color: var(--fourth-color);
+}
+
+.bg-main {
+  background-color: var(--main-color);
+}
+
+.bg-second {
+  background-color: var(--second-color);
+}
+
+.bg-third {
+  background-color: var(--third-color);
+}
+
+.bg-fourth {
+  background-color: var(--fourth-color);
+}
+
+.steps .step-primary + .step-primary:before, .steps .step-primary:after {
+  background-color: var(--third-color);
+}
+
+.steps .step-primary + .step-primary:after {
+  border-color: var(--third-color);
+}
+
+.steps {
+  .step {
+    color: white;
+  }
+}
