@@ -12,7 +12,6 @@ export default function Home() {
 
   useEffect(() => {
     setCurrentStep(1);
-
   }, [currentStep]);
 
   const StepOneParams: StepOneParams = {
@@ -37,7 +36,7 @@ export default function Home() {
 
         <div className="py-20">
           <StepOne params={ StepOneParams } />
-        </div>        
+        </div>
       </section>
     </main>
   );
