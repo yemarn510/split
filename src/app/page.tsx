@@ -8,7 +8,9 @@ import StepTwo, { StepTwoParams } from "@/components/step-2";
 import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { Person } from "@/models/person.models";
 import StepThree, { StepThreeParams } from "@/components/step-3";
-import { Split, SplitDictionary } from "@/models/split.models";
+import { SplitDictionary } from "@/models/split.models";
+import StepFour, { StepFourParams } from "@/components/step-4";
+import { Result } from "@/models/results.models";
 
 const STEPS = ['Add Items', 'Add People', 'Assign People & Items', 'Review & Split'];
 
@@ -18,6 +20,7 @@ export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [splitDict, setSplitDict] = useState<SplitDictionary>({});
+  const [results, setResults] = useState<Result[]>([]);
   const [saveFriends, setSaveFriends ] = useState<boolean>(false);
   const steps = STEPS.map(each => ({ title: each }));
 
@@ -49,6 +52,8 @@ export default function Home() {
         setCurrentStep(2);
         break;
       case 2:
+        calculateResults()
+        setCurrentStep(3);
         break;
       case 3:
         break;
@@ -82,15 +87,47 @@ export default function Home() {
         return <StepTwo params={stepTwoParams} />;
       case 2:
         return <StepThree params={stepThreeParams} />;
-      // case 3:
-      //   return <StepFour params={stepFourParams} />;
+      case 3:
+        return <StepFour params={stepFourParams} />;
       default:
         return <div>Not Implemented yet!</div>;
     }
   }
 
+  function calculateResults(): void {
+    const itemDict: { [key in string]: Item} = {};
+    items.forEach((each, index) => itemDict[index.toString()] = each); 
 
+    const personDict: { [key in string]: {
+      person: Person,
+      result: Result
+    }} = {};
+    people.forEach((each, index) => {
+      personDict[index.toString()] = {
+        person: each,
+        result: new Result({
+          person: each,
+          total: 0,
+          items: []
+        })
+      };
+    });
 
+    Object.keys(splitDict).forEach((itemIndex) => { // [ {'0': Split Obj, '1': Split Obj} ] -> [0, 1]
+      const split = splitDict[itemIndex]; // Split Obj
+      const peopleIndexes = Array.from(split.sharingPersonIndex); // [0, 1]
+      peopleIndexes.forEach((personIndex) => {
+        const person = personDict[personIndex.toString()]; // { person: Person, result: Result }
+        const item = itemDict[itemIndex]; // Get Item Object
+        item.sharedNumber = peopleIndexes.length;
+        person.result.items.push(item); // Add Item to Person's Result
+        person.result.total += item.price / peopleIndexes.length; // Add Price to Person's Total
+      });
+    });
+
+    const results = Object.keys(personDict).map((key) => personDict[key].result);
+    setResults(results);
+  }
 
   const stepOneParams: StepOneParams = {
     items,
@@ -110,6 +147,10 @@ export default function Home() {
     splitDict,
     setSplitDict,
     setItems,
+  }
+
+  const stepFourParams: StepFourParams = {
+    results
   }
 
   return (

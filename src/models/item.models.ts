@@ -8,6 +8,7 @@ export class Item {
   price: number;
   quantity: number;
   image: string;
+  sharedNumber: number;
   error: ItemError;
 
 
@@ -17,11 +18,13 @@ export class Item {
     quantity = 1 as number,
     image = '' as string,
     error = {} as ItemError,
+    sharedNumber = 0 as number,
   }) {
     this.name = name;
     this.price = price;
     this.quantity = quantity;
     this.image = image;
+    this.sharedNumber = sharedNumber;
     this.error = error;
   }
 
