@@ -3,7 +3,7 @@
 import { Item } from "@/models/item.models";
 import { Input, Button } from 'antd';
 import { CheckOutlined, CloseOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 
 export interface StepOneParams {

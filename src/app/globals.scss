@@ -89,6 +89,24 @@ h5 {
   border-color: var(--main-color);
 }
 
+table {
+  thead {
+    tr {
+      th {
+        @apply text-main p-3;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      td {
+        @apply pb-3;
+      }
+    }
+  }
+}
+
 
 /// ant override
 

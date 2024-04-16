@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { Steps } from 'antd';
 import StepTwo, { StepTwoParams } from "@/components/step-2";
 import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { Person } from "@/models/person.models";
 
 const STEPS = ['Add Items', 'Add People', 'Assign People & Items', 'Review & Split'];
 
@@ -13,11 +14,13 @@ export default function Home() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [items, setItems] = useState<Item[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
   const steps = STEPS.map(each => ({ title: each }));
 
   useEffect(() => {
     setCurrentStep(0);
     setItems([ new Item({}) ]);
+    setPeople([ new Person({}) ]);
   }, []);
 
   function goNext(): void {
@@ -80,7 +83,8 @@ export default function Home() {
   };
 
   const stepTwoParams: StepTwoParams = {
-
+    people,
+    setPeople,
   }
 
   return (
