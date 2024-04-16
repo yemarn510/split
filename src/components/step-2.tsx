@@ -1,7 +1,7 @@
 import { Input, Button, Modal, Avatar } from 'antd';
 import { AVATAR_URL, Person, generateRandomInteger } from "@/models/person.models";
 import { useEffect, useState } from 'react';
-import { UndoOutlined } from '@ant-design/icons';
+import { UndoOutlined, DeleteOutlined } from '@ant-design/icons';
 
 
 export interface StepTwoParams {
@@ -45,6 +45,11 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
     toggleModal(null);
   }
 
+  function deletePerson(index: number): void {
+    const cloned = [...params.params.people];
+    cloned.splice(index, 1);
+    params.params.setPeople(cloned);
+  }
   
 
   return <>
@@ -54,7 +59,8 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
           <tr>
             <th className='text-main pb-3 w-1/5'>No.</th>
             <th className='text-main pb-3 w-1/5'>Profile</th>
-            <th className='text-main pb-3 w-3/5'>Name</th>
+            <th className='text-main pb-3 w-2/5'>Name</th>
+            <th className='w-1/5'></th>
           </tr>
         </thead>
         <tbody>
@@ -78,6 +84,10 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
                            params.params.setPeople(cloned);
                          }}
                          className='w-full p-2 border border-main text-center rounded-md' />
+                </td>
+                <td className='text-center'>
+                  <DeleteOutlined className="text-danger text-xl"
+                                  onClick={() => deletePerson(index)}/>
                 </td>
               </tr>
             })
