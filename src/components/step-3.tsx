@@ -4,13 +4,17 @@ import Image from 'next/image';
 import { Person, generateRandomInteger } from '@/models/person.models';
 import { Carousel, Avatar } from 'antd';
 import { Item } from '@/models/item.models';
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { useRef } from 'react';
+import { LeftOutlined, RightOutlined, CheckOutlined } from '@ant-design/icons';
+import { useEffect, useRef, useState } from 'react';
 import type { CarouselRef } from 'antd/es/carousel';
+import { Split, SplitDictionary } from '@/models/split.models';
 
 export interface StepThreeParams {
   items: Item[];
   people: Person[];
+  splitDict: SplitDictionary;
+  setSplitDict: Function;
+  setItems: Function;
 }
 
 const FOOD_IMAGES: string[] = [
@@ -34,15 +38,42 @@ const FOOD_IMAGES: string[] = [
 export default function StepThree(params: { params: StepThreeParams }): JSX.Element {
 
   const slider = useRef<CarouselRef>(null);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
 
-  function onChange(currentSlide: number) {
-    console.warn(currentSlide);
+  useEffect(() =>  {
+    const items = params.params.items;
+    const splitDictLocal = params.params.splitDict;
+    items.forEach((eachItem, index) => {
+      eachItem.image = FOOD_IMAGES[generateRandomInteger(0, 13)];
+      splitDictLocal[index] = new Split({
+        itemIndex: index,
+        itemPrice: eachItem.price,
+        sharingPersonIndex: new Set<number>(),
+      });
+    });
+    params.params.setSplitDict(splitDictLocal);
+    params.params.setItems(items);
+  }, []);
+
+  function onChange(index: number) {
+    setCurrentIndex(index);
+  }
+
+  function assignPerson(index: number): void {
+    params.params.splitDict[currentIndex].sharingPersonIndex.has(index) 
+      ? params.params.splitDict[currentIndex].sharingPersonIndex.delete(index)
+      : params.params.splitDict[currentIndex].sharingPersonIndex.add(index);
+    params.params.setSplitDict({ ...params.params.splitDict });
+  }
+
+  function isSelected(personIndex: number): boolean {
+    return params.params.splitDict[currentIndex]?.sharingPersonIndex.has(personIndex);
   }
 
   return <>
     <div className='flex flex-row gap-3 w-full'>
       <div className="w-1/5 flex items-center justify-center">
-        <LeftOutlined className='text-xl text-main bg-third rounded-full p-4 cursor-pointer hover:opacity-50'
+        <LeftOutlined className='text-xl text-main bg-second rounded-full p-4 cursor-pointer hover:opacity-50'
                        onClick={() => slider?.current?.prev() } />
       </div>
       <div className="w-3/5">
@@ -51,13 +82,16 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
           {
             params.params.items.map((each, index) => {
               return <div key={`food-image-${index}`}>
-                <div className='m-auto bg-third rounded-md w-fit p-4 mb-5'>
-                  <Image src={FOOD_IMAGES[generateRandomInteger(0, 13)]}
+                <div className='m-auto bg-second rounded-md w-fit p-4 mb-5'>
+                  <Image src={each.image}
                     width={100}
                     height={100}
                     className='m-auto'
                     alt='Food Images' />
                 </div>
+                <h6 className='text-center mx-auto text-grey text-xs'>
+                  Item Name / Price
+                </h6>
                 <h4 className='text-center mb-10'>
                   { each.name } / { each.price }
                 </h4>
@@ -67,7 +101,7 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
         </Carousel>
       </div>
       <div className="w-1/5 flex items-center justify-center">
-        <RightOutlined className='text-xl text-main bg-third rounded-full p-4 cursor-pointer hover:opacity-50'
+        <RightOutlined className='text-xl text-main bg-second rounded-full p-4 cursor-pointer hover:opacity-50'
                        onClick={() => slider?.current?.next() } />
       </div>
     </div>
@@ -76,9 +110,12 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
       {
         params.params.people.map((each, personIndex) => {
           return <div key={`person-${personIndex}`} 
-                      onClick={() => {}}
-                      className="flex flex-col items-center justify-center gap-3">
-            <div className="bg-third rounded-full w-20 h-20 flex items-center justify-center">
+                      onClick={() => assignPerson(personIndex)}
+                      className="flex flex-col items-center justify-center gap-3 hover:opacity-50 cursor-pointer relative">
+            <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center transition-opacity duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
+              <CheckOutlined className='text-white' />
+            </div>
+            <div className={`rounded-full w-20 h-20 flex items-center justify-center transition-colors duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
               <Avatar src={each.profile} className='w-12 h-12 ' />
             </div>
             <p className="text-center">{ each.name || '-' }</p>

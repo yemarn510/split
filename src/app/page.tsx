@@ -8,6 +8,7 @@ import StepTwo, { StepTwoParams } from "@/components/step-2";
 import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { Person } from "@/models/person.models";
 import StepThree, { StepThreeParams } from "@/components/step-3";
+import { Split, SplitDictionary } from "@/models/split.models";
 
 const STEPS = ['Add Items', 'Add People', 'Assign People & Items', 'Review & Split'];
 
@@ -16,6 +17,7 @@ export default function Home() {
   const [currentStep, setCurrentStep] = useState(0);
   const [items, setItems] = useState<Item[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
+  const [splitDict, setSplitDict] = useState<SplitDictionary>({});
   const steps = STEPS.map(each => ({ title: each }));
 
   useEffect(() => {
@@ -91,6 +93,9 @@ export default function Home() {
   const stepThreeParams: StepThreeParams = {
     items,
     people,
+    splitDict,
+    setSplitDict,
+    setItems,
   }
 
   return (

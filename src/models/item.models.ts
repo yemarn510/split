@@ -7,6 +7,7 @@ export class Item {
   name: string;
   price: number;
   quantity: number;
+  image: string;
   error: ItemError;
 
 
@@ -14,11 +15,13 @@ export class Item {
     name = '' as string,
     price = 0 as number,
     quantity = 1 as number,
+    image = '' as string,
     error = {} as ItemError,
   }) {
     this.name = name;
     this.price = price;
     this.quantity = quantity;
+    this.image = image;
     this.error = error;
   }
 
