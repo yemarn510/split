@@ -1,14 +1,15 @@
 'use client';
 
-import { Input, Button, Modal, Avatar } from 'antd';
+import { Input, Button, Modal, Avatar, Checkbox } from 'antd';
 import { AVATAR_URL, Person, generateRandomInteger } from "@/models/person.models";
 import { useEffect, useState } from 'react';
 import { UndoOutlined, DeleteOutlined } from '@ant-design/icons';
 
-
 export interface StepTwoParams {
   people: Person[];
   setPeople: Function;
+  savedFriends: boolean;
+  setSaveFriends: Function;
 }
 
 export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
@@ -25,6 +26,7 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
     const cloned = [...params.params.people];
     cloned.push(new Person({}));
     params.params.setPeople(cloned);
+    params.params.setSaveFriends(false);
   }
 
   function toggleModal(index: number | null): void {
@@ -51,6 +53,7 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
     const cloned = [...params.params.people];
     cloned.splice(index, 1);
     params.params.setPeople(cloned);
+    params.params.setSaveFriends(false);
   }
   
 
@@ -102,6 +105,13 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
         onClick={ () => addPerson() }>
         Add Person
       </Button>
+
+      <div className='flex flex-row justify-end mt-3'>
+        <Checkbox checked={params.params.savedFriends}
+                  onChange={(e) => params.params.setSaveFriends(e || false)}>
+          Save This List
+        </Checkbox>
+      </div>
 
       <Modal title="Choose your Avatar"
              footer={null}

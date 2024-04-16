@@ -123,6 +123,32 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
         })
       }
     </div>
+
+{/* 
+    <Modal title="Choose your Avatar"
+             footer={null}
+             centered
+             onCancel={ () => toggleModal(null) }
+             open={isModalOpen} >
+      <div className='grid grid-cols-4 gap-4 h-[320px] overflow-auto p-5'>
+        {
+          avatarNumbers.map((eachNumber, index) => {
+            return <div className='bg-third cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
+                        key={index}
+                        onClick={() => changeAvatar(index) }>
+              <Avatar src={`${AVATAR_URL}${eachNumber}`} className='w-12 h-12 ' />
+            </div>
+          })
+        }
+      </div>
+      <div className='text-center mt-5'>
+        <Button
+          onClick={ () => generateRandomAvatars() }
+          icon={<UndoOutlined />}>
+          Generate Again
+        </Button>
+      </div>
+    </Modal> */}
     
   </>
 }

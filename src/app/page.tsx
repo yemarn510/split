@@ -18,12 +18,21 @@ export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [splitDict, setSplitDict] = useState<SplitDictionary>({});
+  const [saveFriends, setSaveFriends ] = useState<boolean>(false);
   const steps = STEPS.map(each => ({ title: each }));
 
   useEffect(() => {
     setCurrentStep(0);
     setItems([ new Item({}) ]);
-    setPeople([ new Person({}) ]);
+
+    const friends = localStorage.getItem('friends') || '';
+    if (friends) {
+      setPeople(JSON.parse(friends).map((each: Person) => new Person(each)));
+      setSaveFriends(true);
+    } else {
+      setPeople([ new Person({}) ]);
+      setSaveFriends(false);
+    }
   }, []);
 
   function goNext(): void {
@@ -34,6 +43,9 @@ export default function Home() {
         }
         break;
       case 1:
+        if (saveFriends) {
+          localStorage.setItem('friends', JSON.stringify(people));
+        }
         setCurrentStep(2);
         break;
       case 2:
@@ -88,6 +100,8 @@ export default function Home() {
   const stepTwoParams: StepTwoParams = {
     people,
     setPeople,
+    savedFriends: saveFriends,
+    setSaveFriends,
   }
 
   const stepThreeParams: StepThreeParams = {
