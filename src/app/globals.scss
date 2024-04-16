@@ -5,10 +5,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
 
 :root {
-  --main-color: #003C43;
-  --second-color: #135D66;
-  --third-color: #77B0AA;
-  --fourth-color: #E3FEF7;
+  --main-color: #102C57;
+  --second-color: #EADBC8;
+  --third-color: #DAC0A3;
+  --fourth-color: #FEFAF6;
   --font-size: 18px;
 }
 
@@ -20,7 +20,7 @@
 }
 
 body {
-  @apply bg-main;
+  @apply bg-second;
   font-optical-sizing: auto;
   font-style: var(--font-size);
 }
@@ -77,16 +77,22 @@ h5 {
   background-color: var(--fourth-color);
 }
 
-.steps .step-primary + .step-primary:before, .steps .step-primary:after {
-  background-color: var(--third-color);
+.text-danger {
+  color: #ff4d4f;
 }
 
-.steps .step-primary + .step-primary:after {
-  border-color: var(--third-color);
+.text-green {
+  color: #41B06E;
 }
 
-.steps {
-  .step {
-    color: white;
-  }
+
+/// ant override
+
+.ant-btn-primary {
+  box-shadow: none;
+}
+
+.ant-input-outlined[disabled] {
+  color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.09);
 }
