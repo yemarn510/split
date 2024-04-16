@@ -24,7 +24,7 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
         key: `result-${resultIndex}`,
         label: <div className='flex flex-row justify-between text-main'>
           <span className='font-bold'>Total</span>
-          <span className='font-bold'>{each.total}</span>
+          <span className='font-bold'>{each.total.toFixed(2)}</span>
         </div>,
         children: <ul className='w-[300px] m-auto'>
           {
