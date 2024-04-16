@@ -1,3 +1,5 @@
+'use client';
+
 import { Input, Button, Modal, Avatar } from 'antd';
 import { AVATAR_URL, Person, generateRandomInteger } from "@/models/person.models";
 import { useEffect, useState } from 'react';
@@ -69,7 +71,7 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
               return <tr key={`person-${index}`}>
                 <td className='text-center'> { index + 1 } </td>
                 <td className='text-center'>
-                  <div className='bg-[#dbcebc] cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
+                  <div className='bg-third cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
                        onClick={() => toggleModal(index) }>
                     <Avatar src={person.profile} className='w-12 h-12 ' />
                   </div>
@@ -109,7 +111,7 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
         <div className='grid grid-cols-4 gap-4 h-[320px] overflow-auto p-5'>
           {
             avatarNumbers.map((eachNumber, index) => {
-              return <div className='bg-[#dbcebc] cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
+              return <div className='bg-third cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
                           key={index}
                           onClick={() => changeAvatar(index) }>
                 <Avatar src={`${AVATAR_URL}${eachNumber}`} className='w-12 h-12 ' />

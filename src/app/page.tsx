@@ -7,6 +7,7 @@ import { Steps } from 'antd';
 import StepTwo, { StepTwoParams } from "@/components/step-2";
 import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { Person } from "@/models/person.models";
+import StepThree, { StepThreeParams } from "@/components/step-3";
 
 const STEPS = ['Add Items', 'Add People', 'Assign People & Items', 'Review & Split'];
 
@@ -27,11 +28,11 @@ export default function Home() {
     switch (currentStep) {
       case 0:
         if (isStepOneValid()) {
-          setCurrentStep(currentStep + 1);
+          setCurrentStep(1);
         }
         break;
       case 1:
-        
+        setCurrentStep(2);
         break;
       case 2:
         break;
@@ -65,8 +66,8 @@ export default function Home() {
         return <StepOne params={stepOneParams} />;
       case 1:
         return <StepTwo params={stepTwoParams} />;
-      // case 2:
-      //   return <StepThree params={stepThreeParams} />;
+      case 2:
+        return <StepThree params={stepThreeParams} />;
       // case 3:
       //   return <StepFour params={stepFourParams} />;
       default:
@@ -87,6 +88,11 @@ export default function Home() {
     setPeople,
   }
 
+  const stepThreeParams: StepThreeParams = {
+    items,
+    people,
+  }
+
   return (
     <main className="max-w-[1100px] min-w-[50vw]  w-fit h-screen m-auto py-10">
       <h1 className="text-center text-main">Let's Split the Bill</h1>
@@ -100,7 +106,7 @@ export default function Home() {
         />
 
 
-        <div className="py-20">
+        <div className="py-10">
           { getCurrentUI() }
         </div>
         

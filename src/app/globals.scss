@@ -7,7 +7,7 @@
 :root {
   --main-color: #102C57;
   --second-color: #EADBC8;
-  --third-color: #DAC0A3;
+  --third-color: #dbcebc;
   --fourth-color: #FEFAF6;
   --font-size: 18px;
 }
@@ -117,4 +117,8 @@ table {
 .ant-input-outlined[disabled] {
   color: rgba(0, 0, 0, 0.5);
   background-color: rgba(0, 0, 0, 0.09);
+}
+
+:where(.css-dev-only-do-not-override-15ltzq9).ant-carousel .slick-dots li button {
+  background-color: var(--main-color) !important;
 }
