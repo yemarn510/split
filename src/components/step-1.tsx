@@ -3,7 +3,7 @@
 import { Item } from "@/models/item.models";
 import { Input, Button } from 'antd';
 import { CheckOutlined, CloseOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 export interface StepOneParams {
@@ -13,8 +13,14 @@ export interface StepOneParams {
 
 export default function StepOne(params: { params: StepOneParams }): JSX.Element {
 
-  const [ currentIndex, setCurrentIndex ] = useState<number | null>(0);
+  const [ currentIndex, setCurrentIndex ] = useState<number | null>(null);
   const [originalItem, setOriginalItem] = useState<Item | null>(null);
+
+  useEffect(() => {
+    if (params.params.items.length === 0) {
+      setCurrentIndex(0);
+    }
+  }, []);
 
   function addItem(): void {
     if (!checkValidOrNot(params.params.items.length - 1)) {
@@ -22,10 +28,10 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
     }
     params.params.items.push(new Item({}));
     params.params.setItems([...params.params.items]);
-    setCurrentIndex((currentIndex || 0) + 1);
+    setCurrentIndex(params.params.items.length - 1);
   }
 
-  function saveEdit(index: number): void {
+  function saveEdit(): void {
     if (!checkValidOrNot(currentIndex!)) {
       return;
     }
@@ -37,9 +43,7 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
   function cancelEdit(index: number): void {
     const editingItem = params.params.items[index];
     if (editingItem.name === '' && editingItem.price === 0 && editingItem.quantity === 1) {
-      params.params.items.splice(index, 1);
-      params.params.setItems([...params.params.items]);
-      setOriginalItem(null);
+      deleteItem(index);
       return;
     }
     params.params.items[index] = originalItem || new Item({});
@@ -64,6 +68,7 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
   function deleteItem(index: number): void {
     params.params.items.splice(index, 1);
     params.params.setItems([...params.params.items]);
+    currentIndex === index && setCurrentIndex(null);
   }
 
   function checkValidOrNot(index: number): boolean {
@@ -155,7 +160,7 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
                     ? 
                       <div className="flex flex-row justify-center items-end pb-1 gap-5">
                         <CheckOutlined className="text-main text-xl" 
-                                       onClick={() => saveEdit(index)}/>
+                                       onClick={() => saveEdit()}/>
                         <CloseOutlined className="text-danger text-xl"
                                        onClick={() => cancelEdit(index)}/>
                       </div>

@@ -1,10 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import { Carousel, Avatar, Modal } from 'antd';
+import { Carousel, Avatar, Modal, Spin } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import type { CarouselRef } from 'antd/es/carousel';
-import { LeftOutlined, RightOutlined, CheckOutlined } from '@ant-design/icons';
+import { LeftOutlined, RightOutlined, CheckOutlined, LoadingOutlined } from '@ant-design/icons';
 
 import { Item } from '@/models/item.models';
 import { Person, generateRandomInteger } from '@/models/person.models';
@@ -40,21 +40,29 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
 
   const slider = useRef<CarouselRef>(null);
   const [changingItemIndex, setChangingItemIndex] = useState<number | null>(null);
+  const [showLoading, setShowLoading] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   useEffect(() =>  {
+    setShowLoading(true);
     const items = params.params.items;
     const splitDictLocal = params.params.splitDict;
-    items.forEach((eachItem, index) => {
+    for (let index = 0; index < items.length; index++) {
+      const eachItem = items[index];
       eachItem.image = FOOD_IMAGES[generateRandomInteger(0, 13)];
       splitDictLocal[index] = new Split({
         itemIndex: index,
         itemPrice: eachItem.price,
         sharingPersonIndex: new Set<number>(),
       });
-    });
+    }
+
     params.params.setSplitDict(splitDictLocal);
     params.params.setItems(items);
+    
+    setTimeout(() => {
+      setShowLoading(false);
+    }, 100);
   }, []);
 
   function onChange(index: number) {
@@ -90,25 +98,31 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
                        onClick={() => slider?.current?.prev() } />
       </div>
       <div className="w-3/5">
-        <Carousel afterChange={onChange}
-          ref={slider}>
-          {
-            params.params.items.map((each, itemIndex) => {
-              return <div key={`food-image-${itemIndex}`}>
-                <div className='cursor-pointer hover:opacity-50'
-                      onClick={() => toggleModal(itemIndex) }>
-                  <ItemImage image={each.image} />
-                </div>
-                <h6 className='text-center mx-auto text-grey text-xs'>
-                  Item Name / Price
-                </h6>
-                <h4 className='text-center mb-10'>
-                  { each.name } / { each.price }
-                </h4>
-              </div>
-            })
-          }
-        </Carousel>
+        {
+          !showLoading 
+          ? 
+            <Carousel afterChange={onChange}
+              ref={slider}>
+              {
+                params.params.items.map((each, itemIndex) => {
+                  return <div key={`food-image-${itemIndex}`}>
+                    <div className='cursor-pointer hover:opacity-50'
+                        onClick={() => toggleModal(itemIndex) }>
+                      <ItemImage image={each.image} />
+                    </div>
+                    <h6 className='text-center mx-auto text-grey text-xs'>
+                      Item Name / Price
+                    </h6>
+                    <h4 className='text-center mb-10'>
+                      { each.name } / { each.price }
+                    </h4>
+                  </div>
+                })
+              }
+            </Carousel>
+          : <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+        }
+        
       </div>
       <div className="w-1/5 flex items-center justify-center">
         <RightOutlined className='text-xl text-main bg-second rounded-full p-4 cursor-pointer hover:opacity-50'
