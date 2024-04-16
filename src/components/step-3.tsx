@@ -1,12 +1,13 @@
 'use client';
 
 import Image from 'next/image';
-import { Person, generateRandomInteger } from '@/models/person.models';
-import { Carousel, Avatar } from 'antd';
-import { Item } from '@/models/item.models';
-import { LeftOutlined, RightOutlined, CheckOutlined } from '@ant-design/icons';
+import { Carousel, Avatar, Modal } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import type { CarouselRef } from 'antd/es/carousel';
+import { LeftOutlined, RightOutlined, CheckOutlined } from '@ant-design/icons';
+
+import { Item } from '@/models/item.models';
+import { Person, generateRandomInteger } from '@/models/person.models';
 import { Split, SplitDictionary } from '@/models/split.models';
 
 export interface StepThreeParams {
@@ -30,7 +31,7 @@ const FOOD_IMAGES: string[] = [
   './svgs/reshot-icon-food-JY2ZKM765U.svg',
   './svgs/reshot-icon-fried-chicken-XAK6QZ3HBV.svg',
   './svgs/reshot-icon-hot-food-DUYKGBF2XM.svg',
-  './svgs/reshot-icon-hot-food-DUYKGBF2XM.svg',
+  './svgs/reshot-icon-loaded-fries-6AF2QRM5VT.svg',
   './svgs/reshot-icon-pizza-B9CZFQ6G7J.svg',
 ];
 
@@ -38,6 +39,7 @@ const FOOD_IMAGES: string[] = [
 export default function StepThree(params: { params: StepThreeParams }): JSX.Element {
 
   const slider = useRef<CarouselRef>(null);
+  const [changingItemIndex, setChangingItemIndex] = useState<number | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   useEffect(() =>  {
@@ -70,6 +72,17 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
     return params.params.splitDict[currentIndex]?.sharingPersonIndex.has(personIndex);
   }
 
+  function toggleModal(index: number | null): void {
+    setChangingItemIndex(index);
+  }
+
+  function changeImage(index: number): void {
+    const cloned = [...params.params.items];
+    cloned[changingItemIndex!].image = FOOD_IMAGES[index];
+    params.params.setItems(cloned);
+    setChangingItemIndex(null);
+  }
+
   return <>
     <div className='flex flex-row gap-3 w-full'>
       <div className="w-1/5 flex items-center justify-center">
@@ -80,14 +93,11 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
         <Carousel afterChange={onChange}
           ref={slider}>
           {
-            params.params.items.map((each, index) => {
-              return <div key={`food-image-${index}`}>
-                <div className='m-auto bg-second rounded-md w-fit p-4 mb-5'>
-                  <Image src={each.image}
-                    width={100}
-                    height={100}
-                    className='m-auto'
-                    alt='Food Images' />
+            params.params.items.map((each, itemIndex) => {
+              return <div key={`food-image-${itemIndex}`}>
+                <div className='cursor-pointer hover:opacity-50'
+                      onClick={() => toggleModal(itemIndex) }>
+                  <ItemImage image={each.image} />
                 </div>
                 <h6 className='text-center mx-auto text-grey text-xs'>
                   Item Name / Price
@@ -124,31 +134,33 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
       }
     </div>
 
-{/* 
-    <Modal title="Choose your Avatar"
+
+    <Modal title="Change Icon"
              footer={null}
              centered
              onCancel={ () => toggleModal(null) }
-             open={isModalOpen} >
+             open={changingItemIndex !== null} >
       <div className='grid grid-cols-4 gap-4 h-[320px] overflow-auto p-5'>
         {
-          avatarNumbers.map((eachNumber, index) => {
-            return <div className='bg-third cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
-                        key={index}
-                        onClick={() => changeAvatar(index) }>
-              <Avatar src={`${AVATAR_URL}${eachNumber}`} className='w-12 h-12 ' />
-            </div>
+          FOOD_IMAGES.map((eachImage, index) => {
+            return <div key={`food-image-${index}`}
+                        onClick={ () => changeImage(index) }
+                        className='cursor-pointer hover:opacity-50'>
+              <ItemImage image={eachImage} />
+            </div> 
           })
         }
       </div>
-      <div className='text-center mt-5'>
-        <Button
-          onClick={ () => generateRandomAvatars() }
-          icon={<UndoOutlined />}>
-          Generate Again
-        </Button>
-      </div>
-    </Modal> */}
-    
+    </Modal>
   </>
+}
+
+export function ItemImage(params: { image: string }): JSX.Element {
+  return <div className='m-auto bg-second rounded-md w-fit p-4 mb-5'>
+    <Image src={params.image}
+      width={100}
+      height={100}
+      className='m-auto'
+      alt='Food Images' />
+  </div>
 }
