@@ -166,7 +166,7 @@ export default function Home() {
         />
 
 
-        <div className="py-10">
+        <div className="py-5">
           { getCurrentUI() }
         </div>
         

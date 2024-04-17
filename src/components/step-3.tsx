@@ -92,9 +92,9 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
   }
 
   return <>
-    <div className='flex flex-row gap-3 w-full'>
+    <div className='flex flex-row gap-3 w-full max-w-[300px] m-auto'>
       <div className="w-1/5 flex items-center justify-center">
-        <LeftOutlined className='text-xl text-main bg-second rounded-full p-4 cursor-pointer hover:opacity-50'
+        <LeftOutlined className='text-xl text-main bg-third rounded-full p-4 cursor-pointer hover:opacity-50'
                        onClick={() => slider?.current?.prev() } />
       </div>
       <div className="w-3/5">
@@ -113,7 +113,7 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
                     <h6 className='text-center mx-auto text-grey text-xs'>
                       Item Name / Price
                     </h6>
-                    <h4 className='text-center mb-10'>
+                    <h4 className='text-center mb-1'>
                       { each.name } / { each.price }
                     </h4>
                   </div>
@@ -125,7 +125,7 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
         
       </div>
       <div className="w-1/5 flex items-center justify-center">
-        <RightOutlined className='text-xl text-main bg-second rounded-full p-4 cursor-pointer hover:opacity-50'
+        <RightOutlined className='text-xl text-main bg-third rounded-full p-4 cursor-pointer hover:opacity-50'
                        onClick={() => slider?.current?.next() } />
       </div>
     </div>
@@ -170,7 +170,7 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
 }
 
 export function ItemImage(params: { image: string }): JSX.Element {
-  return <div className='m-auto bg-second rounded-md w-fit p-4 mb-5'>
+  return <div className='m-auto bg-third rounded-md w-fit p-4 mb-3'>
     <Image src={params.image}
       width={100}
       height={100}

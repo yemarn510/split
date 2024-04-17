@@ -22,9 +22,21 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
 
       const itemData = {
         key: `result-${resultIndex}`,
-        label: <div className='flex flex-row justify-between text-main'>
-          <span className='font-bold'>Total</span>
-          <span className='font-bold'>{each.total.toFixed(2)}</span>
+        label: <div className="flex flex-row gap-4">
+          <div className="w-1/5 flex justify-center">
+            <div className={`rounded-full w-14 h-14 flex items-center justify-center transition-colors duration-200 bg-third`}>
+              <Avatar src={each.person.profile} className='w-12 h-12 ' />
+            </div>
+          </div>
+          <div className="w-3/5 flex flex-col justify-center">
+            <h5 className="text-main font-bold">{ each.person.name || '-' }</h5>
+            <h6 className="text-sm font-bold text-fourth">
+              Total: 
+              <b className='text-main pl-2'>
+                {each.total.toFixed(2)}
+              </b>
+            </h6>
+          </div>
         </div>,
         children: <ul className='w-[300px] m-auto'>
           {
@@ -46,33 +58,24 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
   }, []);
 
   return <>
-    <div className="grid grid-cols-2 gap-4">
-      {
-        params.params.results.map((each, index) => {
-          return <div className="flex flex-col border border-fourth p-3 rounded-lg"
-                      key={`result-${index}`}>
-            <div className="flex flex-row">
-              <div className="w-1/3 flex justify-center">
-                <div className={`rounded-full w-14 h-14 flex items-center justify-center transition-colors duration-200 bg-third`}>
-                  <Avatar src={each.person.profile} className='w-12 h-12 ' />
+    <div className='step-four-h'>
+      <div className="grid grid-cols-2 gap-4">
+        {
+          params.params.results.map((each, index) => {
+            return <div className="flex flex-col border border-fourth rounded-lg"
+                        key={`result-${index}`}>
+              <div className='w-full h-auto'>
+                <Collapse
+                  bordered={false}
+                  expandIconPosition='end'
+                  defaultActiveKey={['1']}
+                  expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+                  items={itemsAndPerson[index]} />
                 </div>
-              </div>
-              <div className="w-2/3 flex flex-col justify-center">
-                <h5 className="text-main font-bold">{ each.person.name || '-' }</h5>
-                <h6 className="text-sm text-fourth">Total Items: { each.items.length }</h6>
-              </div>
             </div>
-
-            <div className='w-full h-auto mt-3'>
-              <Collapse
-                bordered={false}
-                defaultActiveKey={['1']}
-                expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
-                items={itemsAndPerson[index]} />
-              </div>
-          </div>
-        })
-      }
+          })
+        }
+      </div>
     </div>
   </>;
 }

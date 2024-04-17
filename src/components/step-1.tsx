@@ -22,6 +22,17 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
     }
   }, []);
 
+  useEffect(() => {
+    scrollToId();
+  }, [currentIndex]);
+
+  function scrollToId(): void {
+    const id = document.getElementById(`item-${currentIndex}`);
+    if (id) {
+      id.scrollIntoView();
+    }
+  }
+
   function addItem(): void {
     if (!checkValidOrNot(params.params.items.length - 1)) {
       return;
@@ -79,10 +90,11 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
   }
 
   return <>
-    <div className="w-full">
+    <div className="w-full step-one-h">
       {
         params.params?.items?.map((eachItem, index) => {
           return <div className="flex flex-row w-full gap-5 mb-3"
+                      id={`item-${index}`}
                       key={index + 1}>
             <div className={`w-3/5 flex flex-col`}>
               <label htmlFor="item-name"

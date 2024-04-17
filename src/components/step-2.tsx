@@ -22,6 +22,17 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
     generateRandomAvatars();
   }, []);
 
+  useEffect(() => {
+    scrollToId();
+  }, [params.params.people]);
+
+  function scrollToId(): void {
+    const id = document.getElementById(`person-row-${params.params.people.length - 1}`);
+    if (id) {
+      id.scrollIntoView();
+    }
+  }
+
   function addPerson(): void {
     const cloned = [...params.params.people];
     cloned.push(new Person({}));
@@ -59,46 +70,49 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
 
   return <>
     <div className="flex flex-col w-full">
-      <table>
-        <thead>
-          <tr>
-            <th className='text-main pb-3 w-1/5'>No.</th>
-            <th className='text-main pb-3 w-1/5'>Profile</th>
-            <th className='text-main pb-3 w-2/5'>Name</th>
-            <th className='w-1/5'></th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            params.params.people?.map((person, index) => {
-              return <tr key={`person-${index}`}>
-                <td className='text-center'> { index + 1 } </td>
-                <td className='text-center'>
-                  <div className='bg-third cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
-                       onClick={() => toggleModal(index) }>
-                    <Avatar src={person.profile} className='w-12 h-12 ' />
-                  </div>
-                </td>
-                <td className='px-10'>
-                  <Input type='text'
-                         value={person.name}
-                         placeholder='Full Name, Nickname, etc.'
-                         onChange={(e) => {
-                           const cloned = [...params.params.people];
-                           cloned[index].name = e.target.value;
-                           params.params.setPeople(cloned);
-                         }}
-                         className='w-full p-2 border border-main text-center rounded-md' />
-                </td>
-                <td className='text-center'>
-                  <DeleteOutlined className="text-danger text-xl"
-                                  onClick={() => deletePerson(index)}/>
-                </td>
-              </tr>
-            })
-          }
-        </tbody>
-      </table>
+      <div className="step-two-h">
+        <table>
+          <thead>
+            <tr>
+              <th className='text-main pb-3 w-1/5'>No.</th>
+              <th className='text-main pb-3 w-1/5'>Profile</th>
+              <th className='text-main pb-3 w-2/5'>Name</th>
+              <th className='w-1/5'></th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              params.params.people?.map((person, index) => {
+                return <tr key={`person-${index}`}
+                           id={`person-row-${index}`}>
+                  <td className='text-center'> { index + 1 } </td>
+                  <td className='text-center'>
+                    <div className='bg-third cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
+                        onClick={() => toggleModal(index) }>
+                      <Avatar src={person.profile} className='w-12 h-12 ' />
+                    </div>
+                  </td>
+                  <td className='px-10'>
+                    <Input type='text'
+                          value={person.name}
+                          placeholder='Full Name, Nickname, etc.'
+                          onChange={(e) => {
+                            const cloned = [...params.params.people];
+                            cloned[index].name = e.target.value;
+                            params.params.setPeople(cloned);
+                          }}
+                          className='w-full p-2 border border-main text-center rounded-md' />
+                  </td>
+                  <td className='text-center'>
+                    <DeleteOutlined className="text-danger text-xl"
+                                    onClick={() => deletePerson(index)}/>
+                  </td>
+                </tr>
+              })
+            }
+          </tbody>
+        </table>
+      </div>
 
       <Button className="w-full mt-3 h-8 min-h-8"
         type="primary"
