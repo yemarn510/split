@@ -6,7 +6,7 @@ import { ConfigProvider } from 'antd';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(`https://split-the-bill.vercel.app/`),
+  metadataBase: new URL(`https://split-my-bill.vercel.app/`),
   title: 'Split the Bill',
   description: 'Split the bills among your friends with ease. Share the amounts and items with your friends.',
   alternates: {
