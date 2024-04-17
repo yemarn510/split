@@ -1,11 +1,12 @@
 'use client';
 
+import { Steps, Modal, Button } from 'antd';
+import { ArrowLeftOutlined, ArrowRightOutlined, ExportOutlined, CopyOutlined } from '@ant-design/icons';
+import { useState, useEffect } from "react";
+
 import StepOne, { StepOneParams } from "@/components/step-1";
 import { Item } from "@/models/item.models";
-import { useState, useEffect } from "react";
-import { Steps } from 'antd';
 import StepTwo, { StepTwoParams } from "@/components/step-2";
-import { ArrowLeftOutlined, ArrowRightOutlined, ExportOutlined } from '@ant-design/icons';
 import { Person } from "@/models/person.models";
 import StepThree, { StepThreeParams } from "@/components/step-3";
 import { SplitDictionary } from "@/models/split.models";
@@ -22,6 +23,7 @@ export default function Home() {
   const [splitDict, setSplitDict] = useState<SplitDictionary>({});
   const [results, setResults] = useState<Result[]>([]);
   const [saveFriends, setSaveFriends ] = useState<boolean>(false);
+  const [openSharePopup, setOpenSharePopup] = useState<boolean>(false);
   const steps = STEPS.map(each => ({ title: each }));
 
   useEffect(() => {
@@ -92,6 +94,15 @@ export default function Home() {
       default:
         return <div>Not Implemented yet!</div>;
     }
+  }
+
+  function toggleSharePopup(): void {
+    setOpenSharePopup(!openSharePopup);
+  }
+
+  function copyToClipboard(): void {
+    const text = results.map(each => `${each.person.name || '-'} - ${each.total.toFixed(2)}`).join('\n');
+    navigator.clipboard.writeText(text);
   }
 
   function calculateResults(): void {
@@ -182,7 +193,8 @@ export default function Home() {
         </div>
         
         <div className={`flex flex-row ${currentStep !== 3 ? 'justify-end' : 'justify-between'}`}>
-          <div className={`${currentStep !== 3 && 'hidden' } flex flex-row gap-3 items-center cursor-pointer hover:opacity-50 `}>
+          <div className={`${currentStep !== 3 && 'hidden' } flex flex-row gap-3 items-center cursor-pointer hover:opacity-50 `}
+               onClick={ () => toggleSharePopup() }>
             <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
               <ExportOutlined className="text-main" />
             </div>
@@ -208,6 +220,30 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <Modal title="Share with your friends"
+             footer={null}
+             centered
+             onCancel={ () => toggleSharePopup() }
+             open={openSharePopup} >
+        <div className='h-[320px] rounded bg-[#faf1e6] overflow-auto p-5'>
+          {
+            results.map((each, index) => {
+              return <h5 className=''
+                        key={`total-${index}`}>
+                { each.person.name || '-'} - { each.total.toFixed(2) || 0}
+              </h5>
+            })
+          }
+        </div>
+        <div className='text-center mt-5'>
+          <Button
+            onClick={ () => copyToClipboard() }
+            icon={<CopyOutlined />}>
+            Copy To Clipboard
+          </Button>
+        </div>
+      </Modal>
     </main>
   );
 }
