@@ -70,8 +70,8 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
 
   return <>
     <div className="flex flex-col w-full">
-      <div className="step-two-h">
-        <table>
+      <div className="w-full">
+        <table className='w-full'>
           <thead>
             <tr>
               <th className='text-main pb-3 w-1/5'>No.</th>
@@ -112,19 +112,21 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
             }
           </tbody>
         </table>
+      </div>
 
-        <Button className="w-full mt-3 h-8 min-h-8 sticky bottom-0"
+      <div className='sticky bottom-0 bg-second w-full h-auto'>
+        <Button className="w-full h-8 min-h-8 "
           type="primary"
           onClick={ () => addPerson() }>
           Add Person
         </Button>
-      </div>
 
-      <div className='flex flex-row justify-end mt-3'>
-        <Checkbox checked={params.params.savedFriends}
-                  onChange={(e) => params.params.setSaveFriends(e.target.checked)}>
-          Save This List
-        </Checkbox>
+        <div className='flex flex-row justify-end mt-3'>
+          <Checkbox checked={params.params.savedFriends}
+                    onChange={(e) => params.params.setSaveFriends(e.target.checked)}>
+            Save This List
+          </Checkbox>
+        </div>
       </div>
 
       <Modal title="Choose your Avatar"

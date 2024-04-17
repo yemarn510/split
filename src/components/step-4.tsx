@@ -58,7 +58,7 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
   }, []);
 
   return <>
-    <div className='step-four-h max-w-[500px] m-auto'>
+    <div className='max-w-[500px] m-auto'>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 m-auto">
         {
           params.params.results.map((each, index) => {

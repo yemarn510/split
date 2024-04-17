@@ -154,11 +154,11 @@ export default function Home() {
   }
 
   return (
-    <main className="max-w-[1100px] min-w-[50vw]  w-fit m-auto p-3 md:py-5 lg:py-10">
+    <main className="w-fit m-auto p-3 md:py-5 lg:py-10">
       <h1 className="text-center text-main text-4xl md:text-5xl">Let&rsquo;s Split the Bills</h1>
 
       <section className="mt-5 md:my-10">
-        <div className="steps-container">
+        <div className="steps-container hidden md:flex">
           <Steps
             size="small"
             current={currentStep}
@@ -167,8 +167,17 @@ export default function Home() {
           />
         </div>
 
+        <div className="flex flex-row items-center justify-center gap-3 md:hidden">
+          <div className="rounded-full flex justify-center text-white items-center w-auto h-auto p-2 px-5 bg-main">
+            Step:  {currentStep + 1}/{ steps.length }
+          </div>
+          <h4 className="text-main text-center">
+            { steps[currentStep].title }
+          </h4>
+        </div>
 
-        <div className="pb-5 md:py-5">
+
+        <div className="main-content">
           { getCurrentUI() }
         </div>
         
