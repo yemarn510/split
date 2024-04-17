@@ -6,9 +6,39 @@ import { ConfigProvider } from 'antd';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Split the Bills",
-  description: "Split the Bills is a simple web app to split the bills among friends. It helps to calculate the amount each person has to pay based on the items they have shared.",
-};
+  metadataBase: new URL(`https://split-the-bill.vercel.app/`),
+  title: 'Split the Bill',
+  description: 'Split the bills among your friends with ease. Share the amounts and items with your friends.',
+  alternates: {
+    canonical: '/',
+    languages: {
+      'en-US': '/en-US',
+    },
+  },
+  icons: `/images/split-bills.png`,
+  openGraph: {
+    title: 'Split the Bill',
+    description: 'Split the bills among your friends with ease. Share the amounts and items with your friends.',
+    url: '/',
+    siteName: 'Split the Bill',
+    images: [
+      {
+        url: `/images/split-bills.png`, // Must be an absolute URL
+        width: 800,
+        height: 600,
+        alt: 'Split the bills among your friends with ease. Share the amounts and items with your friends.',
+      },
+      {
+        url: `/images/split-bills.png`, // Must be an absolute URL
+        width: 1800,
+        height: 1600,
+        alt: 'Split the bills among your friends with ease. Share the amounts and items with your friends.',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+}
 
 export default function RootLayout({
   children,
