@@ -25,6 +25,7 @@ body {
   font-style: var(--font-size);
   overflow: hidden;
   height: 100dvh;
+  display: flex;
 }
 
 h1 {
@@ -135,11 +136,11 @@ table {
 .people-space {
   max-width: 700px;
   margin: auto;
-  height: calc(100dvh - 540px);
+  height: calc(100dvh - 550px);
   overflow-y: auto;
 
   @media (max-width: 575px){
-    height: 40dvh;
+    height: calc(100dvh - 450px);
   }
 }
 

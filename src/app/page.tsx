@@ -165,61 +165,60 @@ export default function Home() {
   }
 
   return (
-    <main className="w-fit m-auto pt-2 md:p-10">
-      <h1 className="text-center text-main mt-10 text-4xl md:text-5xl">Let&rsquo;s Split the Bills</h1>
+    <main className="w-fit m-auto">
+      <h1 className="text-center text-main my-5 md:my-10 text-4xl md:text-5xl">
+        Let&rsquo;s Split the Bills
+      </h1>
+      <div className="steps-container hidden md:flex">
+        <Steps
+          size="small"
+          current={currentStep}
+          labelPlacement="vertical" 
+          items={steps}
+        />
+      </div>
 
-      <section className="mt-5 md:my-10">
-        <div className="steps-container hidden md:flex">
-          <Steps
-            size="small"
-            current={currentStep}
-            labelPlacement="vertical" 
-            items={steps}
-          />
+      <div className="flex flex-row items-center justify-center gap-3 mb-2 md:hidden">
+        <div className="rounded-full flex justify-center text-white items-center w-auto h-auto p-2 px-5 bg-main">
+          Step:  {currentStep + 1}/{ steps.length }
         </div>
+        <h4 className="text-main text-center">
+          { steps[currentStep].title }
+        </h4>
+      </div>
 
-        <div className="flex flex-row items-center justify-center gap-3 mb-2 md:hidden">
-          <div className="rounded-full flex justify-center text-white items-center w-auto h-auto p-2 px-5 bg-main">
-            Step:  {currentStep + 1}/{ steps.length }
+
+      <div className="main-content">
+        { getCurrentUI() }
+      </div>
+      
+      <div className={`flex flex-row mt-3 ${currentStep !== 3 ? 'justify-end' : 'justify-between'}`}>
+        <div className={`${currentStep !== 3 && 'hidden' } flex flex-row gap-1 md:gap-3 items-center cursor-pointer hover:opacity-50 `}
+              onClick={ () => toggleSharePopup() }>
+          <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
+            <ExportOutlined className="text-main" />
           </div>
-          <h4 className="text-main text-center">
-            { steps[currentStep].title }
-          </h4>
+          <p className="mb-0 w-auto text-main">Share</p>
         </div>
 
-
-        <div className="main-content">
-          { getCurrentUI() }
-        </div>
-        
-        <div className={`flex flex-row mt-3 ${currentStep !== 3 ? 'justify-end' : 'justify-between'}`}>
-          <div className={`${currentStep !== 3 && 'hidden' } flex flex-row gap-1 md:gap-3 items-center cursor-pointer hover:opacity-50 `}
-               onClick={ () => toggleSharePopup() }>
+        <div className="flex flex-row gap-3 md:gap-5">
+          <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 ${ currentStep === 0 && 'cursor-not-allowed opacity-50'}`}
+              onClick={ () => goBack() }>
+            <p className="mb-0 w-auto text-main">Go Back</p>
             <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
-              <ExportOutlined className="text-main" />
+              <ArrowLeftOutlined className="text-main" />
             </div>
-            <p className="mb-0 w-auto text-main">Share</p>
           </div>
 
-          <div className="flex flex-row gap-3 md:gap-5">
-            <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 ${ currentStep === 0 && 'cursor-not-allowed opacity-50'}`}
-                onClick={ () => goBack() }>
-              <p className="mb-0 w-auto text-main">Go Back</p>
-              <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
-                <ArrowLeftOutlined className="text-main" />
-              </div>
+          <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 ${ currentStep === (steps.length - 1) && 'cursor-not-allowed opacity-50'}`}
+              onClick={ () => goNext() }>
+            <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
+              <ArrowRightOutlined className="text-main" />
             </div>
-
-            <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 ${ currentStep === (steps.length - 1) && 'cursor-not-allowed opacity-50'}`}
-                onClick={ () => goNext() }>
-              <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
-                <ArrowRightOutlined className="text-main" />
-              </div>
-              <p className="mb-0 w-auto text-main">Go Next</p>
-            </div>
+            <p className="mb-0 w-auto text-main">Go Next</p>
           </div>
         </div>
-      </section>
+      </div>
 
       <Modal title="Share with your friends"
              footer={null}
