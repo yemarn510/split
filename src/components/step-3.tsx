@@ -33,6 +33,13 @@ const FOOD_IMAGES: string[] = [
   './svgs/reshot-icon-hot-food-DUYKGBF2XM.svg',
   './svgs/reshot-icon-loaded-fries-6AF2QRM5VT.svg',
   './svgs/reshot-icon-pizza-B9CZFQ6G7J.svg',
+  './svgs/reshot-icon-steak-dish-E6HGXNSQVY.svg',
+  './svgs/reshot-icon-burger-9KYM62VBX8.svg',
+  './svgs/reshot-icon-healthy-salad-2N7PDVZ6FU.svg',
+  './svgs/reshot-icon-noodle-K73RD5GY8V.svg',
+  './svgs/reshot-icon-salad-Q9GZYMD34B.svg',
+  './svgs/reshot-icon-soda-WPRA7HT5E6.svg',
+  './svgs/reshot-icon-soup-4HS8NVM7ZB.svg'
 ];
 
 
@@ -54,7 +61,7 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
     }
     for (let index = 0; index < items.length; index++) {
       const eachItem = items[index];
-      eachItem.image = FOOD_IMAGES[generateRandomInteger(0, 13)];
+      eachItem.image = FOOD_IMAGES[generateRandomInteger(0, 20)];
       splitDictLocal[index] = new Split({
         itemIndex: index,
         itemPrice: eachItem.price,
