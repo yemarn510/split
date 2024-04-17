@@ -193,7 +193,7 @@ export default function Home() {
         </div>
         
         <div className={`flex flex-row ${currentStep !== 3 ? 'justify-end' : 'justify-between'}`}>
-          <div className={`${currentStep !== 3 && 'hidden' } flex flex-row gap-3 items-center cursor-pointer hover:opacity-50 `}
+          <div className={`${currentStep !== 3 && 'hidden' } flex flex-row gap-1 md:gap-3 items-center cursor-pointer hover:opacity-50 `}
                onClick={ () => toggleSharePopup() }>
             <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
               <ExportOutlined className="text-main" />
@@ -201,8 +201,8 @@ export default function Home() {
             <p className="mb-0 w-auto text-main">Share</p>
           </div>
 
-          <div className="flex flex-row gap-5">
-            <div className={`flex flex-row gap-3 items-center cursor-pointer hover:opacity-50 ${ currentStep === 0 && 'cursor-not-allowed opacity-50'}`}
+          <div className="flex flex-row gap-3 md:gap-5">
+            <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer hover:opacity-50 ${ currentStep === 0 && 'cursor-not-allowed opacity-50'}`}
                 onClick={ () => goBack() }>
               <p className="mb-0 w-auto text-main">Go Back</p>
               <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
@@ -210,7 +210,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className={`flex flex-row gap-3 items-center cursor-pointer hover:opacity-50 ${ currentStep === (steps.length - 1) && 'cursor-not-allowed opacity-50'}`}
+            <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer hover:opacity-50 ${ currentStep === (steps.length - 1) && 'cursor-not-allowed opacity-50'}`}
                 onClick={ () => goNext() }>
               <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
                 <ArrowRightOutlined className="text-main" />
