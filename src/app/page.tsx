@@ -157,7 +157,7 @@ export default function Home() {
     <main className="max-w-[1100px] min-w-[50vw]  w-fit m-auto p-3 md:py-5 lg:py-10">
       <h1 className="text-center text-main text-4xl md:text-5xl">Let's Split the Bills</h1>
 
-      <section className="mt-5 md:my-10 lg:my-20">
+      <section className="mt-5 md:my-10">
         <div className="steps-container">
           <Steps
             size="small"
