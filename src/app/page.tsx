@@ -165,8 +165,8 @@ export default function Home() {
   }
 
   return (
-    <main className="w-fit m-auto p-3 md:py-5 lg:py-10">
-      <h1 className="text-center text-main text-4xl md:text-5xl">Let&rsquo;s Split the Bills</h1>
+    <main className="w-fit m-auto p-3 md:py-5 lg:py-20">
+      <h1 className="text-center text-main text-4xl md:text-5xl md:mt-3">Let&rsquo;s Split the Bills</h1>
 
       <section className="mt-5 md:my-10">
         <div className="steps-container hidden md:flex">
