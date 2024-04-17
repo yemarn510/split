@@ -109,7 +109,7 @@ h5 {
 
   @media (max-width: 757px){
     width: 85vw;
-    height: calc(100dvh - 270px);
+    height: calc(100dvh - 240px);
     margin: auto;
   }
 }
@@ -155,14 +155,14 @@ table {
   background-color: rgba(0, 0, 0, 0.09);
 }
 
-:where(.css-dev-only-do-not-override-15ltzq9).ant-carousel .slick-dots li button {
+.ant-carousel .slick-dots li button {
   background-color: var(--main-color) !important;
 }
 
-:where(.css-dev-only-do-not-override-15ltzq9).ant-collapse>.ant-collapse-item >.ant-collapse-header .ant-collapse-expand-icon {
+.ant-collapse>.ant-collapse-item >.ant-collapse-header .ant-collapse-expand-icon {
   padding-inline-end: none !important;
 }
 
-:where(.css-dev-only-do-not-override-15ltzq9).ant-carousel .slick-dots-bottom {
+.ant-carousel .slick-dots-bottom {
   bottom: 0;
 }
