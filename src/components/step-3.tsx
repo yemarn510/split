@@ -93,7 +93,7 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
 
   return <>
     <div className='w-full'>
-      <div className='flex flex-row gap-3 w-full max-w-[350px] m-auto'>
+      <div className='flex flex-row gap-3 w-full max-w-[320px] md:max-w-[350px] m-auto'>
         <div className="w-1/5 flex items-center justify-center">
           <LeftOutlined className='text-xl text-main bg-third rounded-full p-4 cursor-pointer hover:opacity-50'
                         onClick={() => slider?.current?.prev() } />
