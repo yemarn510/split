@@ -53,7 +53,7 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
 
   function cancelEdit(index: number): void {
     const editingItem = params.params.items[index];
-    if (editingItem.name === '' && editingItem.price === 0 && editingItem.quantity === 1) {
+    if (editingItem.name === '' && editingItem.price === 0) {
       deleteItem(index);
       return;
     }
@@ -96,6 +96,9 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
           return <div className="flex flex-row w-full gap-5 mb-3"
                       id={`item-${index}`}
                       key={index + 1}>
+            <div className="w-1/5 pt-9 flex justify-center">
+              { index + 1 }
+            </div>
             <div className={`w-3/5 flex flex-col`}>
               <label htmlFor="item-name"
                     className="pb-2 text-main">
@@ -139,30 +142,6 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
               />
               <small className="text-danger">
                 { eachItem.error.price || ' ' }
-              </small>
-            </div>
-
-            <div className={`w-1/5 flex flex-col`}>
-              <label htmlFor="item-quantity"
-                    className="pb-2 text-main">
-                Quantity
-              </label>
-              <Input id="item-quantity"
-                    type="number"
-                    disabled={ currentIndex !== index }
-                    defaultValue={eachItem.quantity}
-                    placeholder="0.00"
-                    min={1}
-                    onChange={(e) => {
-                      eachItem.quantity = +e.target.value || 1;
-                      params.params.items[index] = eachItem;
-                      params.params.setItems(params.params.items);
-                      delete eachItem.error.quantity;
-                    }}
-                    className="w-full"
-              />
-              <small className="text-danger">
-                { eachItem.error.quantity || ' ' }
               </small>
             </div>
 

@@ -6,7 +6,6 @@ export interface ItemError {
 export class Item {
   name: string;
   price: number;
-  quantity: number;
   image: string;
   sharedNumber: number;
   error: ItemError;
@@ -22,7 +21,6 @@ export class Item {
   }) {
     this.name = name;
     this.price = price;
-    this.quantity = quantity;
     this.image = image;
     this.sharedNumber = sharedNumber;
     this.error = error;
@@ -35,9 +33,6 @@ export class Item {
     }
     if (this.price === 0) {
       error.price = 'Cannot be zero';
-    }
-    if (this.quantity === 0) {
-      error.quantity = 'Cannot be zero';
     }
     this.error = error;
     return Object.keys(error).length === 0;
