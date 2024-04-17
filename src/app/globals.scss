@@ -136,11 +136,11 @@ table {
 .people-space {
   max-width: 700px;
   margin: auto;
-  height: calc(100dvh - 550px);
+  height: calc(100dvh - 580px);
   overflow-y: auto;
 
   @media (max-width: 575px){
-    height: calc(100dvh - 420px);
+    height: calc(100dvh - 450px);
   }
 }
 
