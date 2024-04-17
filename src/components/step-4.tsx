@@ -38,7 +38,7 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
             </h6>
           </div>
         </div>,
-        children: <ul className='w-[300px] m-auto'>
+        children: <ul className='w-full m-auto'>
           {
             each.items.map((eachItem, itemIndex) => {
               return <li key={`result-item-${itemIndex}`}
@@ -58,8 +58,8 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
   }, []);
 
   return <>
-    <div className='step-four-h'>
-      <div className="grid grid-cols-2 gap-4">
+    <div className='step-four-h max-w-[500px] m-auto'>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 m-auto">
         {
           params.params.results.map((each, index) => {
             return <div className="flex flex-col border border-fourth rounded-lg"

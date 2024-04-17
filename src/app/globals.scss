@@ -93,18 +93,31 @@ h5 {
   border-color: var(--fourth-color);
 }
 
+.steps-container {
+
+  @media (max-width: 575px){
+    max-width: 220px;
+    margin: auto;
+  }
+}
+
 .step-one-h {
-  height: calc(100dvh - 450px);
+  height: calc(100dvh - 350px);
   overflow-y: auto;
 }
 
 .step-two-h {
-  height: calc(100dvh - 480px);
+  height: calc(100dvh - 380px);
+  overflow-y: auto;
+}
+
+.step-three-h {
+  height: calc(100dvh - 350px);
   overflow-y: auto;
 }
 
 .step-four-h {
-  height: calc(100dvh - 400px);
+  height: calc(100dvh - 350px);
   overflow-y: auto;
 }
 
@@ -144,4 +157,8 @@ table {
 
 :where(.css-dev-only-do-not-override-15ltzq9).ant-collapse>.ant-collapse-item >.ant-collapse-header .ant-collapse-expand-icon {
   padding-inline-end: none !important;
+}
+
+:where(.css-dev-only-do-not-override-15ltzq9).ant-carousel .slick-dots-bottom {
+  bottom: 0;
 }

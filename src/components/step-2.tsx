@@ -92,7 +92,7 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
                       <Avatar src={person.profile} className='w-12 h-12 ' />
                     </div>
                   </td>
-                  <td className='px-10'>
+                  <td className='px-3 md:px-10'>
                     <Input type='text'
                           value={person.name}
                           placeholder='Full Name, Nickname, etc.'
@@ -112,17 +112,17 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
             }
           </tbody>
         </table>
-      </div>
 
-      <Button className="w-full mt-3 h-8 min-h-8"
-        type="primary"
-        onClick={ () => addPerson() }>
-        Add Person
-      </Button>
+        <Button className="w-full mt-3 h-8 min-h-8 sticky bottom-0"
+          type="primary"
+          onClick={ () => addPerson() }>
+          Add Person
+        </Button>
+      </div>
 
       <div className='flex flex-row justify-end mt-3'>
         <Checkbox checked={params.params.savedFriends}
-                  onChange={(e) => params.params.setSaveFriends(e || false)}>
+                  onChange={(e) => params.params.setSaveFriends(e.target.checked)}>
           Save This List
         </Checkbox>
       </div>

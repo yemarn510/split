@@ -92,60 +92,62 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
   }
 
   return <>
-    <div className='flex flex-row gap-3 w-full max-w-[300px] m-auto'>
-      <div className="w-1/5 flex items-center justify-center">
-        <LeftOutlined className='text-xl text-main bg-third rounded-full p-4 cursor-pointer hover:opacity-50'
-                       onClick={() => slider?.current?.prev() } />
-      </div>
-      <div className="w-3/5">
-        {
-          !showLoading 
-          ? 
-            <Carousel afterChange={onChange}
-              ref={slider}>
-              {
-                params.params.items.map((each, itemIndex) => {
-                  return <div key={`food-image-${itemIndex}`}>
-                    <div className='cursor-pointer hover:opacity-50'
-                        onClick={() => toggleModal(itemIndex) }>
-                      <ItemImage image={each.image} />
+    <div className='step-three-h'>
+      <div className='flex flex-row gap-3 w-full max-w-[400px] m-auto'>
+        <div className="w-1/5 flex items-center justify-center">
+          <LeftOutlined className='text-xl text-main bg-third rounded-full p-4 cursor-pointer hover:opacity-50'
+                        onClick={() => slider?.current?.prev() } />
+        </div>
+        <div className="w-3/5">
+          {
+            !showLoading 
+            ? 
+              <Carousel afterChange={onChange}
+                ref={slider}>
+                {
+                  params.params.items.map((each, itemIndex) => {
+                    return <div key={`food-image-${itemIndex}`}>
+                      <div className='cursor-pointer hover:opacity-50'
+                          onClick={() => toggleModal(itemIndex) }>
+                        <ItemImage image={each.image} />
+                      </div>
+                      <h6 className='text-center mx-auto text-grey text-xs'>
+                        Item Name / Price
+                      </h6>
+                      <h4 className='text-center mb-1'>
+                        { each.name } / { each.price }
+                      </h4>
                     </div>
-                    <h6 className='text-center mx-auto text-grey text-xs'>
-                      Item Name / Price
-                    </h6>
-                    <h4 className='text-center mb-1'>
-                      { each.name } / { each.price }
-                    </h4>
-                  </div>
-                })
-              }
-            </Carousel>
-          : <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
-        }
-        
+                  })
+                }
+              </Carousel>
+            : <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+          }
+          
+        </div>
+        <div className="w-1/5 flex items-center justify-center">
+          <RightOutlined className='text-xl text-main bg-third rounded-full p-4 cursor-pointer hover:opacity-50'
+                        onClick={() => slider?.current?.next() } />
+        </div>
       </div>
-      <div className="w-1/5 flex items-center justify-center">
-        <RightOutlined className='text-xl text-main bg-third rounded-full p-4 cursor-pointer hover:opacity-50'
-                       onClick={() => slider?.current?.next() } />
-      </div>
-    </div>
 
-    <div className="flex flex-row flex-wrap gap-5 mt-5 max-h-[260px] overflow-auto max-w-[600px] m-auto justify-center">
-      {
-        params.params.people.map((each, personIndex) => {
-          return <div key={`person-${personIndex}`} 
-                      onClick={() => assignPerson(personIndex)}
-                      className="flex flex-col items-center justify-center gap-3 hover:opacity-50 cursor-pointer relative">
-            <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center transition-opacity duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
-              <CheckOutlined className='text-white' />
+      <div className="flex flex-row flex-wrap gap-5 mt-5 max-h-[260px] overflow-auto max-w-[600px] m-auto justify-center">
+        {
+          params.params.people.map((each, personIndex) => {
+            return <div key={`person-${personIndex}`} 
+                        onClick={() => assignPerson(personIndex)}
+                        className="flex flex-col items-center justify-center gap-3 hover:opacity-50 cursor-pointer relative">
+              <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center transition-opacity duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
+                <CheckOutlined className='text-white' />
+              </div>
+              <div className={`rounded-full w-20 h-20 flex items-center justify-center transition-colors duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
+                <Avatar src={each.profile} className='w-12 h-12 ' />
+              </div>
+              <p className="text-center">{ each.name || '-' }</p>
             </div>
-            <div className={`rounded-full w-20 h-20 flex items-center justify-center transition-colors duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
-              <Avatar src={each.profile} className='w-12 h-12 ' />
-            </div>
-            <p className="text-center">{ each.name || '-' }</p>
-          </div>
-        })
-      }
+          })
+        }
+      </div>
     </div>
 
 

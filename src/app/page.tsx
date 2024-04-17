@@ -154,19 +154,21 @@ export default function Home() {
   }
 
   return (
-    <main className="max-w-[1100px] min-w-[50vw]  w-fit h-screen m-auto py-10">
-      <h1 className="text-center text-main">Let's Split the Bill</h1>
+    <main className="max-w-[1100px] min-w-[50vw]  w-fit h-screen m-auto p-3 md:py-5 lg:py-10">
+      <h1 className="text-center text-main text-4xl md:text-5xl">Let's Split the Bill</h1>
 
-      <section className="my-20">
-        <Steps
-          size="small"
-          current={currentStep}
-          labelPlacement="vertical" 
-          items={steps}
-        />
+      <section className="mt-3 md:my-20">
+        <div className="steps-container">
+          <Steps
+            size="small"
+            current={currentStep}
+            labelPlacement="vertical" 
+            items={steps}
+          />
+        </div>
 
 
-        <div className="py-5">
+        <div className="pb-5 md:py-5 min-w-[300px]">
           { getCurrentUI() }
         </div>
         

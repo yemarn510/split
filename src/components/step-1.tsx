@@ -96,10 +96,10 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
           return <div className="flex flex-row w-full gap-5 mb-3"
                       id={`item-${index}`}
                       key={index + 1}>
-            <div className="w-1/5 pt-9 flex justify-center">
+            <div className="w-[50px] pt-9 flex justify-center">
               { index + 1 }
             </div>
-            <div className={`w-3/5 flex flex-col`}>
+            <div className={`w-2/5 flex flex-col`}>
               <label htmlFor="item-name"
                     className="pb-2 text-main">
                 Item Name
@@ -167,13 +167,13 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
           </div>
         })
       }
-    </div>
 
-    <Button className="w-full mt-3 h-8 min-h-8"
-      type="primary"
-      onClick={ () => addItem() }>
-      Add Item
-    </Button>
+      <Button className="w-full mt-3 h-8 min-h-8 sticky bottom-0"
+        type="primary"
+        onClick={ () => addItem() }>
+        Add Item
+      </Button>
+    </div>
   </>
 }
 
