@@ -154,10 +154,10 @@ export default function Home() {
   }
 
   return (
-    <main className="max-w-[1100px] min-w-[50vw]  w-fit h-screen m-auto p-3 md:py-5 lg:py-10">
-      <h1 className="text-center text-main text-4xl md:text-5xl">Let's Split the Bill</h1>
+    <main className="max-w-[1100px] min-w-[50vw]  w-fit m-auto p-3 md:py-5 lg:py-10">
+      <h1 className="text-center text-main text-4xl md:text-5xl">Let's Split the Bills</h1>
 
-      <section className="mt-3 md:my-20">
+      <section className="mt-5 md:my-10 lg:my-20">
         <div className="steps-container">
           <Steps
             size="small"
@@ -168,7 +168,7 @@ export default function Home() {
         </div>
 
 
-        <div className="pb-5 md:py-5 min-w-[300px]">
+        <div className="pb-5 md:py-5">
           { getCurrentUI() }
         </div>
         

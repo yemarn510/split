@@ -93,10 +93,10 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
     <div className="w-full step-one-h">
       {
         params.params?.items?.map((eachItem, index) => {
-          return <div className="flex flex-row w-full gap-5 mb-3"
+          return <div className="flex flex-row w-full gap-3 md:gap-5 mb-3"
                       id={`item-${index}`}
                       key={index + 1}>
-            <div className="w-[50px] pt-9 flex justify-center">
+            <div className="w-[30px] pt-9 flex justify-center">
               { index + 1 }
             </div>
             <div className={`w-2/5 flex flex-col`}>

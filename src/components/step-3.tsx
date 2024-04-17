@@ -92,8 +92,8 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
   }
 
   return <>
-    <div className='step-three-h'>
-      <div className='flex flex-row gap-3 w-full max-w-[400px] m-auto'>
+    <div className='step-three-h w-full'>
+      <div className='flex flex-row gap-3 w-full max-w-[350px] m-auto'>
         <div className="w-1/5 flex items-center justify-center">
           <LeftOutlined className='text-xl text-main bg-third rounded-full p-4 cursor-pointer hover:opacity-50'
                         onClick={() => slider?.current?.prev() } />
@@ -131,22 +131,24 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
         </div>
       </div>
 
-      <div className="flex flex-row flex-wrap gap-5 mt-5 max-h-[260px] overflow-auto max-w-[600px] m-auto justify-center">
-        {
-          params.params.people.map((each, personIndex) => {
-            return <div key={`person-${personIndex}`} 
-                        onClick={() => assignPerson(personIndex)}
-                        className="flex flex-col items-center justify-center gap-3 hover:opacity-50 cursor-pointer relative">
-              <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center transition-opacity duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
-                <CheckOutlined className='text-white' />
+      <div className='max-w-[600px] max-h-[190px] md:max-h-[260px] overflow-auto'>
+        <div className="flex flex-row flex-wrap gap-2 md:gap-3 lg:gap-5 mt-5 m-auto justify-center">
+          {
+            params.params.people.map((each, personIndex) => {
+              return <div key={`person-${personIndex}`} 
+                          onClick={() => assignPerson(personIndex)}
+                          className="flex flex-col items-center justify-center gap-1 md:gap-3 hover:opacity-50 cursor-pointer relative">
+                <div className={`absolute right-0 top-0 w-[20px] h-[20px] md:w-[25px] md:h-[25px] flex justify-center items-center transition-opacity duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
+                  <CheckOutlined className='text-white' />
+                </div>
+                <div className={`rounded-full w-14 h-14 md:w-20 md:h-20 flex items-center justify-center transition-colors duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
+                  <Avatar src={each.profile} className='w-8 h-8 md:w-12 md:h-12 ' />
+                </div>
+                <p className="text-center">{ each.name || '-' }</p>
               </div>
-              <div className={`rounded-full w-20 h-20 flex items-center justify-center transition-colors duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
-                <Avatar src={each.profile} className='w-12 h-12 ' />
-              </div>
-              <p className="text-center">{ each.name || '-' }</p>
-            </div>
-          })
-        }
+            })
+          }
+        </div>
       </div>
     </div>
 

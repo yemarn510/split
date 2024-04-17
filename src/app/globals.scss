@@ -23,6 +23,8 @@ body {
   @apply bg-second;
   font-optical-sizing: auto;
   font-style: var(--font-size);
+  overflow: hidden;
+  height: 100dvh;
 }
 
 h1 {
@@ -112,8 +114,12 @@ h5 {
 }
 
 .step-three-h {
-  height: calc(100dvh - 350px);
+  height: calc(100dvh - 320px);
   overflow-y: auto;
+
+  @media (max-width: 575px){
+    height: calc(100dvh - 350px);
+  }
 }
 
 .step-four-h {
