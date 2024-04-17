@@ -158,7 +158,7 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
              centered
              onCancel={ () => toggleModal(null) }
              open={changingItemIndex !== null} >
-      <div className='grid grid-cols-4 gap-4 h-[320px] overflow-auto p-5'>
+      <div className='grid grid-cols-3 md:grid-cols-4 gap-4 h-[320px] overflow-auto p-5'>
         {
           FOOD_IMAGES.map((eachImage, index) => {
             return <div key={`food-image-${index}`}

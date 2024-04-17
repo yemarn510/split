@@ -134,7 +134,7 @@ export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
              centered
              onCancel={ () => toggleModal(null) }
              open={isModalOpen} >
-        <div className='grid grid-cols-4 gap-4 h-[320px] overflow-auto p-5'>
+        <div className='grid grid-cols-3 md:grid-cols-4 gap-4 h-[320px] overflow-auto p-5'>
           {
             avatarNumbers.map((eachNumber, index) => {
               return <div className='bg-third cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
