@@ -138,10 +138,10 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
               return <div key={`person-${personIndex}`} 
                           onClick={() => assignPerson(personIndex)}
                           className="flex flex-col items-center justify-center gap-1 md:gap-3 cursor-pointer relative">
-                <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center transition-opacity duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
+                <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center md:transition-opacity md:duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
                   <CheckOutlined className='text-white' />
                 </div>
-                <div className={`rounded-full w-20 h-20 flex items-center justify-center transition-colors duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
+                <div className={`rounded-full w-20 h-20 flex items-center justify-center md:transition-colors md:duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
                   <Avatar src={each.profile} className='w-12 h-12 ' />
                 </div>
                 <p className="text-center">{ each.name || '-' }</p>
