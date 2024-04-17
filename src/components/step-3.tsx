@@ -137,7 +137,7 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
             params.params.people.map((each, personIndex) => {
               return <div key={`person-${personIndex}`} 
                           onClick={() => assignPerson(personIndex)}
-                          className="flex flex-col items-center justify-center gap-1 md:gap-3 hover:opacity-50 cursor-pointer relative">
+                          className="flex flex-col items-center justify-center gap-1 md:gap-3 cursor-pointer relative">
                 <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center transition-opacity duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
                   <CheckOutlined className='text-white' />
                 </div>
