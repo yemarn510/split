@@ -5,7 +5,7 @@ import { Item } from "@/models/item.models";
 import { useState, useEffect } from "react";
 import { Steps } from 'antd';
 import StepTwo, { StepTwoParams } from "@/components/step-2";
-import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, ArrowRightOutlined, ExportOutlined } from '@ant-design/icons';
 import { Person } from "@/models/person.models";
 import StepThree, { StepThreeParams } from "@/components/step-3";
 import { SplitDictionary } from "@/models/split.models";
@@ -181,21 +181,30 @@ export default function Home() {
           { getCurrentUI() }
         </div>
         
-        <div className="flex flex-row justify-end gap-5">
-          <div className={`flex flex-row gap-3 items-center cursor-pointer hover:opacity-50 ${ currentStep === 0 && 'cursor-not-allowed opacity-50'}`}
-               onClick={ () => goBack() }>
-            <p className="mb-0 w-auto text-main">Go Back</p>
+        <div className={`flex flex-row ${currentStep !== 3 ? 'justify-end' : 'justify-between'}`}>
+          <div className={`${currentStep !== 3 && 'hidden' } flex flex-row gap-3 items-center cursor-pointer hover:opacity-50 `}>
             <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
-              <ArrowLeftOutlined className="text-main" />
+              <ExportOutlined className="text-main" />
             </div>
+            <p className="mb-0 w-auto text-main">Share</p>
           </div>
 
-          <div className={`flex flex-row gap-3 items-center cursor-pointer hover:opacity-50 ${ currentStep === (steps.length - 1) && 'cursor-not-allowed opacity-50'}`}
-               onClick={ () => goNext() }>
-            <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
-              <ArrowRightOutlined className="text-main" />
+          <div className="flex flex-row gap-5">
+            <div className={`flex flex-row gap-3 items-center cursor-pointer hover:opacity-50 ${ currentStep === 0 && 'cursor-not-allowed opacity-50'}`}
+                onClick={ () => goBack() }>
+              <p className="mb-0 w-auto text-main">Go Back</p>
+              <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
+                <ArrowLeftOutlined className="text-main" />
+              </div>
             </div>
-            <p className="mb-0 w-auto text-main">Go Next</p>
+
+            <div className={`flex flex-row gap-3 items-center cursor-pointer hover:opacity-50 ${ currentStep === (steps.length - 1) && 'cursor-not-allowed opacity-50'}`}
+                onClick={ () => goNext() }>
+              <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
+                <ArrowRightOutlined className="text-main" />
+              </div>
+              <p className="mb-0 w-auto text-main">Go Next</p>
+            </div>
           </div>
         </div>
       </section>
