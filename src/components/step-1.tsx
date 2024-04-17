@@ -129,6 +129,7 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
               </label>
               <Input id="item-price"
                     type="number"
+                    inputMode="decimal"
                     disabled={ currentIndex !== index }
                     placeholder="0.00"
                     defaultValue={eachItem.price}
