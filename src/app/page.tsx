@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 import { Steps, Modal, Button } from 'antd';
 import { ArrowLeftOutlined, ArrowRightOutlined, ExportOutlined, CopyOutlined } from '@ant-design/icons';
 import { useState, useEffect } from "react";
@@ -166,9 +168,19 @@ export default function Home() {
 
   return (
     <main className="w-fit m-auto">
-      <h1 className="text-center text-main my-5 md:my-10 text-4xl md:text-5xl">
-        Let&rsquo;s Split the Bills
-      </h1>
+      <div className="my-5 md:my-10 flex flex-row gap-3 justify-center items-center">
+        <div className='w-[60px] h-[60px] flex justify-center items-center rounded-full bg-fourth'>
+          <Image src='/svgs/reshot-icon-invoice-TQ6HZDSW9Y.svg'
+                  width={40}
+                  height={40}
+                  className='m-auto'
+                  alt='Split the bills among friends.' />
+        </div>
+        <h1 className="text-center text-main  text-4xl md:text-5xl">
+          Let&rsquo;s Split the Bills
+        </h1>
+      </div>
+      
       <div className="steps-container hidden md:flex">
         <Steps
           size="small"
