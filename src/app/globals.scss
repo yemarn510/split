@@ -112,9 +112,9 @@ h5 {
   overflow-y: auto;
 
   @media (max-width: 575px){
-    width: 95vw;
+    width: 85vw;
     height: calc(100vh - 200px);
-    margin: 1rem;
+    margin: auto;
   }
 }
 
