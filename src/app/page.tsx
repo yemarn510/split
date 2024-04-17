@@ -169,11 +169,11 @@ export default function Home() {
   return (
     <main className="w-fit m-auto">
       <div className="my-5 md:my-10 flex flex-row gap-3 justify-center items-center">
-        <div className='w-[60px] h-[60px] flex justify-center items-center rounded-full bg-fourth'>
+        <div className='w-[40px] h-[40px] md:w-[60px] md:h-[60px] flex justify-center items-center rounded-full bg-fourth'>
           <Image src='/svgs/reshot-icon-invoice-TQ6HZDSW9Y.svg'
                   width={40}
                   height={40}
-                  className='m-auto'
+                  className='m-auto w-[25px] h-[25px] md:w-[40px] md:h-[40px]'
                   alt='Split the bills among friends.' />
         </div>
         <h1 className="text-center text-main  text-4xl md:text-5xl">
@@ -191,7 +191,7 @@ export default function Home() {
       </div>
 
       <div className="flex flex-row items-center justify-center gap-3 mb-2 md:hidden">
-        <div className="rounded-full flex justify-center text-white items-center w-auto h-auto p-2 px-5 bg-main">
+        <div className="rounded-full flex justify-center text-white items-center w-auto h-auto p-2 px-3 bg-main">
           Step:  {currentStep + 1}/{ steps.length }
         </div>
         <h4 className="text-main text-center">
