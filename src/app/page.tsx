@@ -179,7 +179,7 @@ export default function Home() {
       </div>
 
       <div className="flex flex-row items-center justify-center gap-3 mb-2 md:hidden">
-        <div className="rounded-full flex justify-center text-white items-center w-auto h-auto p-2 px-5 bg-main">
+        <div className="rounded-full flex justify-center text-white items-center w-auto h-auto p-2 px-3 bg-main">
           Step:  {currentStep + 1}/{ steps.length }
         </div>
         <h4 className="text-main text-center">
