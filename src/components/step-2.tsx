@@ -1,158 +1,188 @@
 'use client';
 
-import { Input, Button, Modal, Avatar, Checkbox } from 'antd';
-import { AVATAR_URL, Person, generateRandomInteger } from "@/models/person.models";
-import { useEffect, useState } from 'react';
-import { UndoOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Item } from "@/models/item.models";
+import { Input, Button, Popconfirm } from 'antd';
+import { CheckOutlined, CloseOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useEffect, useState } from "react";
+
 
 export interface StepTwoParams {
-  people: Person[];
-  setPeople: Function;
-  savedFriends: boolean;
-  setSaveFriends: Function;
+  items: Item[];
+  setItems: Function;
 }
 
-export default function StepTwo(params: {params: StepTwoParams }): JSX.Element {
+export default function StepTwo(params: { params: StepTwoParams }): JSX.Element {
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [changingAvatarIndex, setChangingAvatarIndex] = useState<number | null>(null); 
-  const [avatarNumbers, setAvatarNumbers] = useState<number[]>([]);
+  const [ currentIndex, setCurrentIndex ] = useState<number | null>(null);
+  const [originalItem, setOriginalItem] = useState<Item | null>(null);
 
   useEffect(() => {
-    generateRandomAvatars();
+    if (params.params.items.length === 1) {
+      setCurrentIndex(0);
+    }
   }, []);
 
   useEffect(() => {
     scrollToId();
-  }, [params.params.people]);
+  }, [currentIndex]);
 
   function scrollToId(): void {
-    const id = document.getElementById(`person-row-${params.params.people.length - 1}`);
+    const id = document.getElementById(`item-${currentIndex}`);
     if (id) {
       id.scrollIntoView();
     }
   }
 
-  function addPerson(): void {
-    const cloned = [...params.params.people];
-    cloned.push(new Person({}));
-    params.params.setPeople(cloned);
-    params.params.setSaveFriends(false);
-  }
-
-  function toggleModal(index: number | null): void {
-    setIsModalOpen(!isModalOpen);
-    setChangingAvatarIndex(index);
-  }
-
-  function generateRandomAvatars(): void {
-    const randomNumbers = [];
-    for (let index = 0; index < 52; index++) {
-        randomNumbers.push(generateRandomInteger(1, 1000)); // Generates random numbers between 1 and 1000
+  function addItem(): void {
+    if (params.params.items.length && !checkValidOrNot(params.params.items.length - 1)) {
+      return;
     }
-    setAvatarNumbers(randomNumbers);
+    params.params.items.push(new Item({}));
+    params.params.setItems([...params.params.items]);
+    setCurrentIndex(params.params.items.length - 1);
   }
 
-  function changeAvatar(index: number): void {
-    const cloned = [...params.params.people];
-    cloned[changingAvatarIndex!].profile = `${AVATAR_URL}${avatarNumbers[index]}`;
-    params.params.setPeople(cloned);
-    toggleModal(null);
+  function saveEdit(): void {
+    if (!checkValidOrNot(currentIndex!)) {
+      return;
+    }
+    params.params.setItems([...params.params.items]);
+    setOriginalItem(null);
+    setCurrentIndex(null);
   }
 
-  function deletePerson(index: number): void {
-    const cloned = [...params.params.people];
-    cloned.splice(index, 1);
-    params.params.setPeople(cloned);
-    params.params.setSaveFriends(false);
+  function cancelEdit(index: number): void {
+    const editingItem = params.params.items[index];
+    if (editingItem.name === '' && editingItem.price === 0) {
+      deleteItem(index);
+      return;
+    }
+    params.params.items[index] = originalItem || new Item({});
+    const allItems = structuredClone(params.params.items);
+    params.params.setItems([]);
+    setTimeout(() => {
+      params.params.setItems(allItems.map(each => new Item({...each})));
+      setOriginalItem(null);
+      setCurrentIndex(null);
+    }, 1);
   }
-  
+
+  function editItem(index: number): void {
+    if (currentIndex && !checkValidOrNot(currentIndex!)) {
+      return;
+    }
+    const cloned = structuredClone(params.params.items[index]);
+    setOriginalItem(cloned);
+    setCurrentIndex(index);
+  }
+
+  function deleteItem(index: number): void {
+    params.params.items.splice(index, 1);
+    params.params.setItems([...params.params.items]);
+    currentIndex === index && setCurrentIndex(null);
+  }
+
+  function checkValidOrNot(index: number): boolean {
+    const isValid = params.params.items[index].isValid();
+    params.params.items[index].error = params.params.items[index].error || {};
+    params.params.setItems([...params.params.items]);
+    return isValid;
+  }
 
   return <>
-    <div className="flex flex-col w-full">
-      <div className="w-full">
-        <table className='w-full'>
-          <thead>
-            <tr>
-              <th className='text-main pb-3 w-1/5'>No.</th>
-              <th className='text-main pb-3 w-1/5'>Profile</th>
-              <th className='text-main pb-3 w-2/5'>Name</th>
-              <th className='w-1/5'></th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              params.params.people?.map((person, index) => {
-                return <tr key={`person-${index}`}
-                           id={`person-row-${index}`}>
-                  <td className='text-center'> { index + 1 } </td>
-                  <td className='text-center'>
-                    <div className='bg-third cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
-                        onClick={() => toggleModal(index) }>
-                      <Avatar src={person.profile} className='w-12 h-12 ' />
-                    </div>
-                  </td>
-                  <td className='px-3 md:px-10'>
-                    <Input type='text'
-                          value={person.name}
-                          placeholder='Full Name, Nickname, etc.'
-                          onChange={(e) => {
-                            const cloned = [...params.params.people];
-                            cloned[index].name = e.target.value;
-                            params.params.setPeople(cloned);
-                          }}
-                          className='w-full p-2 border border-main text-center rounded-md' />
-                  </td>
-                  <td className='text-center'>
-                    <DeleteOutlined className="text-danger text-xl"
-                                    onClick={() => deletePerson(index)}/>
-                  </td>
-                </tr>
-              })
-            }
-          </tbody>
-        </table>
-      </div>
+    <div className="w-full step-one-h">
+      {
+        params.params?.items?.map((eachItem, index) => {
+          return <div className="flex flex-row w-full gap-3 md:gap-5 mb-3"
+                      id={`item-${index}`}
+                      key={index + 1}>
+            <div className="w-[30px] pt-9 flex justify-center">
+              { index + 1 }
+            </div>
+            <div className={`w-2/5 flex flex-col`}>
+              <label htmlFor="item-name"
+                    className="pb-2 text-main">
+                Item Name
+              </label>
+              <Input id="item-name"
+                    type="text"
+                    disabled={ currentIndex !== index }
+                    defaultValue={eachItem.name}
+                    onChange={(e) => {
+                      e.preventDefault();
+                      eachItem.name = e.target.value;
+                      params.params.items[index] = eachItem;
+                      params.params.setItems(params.params.items);
+                      delete eachItem.error.name;
+                    }}
+                    placeholder="KFC, McDonalds, etc."
+                    className="w-full"
+              />
+              <small className="text-danger">
+                { eachItem.error.name || ' ' }
+              </small>
+            </div>
 
-      <div className='sticky bottom-0 bg-second w-full h-auto'>
-        <Button className="w-full h-8 min-h-8 "
-          type="primary"
-          onClick={ () => addPerson() }>
-          Add Person
-        </Button>
+            <div className={`w-1/5 flex flex-col`}>
+              <label htmlFor="item-price"
+                    className="pb-2 text-main">
+                Price
+              </label>
+              <Input id="item-price"
+                    type="number"
+                    inputMode="decimal"
+                    disabled={ currentIndex !== index }
+                    placeholder="0.00"
+                    defaultValue={eachItem.price}
+                    onChange={(e) => {
+                      e.preventDefault();
+                      eachItem.price = +e.target.value || 0;
+                      params.params.items[index] = eachItem;
+                      params.params.setItems(params.params.items);
+                      delete eachItem.error.price;
+                    }}
+                    className="w-full"
+              />
+              <small className="text-danger">
+                { eachItem.error.price || ' ' }
+              </small>
+            </div>
 
-        <div className='flex flex-row justify-end mt-3'>
-          <Checkbox checked={params.params.savedFriends}
-                    onChange={(e) => params.params.setSaveFriends(e.target.checked)}>
-            Save This List
-          </Checkbox>
-        </div>
-      </div>
-
-      <Modal title="Choose your Avatar"
-             footer={null}
-             centered
-             onCancel={ () => toggleModal(null) }
-             open={isModalOpen} >
-        <div className='grid grid-cols-3 md:grid-cols-4 gap-4 h-[320px] overflow-auto p-5'>
-          {
-            avatarNumbers.map((eachNumber, index) => {
-              return <div className='bg-third cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
-                          key={index}
-                          onClick={() => changeAvatar(index) }>
-                <Avatar src={`${AVATAR_URL}${eachNumber}`} className='w-12 h-12 ' />
+            <div className="w-1/5 flex items-start pt-9 justify-center">
+                {
+                  currentIndex === index
+                    ? 
+                      <div className="flex flex-row justify-center items-end pb-1 gap-5">
+                        <CheckOutlined className="text-main text-xl" 
+                                       onClick={() => saveEdit()}/>
+                        <CloseOutlined className="text-danger text-xl"
+                                       onClick={() => cancelEdit(index)}/>
+                      </div>
+                    : 
+                      <div className="flex flex-row justify-center items-end pb-1 gap-5">
+                        <EditOutlined className="text-main text-xl"
+                                      onClick={() => editItem(index)} />
+                        <Popconfirm title="Delete the task"
+                                    description="Are you sure to delete this item?"
+                                    onConfirm={() => deleteItem(index)}
+                                    onCancel={ () => {}}
+                                    okText="Yes"
+                                    cancelText="No">
+                          <DeleteOutlined className="text-danger text-xl"/>
+                        </Popconfirm>
+                      </div>
+                }
               </div>
-            })
-          }
-        </div>
-        <div className='text-center mt-5'>
-          <Button
-            onClick={ () => generateRandomAvatars() }
-            icon={<UndoOutlined />}>
-            Generate Again
-          </Button>
-        </div>
-      </Modal>
+          </div>
+        })
+      }
+
+      <Button className="w-full mt-3 h-8 min-h-8 sticky bottom-0"
+        type="primary"
+        onClick={ () => addItem() }>
+        Add Item
+      </Button>
     </div>
   </>
 }
+

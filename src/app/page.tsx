@@ -13,7 +13,7 @@ import { SplitDictionary } from "@/models/split.models";
 import StepFour, { StepFourParams } from "@/components/step-4";
 import { Result } from "@/models/results.models";
 
-const STEPS = ['Add Items', 'Add People', 'Assign People & Items', 'Review & Split'];
+const STEPS = ['Add People', 'Add Items', 'Assign People & Items', 'Review & Split'];
 
 export default function Home() {
 
@@ -44,15 +44,15 @@ export default function Home() {
   function goNext(): void {
     switch (currentStep) {
       case 0:
-        if (isStepOneValid()) {
-          setCurrentStep(1);
-        }
-        break;
-      case 1:
         if (saveFriends) {
           localStorage.setItem('friends', JSON.stringify(people));
         }
-        setCurrentStep(2);
+        setCurrentStep(1);
+        break;
+      case 1:
+        if (isStepTwoValid()) {
+          setCurrentStep(2);
+        }
         break;
       case 2:
         calculateResults()
@@ -69,7 +69,7 @@ export default function Home() {
     }
   }
 
-  function isStepOneValid(): boolean {
+  function isStepTwoValid(): boolean {
     const checkingItems = items.map(each => {
       each.isValid();
       return each;
@@ -161,12 +161,12 @@ export default function Home() {
     setResults(results);
   }
 
-  const stepOneParams: StepOneParams = {
+  const stepTwoParams: StepTwoParams = {
     items,
     setItems,
   };
 
-  const stepTwoParams: StepTwoParams = {
+  const stepOneParams: StepOneParams = {
     people,
     setPeople,
     savedFriends: saveFriends,
