@@ -229,6 +229,7 @@ export default function Home() {
       <Modal title="Share with your friends"
              footer={null}
              centered
+             width={400}
              onCancel={ () => toggleSharePopup() }
              open={openSharePopup} >
         <div className='h-[320px] rounded bg-[#faf1e6] overflow-auto p-5'>
