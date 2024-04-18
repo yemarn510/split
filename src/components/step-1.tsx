@@ -109,6 +109,7 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
                     disabled={ currentIndex !== index }
                     defaultValue={eachItem.name}
                     onChange={(e) => {
+                      e.preventDefault();
                       eachItem.name = e.target.value;
                       params.params.items[index] = eachItem;
                       params.params.setItems(params.params.items);
@@ -134,6 +135,7 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
                     placeholder="0.00"
                     defaultValue={eachItem.price}
                     onChange={(e) => {
+                      e.preventDefault();
                       eachItem.price = +e.target.value || 0;
                       params.params.items[index] = eachItem;
                       params.params.setItems(params.params.items);
