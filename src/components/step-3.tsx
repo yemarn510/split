@@ -123,9 +123,17 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
                 {
                   params.params.items.map((each, itemIndex) => {
                     return <div key={`food-image-${itemIndex}`}>
-                      <div className='cursor-pointer hover:opacity-50'
+                      <div className='cursor-pointer hover:opacity-50 relative'
                           onClick={() => toggleModal(itemIndex) }>
                         <ItemImage image={each.image} />
+
+                        <div className='absolute top-0 left-0 flex flex-col justify-center bg-fourth p-1 rounded-md'>
+                          <small className='text-center'>Paid By</small>
+                          <div className={`rounded-full w-8 h-8 mx-auto flex items-center justify-center`}>
+                            <Avatar src={each.paidBy?.profile} className='w-6 h-6 ' />
+                          </div>
+                          <small className='text-center mx-auto max-w-[30px]'>{ each.paidBy?.name }</small>
+                        </div>
                       </div>
                       <h6 className='text-center mx-auto text-grey text-xs'>
                         Item Name / Price
