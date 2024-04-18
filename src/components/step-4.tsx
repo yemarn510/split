@@ -40,7 +40,7 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
             each.items.map((eachItem, itemIndex) => {
               return <li key={`result-item-${itemIndex}`}
                         className="flex flex-row justify-between">
-                <p>{ eachItem.paidBy?.name } ( { eachItem.name })</p>
+                <p>{ eachItem.paidBy?.name } ( { eachItem.name } )</p>
                 <p>
                   { eachItem.price } / { eachItem.sharedNumber } = 
                   <b className='font-bold pl-1'>{ (eachItem.price/eachItem.sharedNumber).toFixed(2)}</b>
