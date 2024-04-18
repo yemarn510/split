@@ -34,7 +34,7 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
   }
 
   function addItem(): void {
-    if (!checkValidOrNot(params.params.items.length - 1)) {
+    if (params.params.items.length && !checkValidOrNot(params.params.items.length - 1)) {
       return;
     }
     params.params.items.push(new Item({}));
