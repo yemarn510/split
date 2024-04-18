@@ -1,7 +1,7 @@
 'use client';
 
 import { Item } from "@/models/item.models";
-import { Input, Button } from 'antd';
+import { Input, Button, Popconfirm } from 'antd';
 import { CheckOutlined, CloseOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react";
 
@@ -160,8 +160,14 @@ export default function StepOne(params: { params: StepOneParams }): JSX.Element 
                       <div className="flex flex-row justify-center items-end pb-1 gap-5">
                         <EditOutlined className="text-main text-xl"
                                       onClick={() => editItem(index)} />
-                        <DeleteOutlined className="text-danger text-xl"
-                                        onClick={() => deleteItem(index)}/>
+                        <Popconfirm title="Delete the task"
+                                    description="Are you sure to delete this item?"
+                                    onConfirm={() => deleteItem(index)}
+                                    onCancel={ () => {}}
+                                    okText="Yes"
+                                    cancelText="No">
+                          <DeleteOutlined className="text-danger text-xl"/>
+                        </Popconfirm>
                       </div>
                 }
               </div>
