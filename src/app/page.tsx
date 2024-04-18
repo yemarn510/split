@@ -99,7 +99,7 @@ export default function Home() {
 
   function getButton(): JSX.Element {
     if (currentStep === 3) {
-      return <div className={`${currentStep !== 3 && 'hidden' } flex flex-row gap-1 md:gap-3 items-center cursor-pointer hover:opacity-50 `}
+      return <div className={`${currentStep !== 3 && 'hidden' } flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 `}
             onClick={ () => toggleSharePopup() }>
         <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
           <ExportOutlined className="text-main" />
