@@ -121,7 +121,11 @@ export default function Home() {
   }
 
   function copyToClipboard(): void {
-    const text = results.map(each => `${each.person.name || '-'} - ${each.total.toFixed(2)}`).join('\n');
+    const text = results.map(each => {
+      return `${each.person.name || '-'}\n${each.items.map((eachItem) => {
+        return `${eachItem.paidBy?.name} ( ${eachItem.name } ) - ${ (eachItem.price/eachItem.sharedNumber).toFixed(2)}`
+      }).join('\n')}\n----------------------`
+    }).join('\n');
     navigator.clipboard.writeText(text);
     messageApi.info('Copied !', 2);
   }
@@ -238,7 +242,16 @@ export default function Home() {
             results.filter( person => person.total > 0 ).map((each, index) => {
               return <h5 className=''
                         key={`total-${index}`}>
-                { each.person.name || '-'} - { each.total.toFixed(2) || 0}
+                <p className='font-bold'>{ each.person.name || '-'}</p>
+                {
+                  each.items.map((eachItem, itemIndex) => {
+                    return <p key={`result-item-${itemIndex}`}>
+                      { eachItem.paidBy?.name } ( { eachItem.name } ) -
+                      <b className='font-bold pl-1'>{ (eachItem.price/eachItem.sharedNumber).toFixed(2)}</b>
+                    </p>
+                  })
+                }
+                -------------------------------------------
               </h5>
             })
           }
