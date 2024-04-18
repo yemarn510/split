@@ -1,6 +1,6 @@
 'use client';
 
-import { Steps, Modal, Button } from 'antd';
+import { Steps, Modal, Button, message } from 'antd';
 import { ArrowLeftOutlined, ArrowRightOutlined, ExportOutlined, CopyOutlined } from '@ant-design/icons';
 import { useState, useEffect } from "react";
 
@@ -24,6 +24,7 @@ export default function Home() {
   const [results, setResults] = useState<Result[]>([]);
   const [saveFriends, setSaveFriends ] = useState<boolean>(false);
   const [openSharePopup, setOpenSharePopup] = useState<boolean>(false);
+  const [messageApi, contextHolder] = message.useMessage();
   const steps = STEPS.map(each => ({ title: each }));
 
   useEffect(() => {
@@ -96,6 +97,25 @@ export default function Home() {
     }
   }
 
+  function getButton(): JSX.Element {
+    if (currentStep === 3) {
+      return <div className={`${currentStep !== 3 && 'hidden' } flex flex-row gap-1 md:gap-3 items-center cursor-pointer hover:opacity-50 `}
+            onClick={ () => toggleSharePopup() }>
+        <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
+          <ExportOutlined className="text-main" />
+        </div>
+        <p className="mb-0 w-auto text-main">Share</p>
+      </div>
+    }
+    return <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 ${ currentStep === (steps.length - 1) && 'cursor-not-allowed opacity-50'}`}
+        onClick={ () => goNext() }>
+      <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
+        <ArrowRightOutlined className="text-main" />
+      </div>
+      <p className="mb-0 w-auto text-main">Go Next</p>
+    </div>
+  }
+
   function toggleSharePopup(): void {
     setOpenSharePopup(!openSharePopup);
   }
@@ -103,6 +123,7 @@ export default function Home() {
   function copyToClipboard(): void {
     const text = results.map(each => `${each.person.name || '-'} - ${each.total.toFixed(2)}`).join('\n');
     navigator.clipboard.writeText(text);
+    messageApi.info('Copied !', 2);
   }
 
   function calculateResults(): void {
@@ -166,6 +187,7 @@ export default function Home() {
 
   return (
     <main className="w-fit m-auto">
+      { contextHolder }
       <h1 className="text-center text-main my-5 md:my-10 text-4xl md:text-5xl">
         Let&rsquo;s Split the Bills
       </h1>
@@ -192,16 +214,7 @@ export default function Home() {
         { getCurrentUI() }
       </div>
       
-      <div className={`flex flex-row mt-3 ${currentStep !== 3 ? 'justify-end' : 'justify-between'}`}>
-        <div className={`${currentStep !== 3 && 'hidden' } flex flex-row gap-1 md:gap-3 items-center cursor-pointer hover:opacity-50 `}
-              onClick={ () => toggleSharePopup() }>
-          <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
-            <ExportOutlined className="text-main" />
-          </div>
-          <p className="mb-0 w-auto text-main">Share</p>
-        </div>
-
-        <div className="flex flex-row gap-3 md:gap-5">
+      <div className="flex flex-row gap-3 md:gap-5 justify-end">
           <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 ${ currentStep === 0 && 'cursor-not-allowed opacity-50'}`}
               onClick={ () => goBack() }>
             <p className="mb-0 w-auto text-main">Go Back</p>
@@ -210,15 +223,8 @@ export default function Home() {
             </div>
           </div>
 
-          <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 ${ currentStep === (steps.length - 1) && 'cursor-not-allowed opacity-50'}`}
-              onClick={ () => goNext() }>
-            <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
-              <ArrowRightOutlined className="text-main" />
-            </div>
-            <p className="mb-0 w-auto text-main">Go Next</p>
-          </div>
+          { getButton() }
         </div>
-      </div>
 
       <Modal title="Share with your friends"
              footer={null}
@@ -227,7 +233,7 @@ export default function Home() {
              open={openSharePopup} >
         <div className='h-[320px] rounded bg-[#faf1e6] overflow-auto p-5'>
           {
-            results.map((each, index) => {
+            results.filter( person => person.total > 0 ).map((each, index) => {
               return <h5 className=''
                         key={`total-${index}`}>
                 { each.person.name || '-'} - { each.total.toFixed(2) || 0}
