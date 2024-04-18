@@ -1,13 +1,15 @@
 'use client';
 
 import { Item } from "@/models/item.models";
-import { Input, Button, Popconfirm } from 'antd';
-import { CheckOutlined, CloseOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Input, Button, Popconfirm, Avatar, Modal } from 'antd';
+import { CheckOutlined, CloseOutlined, EditOutlined, DeleteOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react";
+import { AVATAR_URL, Person } from "@/models/person.models";
 
 
 export interface StepTwoParams {
   items: Item[];
+  people: Person[];
   setItems: Function;
 }
 
@@ -15,6 +17,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
 
   const [ currentIndex, setCurrentIndex ] = useState<number | null>(null);
   const [originalItem, setOriginalItem] = useState<Item | null>(null);
+  const [currentPaidBy, setCurrentPaidBy] = useState<number | null>(null);
 
   useEffect(() => {
     if (params.params.items.length === 1) {
@@ -89,6 +92,20 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
     return isValid;
   }
 
+  function togglePaidBy(index: number | null): void {
+    index === null && setCurrentPaidBy(null);
+    if (currentIndex !== index) {
+      return;
+    }
+    setCurrentPaidBy(index);
+  }
+
+  function setPaidBy(personIndex: number): void {
+    params.params.items[currentIndex!].paidBy = params.params.people[personIndex];
+    params.params.setItems([...params.params.items]);
+    setCurrentPaidBy(null);
+  }
+
   return <>
     <div className="w-full step-one-h">
       {
@@ -96,10 +113,28 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
           return <div className="flex flex-row w-full gap-3 md:gap-5 mb-3"
                       id={`item-${index}`}
                       key={index + 1}>
-            <div className="w-[30px] pt-9 flex justify-center">
+            <div className="w-1/6 pt-9 flex justify-center">
               { index + 1 }
             </div>
-            <div className={`w-2/5 flex flex-col`}>
+
+            <div className="w-1/6 flex flex-col">
+              <label htmlFor="paid-by"
+                    className="pb-2 text-main">
+                Paid By
+              </label>
+              <div className={`bg-third cursor-pointer p-1 w-fit h-fit rounded-full text-center my-auto hover:opacity-50 ${!eachItem.paidBy && '!w-10 !h-10 flex items-center justify-center'}`}
+                   id="paid-by"
+                   onClick={() => togglePaidBy(index) }>
+                {
+                  eachItem.paidBy?.profile
+                  ? <Avatar src={eachItem.paidBy.profile} className='w-8 h-8 ' />
+                  : <QuestionCircleOutlined className='text-xl'/>
+                }
+              </div>
+            </div>
+
+
+            <div className={`w-2/6 flex flex-col`}>
               <label htmlFor="item-name"
                     className="pb-2 text-main">
                 Item Name
@@ -123,7 +158,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
               </small>
             </div>
 
-            <div className={`w-1/5 flex flex-col`}>
+            <div className={`w-1/6 flex flex-col`}>
               <label htmlFor="item-price"
                     className="pb-2 text-main">
                 Price
@@ -182,6 +217,30 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
         onClick={ () => addItem() }>
         Add Item
       </Button>
+
+      <Modal title="Set Paid By"
+             footer={null}
+             centered
+             onCancel={ () => togglePaidBy(null) }
+             open={ currentPaidBy !== null} >
+        <div className=" h-[320px] overflow-auto">
+          <div className='grid grid-cols-3 self-start md:grid-cols-4 gap-4 p-5'>
+            {
+              params.params.people.map((person, personIndex) => {
+                return <div className="flex flex-col"
+                      key={personIndex}>
+                  <div className='bg-third cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
+                                  
+                                  onClick={() => setPaidBy(personIndex) }>
+                        <Avatar src={person.profile} className='w-12 h-12 ' />
+                      </div>
+                  <h6 className="text-center">{person.name || '-'}</h6>
+                </div>
+              })
+            }
+          </div>
+        </div>
+      </Modal>
     </div>
   </>
 }

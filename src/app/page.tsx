@@ -164,6 +164,7 @@ export default function Home() {
   const stepTwoParams: StepTwoParams = {
     items,
     setItems,
+    people,
   };
 
   const stepOneParams: StepOneParams = {
