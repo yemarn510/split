@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(`https://split-my-bill.vercel.app/`),
-  title: 'Split the Bill',
+  title: 'Split My Bill',
   description: 'Split the bills among your friends with ease. Share the amounts and items with your friends.',
   alternates: {
     canonical: '/',
@@ -17,10 +17,10 @@ export const metadata: Metadata = {
   },
   icons: `/images/favicon.png`,
   openGraph: {
-    title: 'Split the Bill',
+    title: 'Split My Bill',
     description: 'Split the bills among your friends with ease. Share the amounts and items with your friends.',
     url: '/',
-    siteName: 'Split the Bill',
+    siteName: 'Split My Bill',
     images: [
       {
         url: `/images/split-bills.png`, // Must be an absolute URL
