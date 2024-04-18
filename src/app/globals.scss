@@ -120,6 +120,10 @@ table {
     tr {
       th {
         @apply text-main p-3;
+
+        @media (max-width: 575px) {
+          @apply text-main p-1 pb-3;
+        }
       }
     }
   }
@@ -132,6 +136,8 @@ table {
     }
   }
 }
+
+
 
 .people-space {
   max-width: 700px;
@@ -159,6 +165,10 @@ table {
 .ant-input {
   font-size: 16px;
   padding: 0.15rem 1rem;
+
+  @media (max-width: 575px) {
+    padding: 0.15rem 0.25rem;
+  }
 }
 
 .ant-carousel .slick-dots li button {

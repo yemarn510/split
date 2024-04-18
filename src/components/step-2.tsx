@@ -109,7 +109,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
       <table className="w-full">
         <thead>
           <tr>
-            <th className="w-1/12">No.</th>
+            <th className="w-[20px]">No.</th>
             <th className="w-2/12">Paid By</th>
             <th className="w-5/12">Item Name</th>
             <th className="w-3/12">Price</th>
@@ -138,7 +138,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
                     { eachItem.error.paidBy || ' ' }
                   </small>
                 </td>
-                <td className="px-3">
+                <td className="px-1 md:px-3">
                   <Input id="item-name"
                       type="text"
                       disabled={ currentIndex !== itemIndex }
@@ -157,7 +157,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
                     { eachItem.error.name || ' ' }
                   </small>
                 </td>
-                <td className="px-3">
+                <td className="px-1 md:px-3">
                   <Input id="item-price"
                         type="number"
                         inputMode="decimal"
@@ -181,14 +181,14 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
                   {
                     currentIndex === itemIndex
                       ? 
-                        <div className="flex flex-row justify-center items-end pb-1 gap-5">
+                        <div className="flex flex-row justify-center items-end pb-1 gap-3 md:gap-5">
                           <CheckOutlined className="text-main text-xl" 
                                         onClick={() => saveEdit()}/>
                           <CloseOutlined className="text-danger text-xl"
                                         onClick={() => cancelEdit(itemIndex)}/>
                         </div>
                       : 
-                        <div className="flex flex-row justify-center items-end pb-1 gap-5">
+                        <div className="flex flex-row justify-center items-end pb-1 gap-3 md:gap-5">
                           <EditOutlined className="text-main text-xl"
                                         onClick={() => editItem(itemIndex)} />
                           <Popconfirm title="Delete the task"
