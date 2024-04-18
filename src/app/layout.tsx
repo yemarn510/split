@@ -15,7 +15,7 @@ export const metadata: Metadata = {
       'en-US': '/en-US',
     },
   },
-  icons: `/images/favicon.ico`,
+  icons: `/images/favicon.png`,
   openGraph: {
     title: 'Split the Bill',
     description: 'Split the bills among your friends with ease. Share the amounts and items with your friends.',
