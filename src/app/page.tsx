@@ -214,7 +214,7 @@ export default function Home() {
         { getCurrentUI() }
       </div>
       
-      <div className="flex flex-row gap-3 md:gap-5 justify-end">
+      <div className="flex flex-row mt-3 gap-3 md:gap-5 justify-end">
           <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 ${ currentStep === 0 && 'cursor-not-allowed opacity-50'}`}
               onClick={ () => goBack() }>
             <p className="mb-0 w-auto text-main">Go Back</p>
