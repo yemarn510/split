@@ -55,6 +55,9 @@ export default function Home() {
         }
         break;
       case 2:
+        if (someStepsAreEmpty()) {
+          return;
+        }
         calculateResults()
         setCurrentStep(3);
         break;
@@ -97,6 +100,15 @@ export default function Home() {
     }
   }
 
+  function someStepsAreEmpty(): boolean {
+    if (currentStep !== 2) {
+      return false;
+    }
+    return Object.keys(splitDict).some((key) => {
+      return splitDict[key].sharingPersonIndex.size === 0;
+    });
+  }
+
   function getButton(): JSX.Element {
     if (currentStep === 3) {
       return <div className={`${currentStep !== 3 && 'hidden' } flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 `}
@@ -107,7 +119,7 @@ export default function Home() {
         <p className="mb-0 w-auto text-main">Share</p>
       </div>
     }
-    return <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 ${ currentStep === (steps.length - 1) && 'cursor-not-allowed opacity-50'}`}
+    return <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 ${ currentStep === (steps.length - 1) && 'cursor-not-allowed opacity-50'} ${ someStepsAreEmpty() && '!cursor-not-allowed opacity-50'}`}
         onClick={ () => goNext() }>
       <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
         <ArrowRightOutlined className="text-main" />
