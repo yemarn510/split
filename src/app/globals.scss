@@ -172,3 +172,31 @@ table {
 .ant-carousel .slick-dots-bottom {
   bottom: 0;
 }
+
+.ant-collapse-header {
+  background-color: var(--second-color);
+  border-radius: 8px !important;
+}
+
+.ant-collapse-content-box {
+  background-color: var(--second-color);
+  border-radius: 0 0 8px 8px;
+}
+
+.ant-collapse {
+  border: none !important;
+
+  .ant-collapse-content {
+    border: none !important;
+  }
+
+  .ant-collapse-item {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .ant-collapse-item-active {
+    border : none !important;
+  }
+} 
+

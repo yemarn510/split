@@ -127,7 +127,7 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
                           onClick={() => toggleModal(itemIndex) }>
                         <ItemImage image={each.image} />
 
-                        <div className='absolute top-0 left-0 flex flex-col justify-center bg-fourth p-1 rounded-md'>
+                        <div className='absolute top-0 left-0 flex flex-col justify-center bg-fourth p-1 rounded-lg'>
                           <small className='text-center'>Paid By</small>
                           <div className={`rounded-full w-8 h-8 mx-auto flex items-center justify-center`}>
                             <Avatar src={each.paidBy?.profile} className='w-6 h-6 ' />
