@@ -18,7 +18,7 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
   useEffect(() => {
     const itemsAndPerson: { [key: string]: CollapseProps['items']} = {};
     const expandKeys: { [key: string]: string[]} = {};
-    params.params.results.forEach((each, resultIndex) => {
+    params.params.results.filter(each => each.total > 0.00).forEach((each, resultIndex) => {
       const items: CollapseProps['items'] = [];
       itemsAndPerson[resultIndex] = items;
       expandKeys[resultIndex] = [];
@@ -63,7 +63,7 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
     <div className='max-w-[500px] m-auto'>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 m-auto">
         {
-          params.params.results.filter(each => each.total > 0).map((each, index) => {
+          params.params.results.filter(each => each.total > 0.00).map((each, index) => {
             return <div className="flex flex-col justify-between border border-fourth rounded-lg"
                         key={`result-${index}`}>
               <div className='w-full h-auto'>
