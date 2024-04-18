@@ -17,7 +17,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
 
   const [ currentIndex, setCurrentIndex ] = useState<number | null>(null);
   const [originalItem, setOriginalItem] = useState<Item | null>(null);
-  const [currentPaidBy, setCurrentPaidBy] = useState<number | null>(null);
+  const [paidByIndex, setPaidByIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (params.params.items.length === 1) {
@@ -93,124 +93,120 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
   }
 
   function togglePaidBy(index: number | null): void {
-    index === null && setCurrentPaidBy(null);
-    if (currentIndex !== index) {
-      return;
-    }
-    setCurrentPaidBy(index);
+    setPaidByIndex(index);
   }
 
   function setPaidBy(personIndex: number): void {
-    params.params.items[currentIndex!].paidBy = params.params.people[personIndex];
+    params.params.items[paidByIndex!].paidBy = params.params.people[personIndex];
+    delete params.params.items[paidByIndex!].error.paidBy;
     params.params.setItems([...params.params.items]);
-    setCurrentPaidBy(null);
+    setPaidByIndex(null);
+
   }
 
   return <>
     <div className="w-full step-one-h">
-      {
-        params.params?.items?.map((eachItem, index) => {
-          return <div className="flex flex-row w-full gap-3 md:gap-5 mb-3"
-                      id={`item-${index}`}
-                      key={index + 1}>
-            <div className="w-1/6 pt-9 flex justify-center">
-              { index + 1 }
-            </div>
-
-            <div className="w-1/6 flex flex-col">
-              <label htmlFor="paid-by"
-                    className="pb-2 text-main">
-                Paid By
-              </label>
-              <div className={`bg-third cursor-pointer p-1 w-fit h-fit rounded-full text-center my-auto hover:opacity-50 ${!eachItem.paidBy && '!w-10 !h-10 flex items-center justify-center'}`}
-                   id="paid-by"
-                   onClick={() => togglePaidBy(index) }>
-                {
-                  eachItem.paidBy?.profile
-                  ? <Avatar src={eachItem.paidBy.profile} className='w-8 h-8 ' />
-                  : <QuestionCircleOutlined className='text-xl'/>
-                }
-              </div>
-            </div>
-
-
-            <div className={`w-2/6 flex flex-col`}>
-              <label htmlFor="item-name"
-                    className="pb-2 text-main">
-                Item Name
-              </label>
-              <Input id="item-name"
-                    type="text"
-                    disabled={ currentIndex !== index }
-                    defaultValue={eachItem.name}
-                    onChange={(e) => {
-                      e.preventDefault();
-                      eachItem.name = e.target.value;
-                      params.params.items[index] = eachItem;
-                      params.params.setItems(params.params.items);
-                      delete eachItem.error.name;
-                    }}
-                    placeholder="KFC, McDonalds, etc."
-                    className="w-full"
-              />
-              <small className="text-danger">
-                { eachItem.error.name || ' ' }
-              </small>
-            </div>
-
-            <div className={`w-1/6 flex flex-col`}>
-              <label htmlFor="item-price"
-                    className="pb-2 text-main">
-                Price
-              </label>
-              <Input id="item-price"
-                    type="number"
-                    inputMode="decimal"
-                    disabled={ currentIndex !== index }
-                    placeholder="0.00"
-                    defaultValue={eachItem.price}
-                    onChange={(e) => {
-                      e.preventDefault();
-                      eachItem.price = +e.target.value || 0;
-                      params.params.items[index] = eachItem;
-                      params.params.setItems(params.params.items);
-                      delete eachItem.error.price;
-                    }}
-                    className="w-full"
-              />
-              <small className="text-danger">
-                { eachItem.error.price || ' ' }
-              </small>
-            </div>
-
-            <div className="w-1/5 flex items-start pt-9 justify-center">
-                {
-                  currentIndex === index
-                    ? 
-                      <div className="flex flex-row justify-center items-end pb-1 gap-5">
-                        <CheckOutlined className="text-main text-xl" 
-                                       onClick={() => saveEdit()}/>
-                        <CloseOutlined className="text-danger text-xl"
-                                       onClick={() => cancelEdit(index)}/>
-                      </div>
-                    : 
-                      <div className="flex flex-row justify-center items-end pb-1 gap-5">
-                        <EditOutlined className="text-main text-xl"
-                                      onClick={() => editItem(index)} />
-                        <Popconfirm title="Delete the task"
-                                    description="Are you sure to delete this item?"
-                                    onConfirm={() => deleteItem(index)}
-                                    onCancel={ () => {}}
-                                    okText="Yes"
-                                    cancelText="No">
-                          <DeleteOutlined className="text-danger text-xl"/>
-                        </Popconfirm>
-                      </div>
-                }
-              </div>
-          </div>
-        })
-      }
+      <table className="w-full">
+        <thead>
+          <tr>
+            <th className="w-1/12">No.</th>
+            <th className="w-2/12">Paid By</th>
+            <th className="w-5/12">Item Name</th>
+            <th className="w-3/12">Price</th>
+            <th className="w-1/12"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            params.params?.items?.map((eachItem, itemIndex) => {
+              return <tr key={`item-${itemIndex}`}>
+                <td className="text-center">{ itemIndex + 1}</td>
+                <td className="text-center">
+                  <div className="w-full flex flex-col"
+                       onClick={() => togglePaidBy(itemIndex) }>
+                    <div className={`bg-third cursor-pointer p-1 w-fit h-fit rounded-full text-center m-auto hover:opacity-50 ${!eachItem.paidBy && '!w-10 !h-10 flex items-center justify-center'}`}
+                        id="paid-by">
+                      {
+                        eachItem.paidBy?.profile
+                        ? <Avatar src={eachItem.paidBy.profile} className='w-8 h-8 ' />
+                        : <QuestionCircleOutlined className='text-xl'/>
+                      }
+                    </div>
+                    <small>{ eachItem.paidBy?.name }</small>
+                  </div>
+                  <small className="text-danger">
+                    { eachItem.error.paidBy || ' ' }
+                  </small>
+                </td>
+                <td className="px-3">
+                  <Input id="item-name"
+                      type="text"
+                      disabled={ currentIndex !== itemIndex }
+                      defaultValue={eachItem.name}
+                      onChange={(e) => {
+                        e.preventDefault();
+                        eachItem.name = e.target.value;
+                        params.params.items[itemIndex] = eachItem;
+                        params.params.setItems(params.params.items);
+                        delete eachItem.error.name;
+                      }}
+                      placeholder="KFC, McDonalds, etc."
+                      className="w-full"
+                  />
+                  <small className="text-danger">
+                    { eachItem.error.name || ' ' }
+                  </small>
+                </td>
+                <td className="px-3">
+                  <Input id="item-price"
+                        type="number"
+                        inputMode="decimal"
+                        disabled={ currentIndex !== itemIndex }
+                        placeholder="0.00"
+                        defaultValue={eachItem.price}
+                        onChange={(e) => {
+                          e.preventDefault();
+                          eachItem.price = +e.target.value || 0;
+                          params.params.items[itemIndex] = eachItem;
+                          params.params.setItems(params.params.items);
+                          delete eachItem.error.price;
+                        }}
+                        className="w-full"
+                  />
+                  <small className="text-danger">
+                    { eachItem.error.price || ' ' }
+                  </small>
+                </td>
+                <td>
+                  {
+                    currentIndex === itemIndex
+                      ? 
+                        <div className="flex flex-row justify-center items-end pb-1 gap-5">
+                          <CheckOutlined className="text-main text-xl" 
+                                        onClick={() => saveEdit()}/>
+                          <CloseOutlined className="text-danger text-xl"
+                                        onClick={() => cancelEdit(itemIndex)}/>
+                        </div>
+                      : 
+                        <div className="flex flex-row justify-center items-end pb-1 gap-5">
+                          <EditOutlined className="text-main text-xl"
+                                        onClick={() => editItem(itemIndex)} />
+                          <Popconfirm title="Delete the task"
+                                      description="Are you sure to delete this item?"
+                                      onConfirm={() => deleteItem(itemIndex)}
+                                      onCancel={ () => {}}
+                                      okText="Yes"
+                                      cancelText="No">
+                            <DeleteOutlined className="text-danger text-xl"/>
+                          </Popconfirm>
+                        </div>
+                  }
+                </td>
+              </tr>
+            })
+          }
+        </tbody>
+      </table>
 
       <Button className="w-full mt-3 h-8 min-h-8 sticky bottom-0"
         type="primary"
@@ -222,7 +218,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
              footer={null}
              centered
              onCancel={ () => togglePaidBy(null) }
-             open={ currentPaidBy !== null} >
+             open={ paidByIndex !== null} >
         <div className=" h-[320px] overflow-auto">
           <div className='grid grid-cols-3 self-start md:grid-cols-4 gap-4 p-5'>
             {
