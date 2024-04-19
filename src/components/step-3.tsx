@@ -55,14 +55,10 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
     const items = params.params.items;
     const splitDictLocal = params.params.splitDict;
 
-    if (Object.keys(splitDictLocal).length > 0) {
-      showItems();
-      return;
-    }
     for (let index = 0; index < items.length; index++) {
       const eachItem = items[index];
       eachItem.image = FOOD_IMAGES[generateRandomInteger(0, 20)];
-      splitDictLocal[index] = new Split({
+      splitDictLocal[index] = splitDictLocal[index] || new Split({
         itemIndex: index,
         itemPrice: eachItem.price,
         sharingPersonIndex: new Set<number>(),
@@ -202,6 +198,7 @@ export function ItemImage(params: { image: string }): JSX.Element {
     <Image src={params.image}
       width={100}
       height={100}
+      priority
       className='m-auto'
       alt='Food Images' />
   </div>
