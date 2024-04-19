@@ -42,6 +42,10 @@ export default function Home() {
   }, []);
 
   function goNext(): void {
+    if (goNextButtonDisabled()) {
+      return;
+    }
+
     switch (currentStep) {
       case 0:
         if (saveFriends) {
@@ -101,12 +105,23 @@ export default function Home() {
   }
 
   function someStepsAreEmpty(): boolean {
-    if (currentStep !== 2) {
-      return false;
-    }
     return Object.keys(splitDict).some((key) => {
       return splitDict[key].sharingPersonIndex.size === 0;
     });
+  }
+
+  function goNextButtonDisabled(): boolean {
+      switch (currentStep) {
+        case 0:
+          return people.length === 0;
+        case 1:
+          return items.length === 0;
+        case 2:
+          return someStepsAreEmpty();
+        case 3:
+          return false;
+      }
+    return false;
   }
 
   function getButton(): JSX.Element {
@@ -119,7 +134,9 @@ export default function Home() {
         <p className="mb-0 w-auto text-main">Share</p>
       </div>
     }
-    return <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 ${ currentStep === (steps.length - 1) && 'cursor-not-allowed opacity-50'} ${ someStepsAreEmpty() && '!cursor-not-allowed opacity-50'}`}
+    return <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 
+                            ${ currentStep === (steps.length - 1) && 'cursor-not-allowed opacity-50'}
+                            ${ goNextButtonDisabled() && '!cursor-not-allowed opacity-50'}`} 
         onClick={ () => goNext() }>
       <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
         <ArrowRightOutlined className="text-main" />
