@@ -1,7 +1,7 @@
 'use client';
 
 import { Item } from "@/models/item.models";
-import { Input, Button, Popconfirm, Avatar, Modal } from 'antd';
+import { Input, Button, Popconfirm, Avatar, Modal, Tooltip } from 'antd';
 import { CheckOutlined, CloseOutlined, EditOutlined, DeleteOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react";
 import { AVATAR_URL, Person } from "@/models/person.models";
@@ -122,60 +122,66 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
               return <tr key={`item-${itemIndex}`}>
                 <td className="text-center">{ itemIndex + 1}</td>
                 <td className="text-center">
-                  <div className="w-full flex flex-col"
-                       onClick={() => togglePaidBy(itemIndex) }>
-                    <div className={`bg-third cursor-pointer p-1 w-fit h-fit rounded-full text-center m-auto hover:opacity-50 ${!eachItem.paidBy && '!w-10 !h-10 flex items-center justify-center'}`}
-                        id="paid-by">
-                      {
-                        eachItem.paidBy?.profile
-                        ? <Avatar src={eachItem.paidBy.profile} className='w-8 h-8 ' />
-                        : <QuestionCircleOutlined className='text-xl'/>
-                      }
+                  <Tooltip title={eachItem.error.paidBy || '' }
+                           open={!!eachItem.error.paidBy}
+                           color={'#ff4d4f'}
+                           zIndex={10} >
+                    <div className="w-full flex flex-col"
+                        onClick={() => togglePaidBy(itemIndex) }>
+                      <div className={`bg-third cursor-pointer p-1 w-fit h-fit rounded-full text-center m-auto hover:opacity-50 ${!eachItem.paidBy && '!w-10 !h-10 flex items-center justify-center'}`}
+                          id="paid-by">
+                        {
+                          eachItem.paidBy?.profile
+                          ? <Avatar src={eachItem.paidBy.profile} className='w-8 h-8 ' />
+                          : <QuestionCircleOutlined className='text-xl'/>
+                        }
+                      </div>
+                      <small>{ eachItem.paidBy?.name }</small>
                     </div>
-                    <small>{ eachItem.paidBy?.name }</small>
-                  </div>
-                  <small className="text-danger">
-                    { eachItem.error.paidBy || ' ' }
-                  </small>
+                  </Tooltip>
                 </td>
                 <td className="px-1 md:px-3">
-                  <Input id="item-name"
-                      type="text"
-                      disabled={ currentIndex !== itemIndex }
-                      defaultValue={eachItem.name}
-                      onChange={(e) => {
-                        e.preventDefault();
-                        eachItem.name = e.target.value;
-                        params.params.items[itemIndex] = eachItem;
-                        params.params.setItems(params.params.items);
-                        delete eachItem.error.name;
-                      }}
-                      placeholder="KFC, McDonalds, etc."
-                      className="w-full"
-                  />
-                  <small className="text-danger">
-                    { eachItem.error.name || ' ' }
-                  </small>
-                </td>
-                <td className="px-1 md:px-3">
-                  <Input id="item-price"
-                        type="number"
-                        inputMode="decimal"
+                  <Tooltip title={eachItem.error.name || '' }
+                           open={!!eachItem.error.name}
+                           color={'#ff4d4f'}
+                           zIndex={10} >
+                    <Input id="item-name"
+                        type="text"
                         disabled={ currentIndex !== itemIndex }
-                        placeholder="0.00"
-                        defaultValue={eachItem.price}
+                        defaultValue={eachItem.name}
                         onChange={(e) => {
                           e.preventDefault();
-                          eachItem.price = +e.target.value || 0;
+                          eachItem.name = e.target.value;
                           params.params.items[itemIndex] = eachItem;
                           params.params.setItems(params.params.items);
-                          delete eachItem.error.price;
+                          delete eachItem.error.name;
                         }}
+                        placeholder="KFC, McDonalds, etc."
                         className="w-full"
-                  />
-                  <small className="text-danger">
-                    { eachItem.error.price || ' ' }
-                  </small>
+                    />
+                  </Tooltip>
+                </td>
+                <td className="px-1 md:px-3">
+                  <Tooltip title={eachItem.error.price || '' }
+                           open={!!eachItem.error.price}
+                           color={'#ff4d4f'}
+                           zIndex={10} >
+                    <Input id="item-price"
+                            type="number"
+                            inputMode="decimal"
+                            disabled={ currentIndex !== itemIndex }
+                            placeholder="0.00"
+                            defaultValue={eachItem.price}
+                            onChange={(e) => {
+                              e.preventDefault();
+                              eachItem.price = +e.target.value || 0;
+                              params.params.items[itemIndex] = eachItem;
+                              params.params.setItems(params.params.items);
+                              delete eachItem.error.price;
+                            }}
+                            className="w-full"
+                      />
+                  </Tooltip>
                 </td>
                 <td>
                   {
