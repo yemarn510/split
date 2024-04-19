@@ -205,6 +205,8 @@ export default function Home() {
     setPeople,
     savedFriends: saveFriends,
     setSaveFriends,
+    items, 
+    setItems,
   }
 
   const stepThreeParams: StepThreeParams = {

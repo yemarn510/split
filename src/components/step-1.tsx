@@ -4,12 +4,15 @@ import { Input, Button, Modal, Avatar, Checkbox } from 'antd';
 import { AVATAR_URL, Person, generateRandomInteger } from "@/models/person.models";
 import { useEffect, useState } from 'react';
 import { UndoOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Item } from '@/models/item.models';
 
 export interface StepOneParams {
   people: Person[];
   setPeople: Function;
   savedFriends: boolean;
   setSaveFriends: Function;
+  items: Item[];
+  setItems: Function;
 }
 
 export default function StepOne(params: {params: StepOneParams }): JSX.Element {
@@ -62,6 +65,11 @@ export default function StepOne(params: {params: StepOneParams }): JSX.Element {
 
   function deletePerson(index: number): void {
     const cloned = [...params.params.people];
+    const paidByIndex = params.params.items.findIndex(each => each.paidBy?.name === cloned[index].name && each.paidBy?.profile === cloned[index].profile);
+    if (paidByIndex !== -1) {
+      params.params.items[paidByIndex].paidBy = null;
+      params.params.setItems([...params.params.items]);
+    }
     cloned.splice(index, 1);
     params.params.setPeople(cloned);
     params.params.setSaveFriends(false);
