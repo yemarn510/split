@@ -145,25 +145,29 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
 
 
 export function PaidBy(params: { person: Person | null, toggle: Function} ): JSX.Element {
-  return <div className="w-full flex flex-col">
-    <div className={`bg-third cursor-pointer p-1 w-fit h-fit rounded-full text-center m-auto hover:opacity-50 ${!params.person && '!w-10 !h-10 flex items-center justify-center'}`}
-        id="paid-by"
-        onClick={() => params.toggle() }>
-      {
-        params.person?.profile
-        ? <Avatar src={params.person.profile} className='w-8 h-8 ' />
-        : <QuestionCircleOutlined className='text-xl'/>
-      }
-    </div>
-    <small>{ params.person?.name || '' }</small>
+  return <div className="w-full flex flex-col"
+    onClick={() => params.toggle() }>
+    {
+      params.person?.profile
+      ? <RoundedAvatar person={params.person}/>
+      : <UnknownPerson />
+    }
   </div>
 }
 
 export function RoundedAvatar(params: { person: Person }): JSX.Element {
   return <div className="flex flex-col items-center gap-1 md:hover:opacity-50 cursor-pointer">
-    <div className="p-1 w-fit h-fit bg-second rounded-full">
+    <div className="p-1 w-fit h-fit bg-third rounded-full">
       <Avatar src={params.person.profile} className='w-8 h-8 ' />
     </div>
     <small className="text-center">{ params.person.name || '-' }</small>
+  </div>
+}
+
+export function UnknownPerson(): JSX.Element {
+  return <div className="w-full flex flex-col">
+    <div className={`bg-third cursor-pointer p-1 rounded-full text-center m-auto hover:opacity-50 w-10 h-10 flex items-center justify-center`}>
+      <QuestionCircleOutlined className='text-xl'/>
+    </div>
   </div>
 }
