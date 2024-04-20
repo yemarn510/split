@@ -1,22 +1,17 @@
 'use client';
 
 import { Item } from "@/models/item.models";
-import { Input, Button, Popconfirm, Avatar, Modal, Tooltip, Upload, message } from 'antd';
-import { 
-  CheckOutlined, 
-  CloseOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
-  CameraOutlined, 
-  InboxOutlined,
-  QuestionCircleOutlined
+import { Button, Modal } from 'antd';
+import {  
+  CameraOutlined,
 } from '@ant-design/icons';
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Person } from "@/models/person.models";
-import type { UploadProps } from 'antd';
-import { ScanResponse, Scanner } from "@/models/scanner.models";
+import { Scanner } from "@/models/scanner.models";
 import ScanReceipt, { ScanReceiptParams } from "./scan-receipt";
 import ItemTable, { ItemTableParams } from "./item-table";
+import RoundedAvatar from "./custom-avatar";
+import checkValidOrNot from "@/common/service";
 
 
 
@@ -33,12 +28,6 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
   const [paidByIndex, setPaidByIndex] = useState<number | null>(null);
   const [currentIndex, setCurrentIndex]= useState<number | null>(null);
   const [scanner, setScanner] = useState<Scanner>(new Scanner({}));
-
-
-
-  function togglePaidBy(index: number | null): void {
-    setPaidByIndex(index);
-  }
 
   function setPaidBy(personIndex: number): void {
     params.params.items[paidByIndex!].paidBy = params.params.people[personIndex];
@@ -67,7 +56,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
   }
 
   function addItem(): void {
-    if (params.params.items.length && !checkValidOrNot(params.params.items.length - 1)) {
+    if (params.params.items.length && !checkValidOrNot(params.params.items.length - 1, params.params.items, params.params.setItems)) {
       return;
     }
     params.params.items.push(new Item({}));
@@ -75,11 +64,11 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
     setCurrentIndex(params.params.items.length - 1);
   }
 
-  function checkValidOrNot(index: number): boolean {
-    const isValid = params.params.items[index].isValid();
-    params.params.items[index].error = params.params.items[index].error || {};
-    params.params.setItems([...params.params.items]);
-    return isValid;
+  function mergeItems(newItems: Item[]): void {
+    const cloned = [...params.params.items.filter( each => each.name !== '' && each.price !== 0)];
+    const finalItemList = cloned.concat(newItems);
+    params.params.setItems(finalItemList);
+    toggleScan();
   }
 
   const scanReceipt: ScanReceiptParams = {
@@ -87,6 +76,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
     setScanner,
     openScanPopup,
     toggleScan,
+    mergeItems,
     people: params.params.people,
   };
 
@@ -95,8 +85,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
     setItems: params.params.setItems,
     currentIndex,
     setCurrentIndex,
-    checkValidOrNot,
-    togglePaidBy,
+    setPaidByIndex,
   };
 
   return <>
@@ -122,7 +111,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
       <Modal title="Set Paid By"
              footer={null}
              centered
-             onCancel={ () => togglePaidBy(null) }
+             onCancel={ () => setPaidByIndex(null) }
              open={ paidByIndex !== null} >
         <div className=" h-[320px] overflow-auto">
           <div className='grid grid-cols-3 self-start md:grid-cols-4 gap-4 p-5'>
@@ -144,30 +133,3 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
 }
 
 
-export function PaidBy(params: { person: Person | null, toggle: Function} ): JSX.Element {
-  return <div className="w-full flex flex-col"
-    onClick={() => params.toggle() }>
-    {
-      params.person?.profile
-      ? <RoundedAvatar person={params.person}/>
-      : <UnknownPerson />
-    }
-  </div>
-}
-
-export function RoundedAvatar(params: { person: Person }): JSX.Element {
-  return <div className="flex flex-col items-center gap-1 md:hover:opacity-50 cursor-pointer">
-    <div className="p-1 w-fit h-fit bg-third rounded-full">
-      <Avatar src={params.person.profile} className='w-8 h-8 ' />
-    </div>
-    <small className="text-center">{ params.person.name || '-' }</small>
-  </div>
-}
-
-export function UnknownPerson(): JSX.Element {
-  return <div className="w-full flex flex-col">
-    <div className={`bg-third cursor-pointer p-1 rounded-full text-center m-auto hover:opacity-50 w-10 h-10 flex items-center justify-center`}>
-      <QuestionCircleOutlined className='text-xl'/>
-    </div>
-  </div>
-}

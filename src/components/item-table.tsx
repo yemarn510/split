@@ -1,16 +1,17 @@
 import { Item } from "@/models/item.models";
 import { CheckOutlined, CloseOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Tooltip, Popconfirm, Input } from "antd";
-import { PaidBy } from "./step-2";
 import { useEffect, useState } from "react";
+import RoundedAvatar from "./custom-avatar";
+import UnknownPerson from "./unknown-person";
+import checkValidOrNot from "@/common/service";
 
 export interface ItemTableParams {
   items: Item[];
   setItems: Function;
   setCurrentIndex: Function;
   currentIndex: number | null;
-  checkValidOrNot: Function;
-  togglePaidBy: Function;
+  setPaidByIndex: Function;
 }
 
 export default function ItemTable(params: ItemTableParams): JSX.Element {
@@ -28,7 +29,7 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
   }, [params.currentIndex]);
 
   function saveEdit(): void {
-    if (!params.checkValidOrNot(params.currentIndex!)) {
+    if (!checkValidOrNot(params.currentIndex!, params.items, params.setItems)) {
       return;
     }
     params.setItems([...params.items]);
@@ -53,7 +54,7 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
   }
 
   function editItem(index: number): void {
-    if (params.currentIndex && !params.checkValidOrNot(params.currentIndex!)) {
+    if (params.currentIndex && !checkValidOrNot(params.currentIndex!, params.items, params.setItems)) {
       return;
     }
     const cloned = structuredClone(params.items[index]);
@@ -94,8 +95,14 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
                      open={!!eachItem.error.paidBy}
                      color={'#ff4d4f'}
                      zIndex={10} >
-              <PaidBy person={eachItem.paidBy}
-                      toggle={() => params.togglePaidBy(itemIndex)} />
+
+              <div onClick={() => params.setPaidByIndex(itemIndex)}>
+                {
+                  eachItem.paidBy
+                  ? <RoundedAvatar person={eachItem.paidBy}/>
+                  : <UnknownPerson />
+                }
+              </div>
             </Tooltip>
           </td>
           <td className="px-1 md:px-3">
