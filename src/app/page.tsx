@@ -48,9 +48,9 @@ export default function Home() {
 
     switch (currentStep) {
       case 0:
-        if (saveFriends) {
-          localStorage.setItem('friends', JSON.stringify(people));
-        }
+        saveFriends ?
+          localStorage.setItem('friends', JSON.stringify(people)) :
+          localStorage.removeItem('friends');
         setCurrentStep(1);
         break;
       case 1:
@@ -150,7 +150,7 @@ export default function Home() {
   }
 
   function copyToClipboard(): void {
-    const text = results.map(each => {
+    const text = results.filter(each => each.total > 0).map(each => {
       return `${each.person.name || '-'}\n${each.items.map((eachItem) => {
         return `${eachItem.paidBy?.name} ( ${eachItem.name } ) - ${ (eachItem.price/eachItem.sharedNumber).toFixed(2)}`
       }).join('\n')}\n----------------------`
