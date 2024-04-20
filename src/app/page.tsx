@@ -48,9 +48,9 @@ export default function Home() {
 
     switch (currentStep) {
       case 0:
-        if (saveFriends) {
-          localStorage.setItem('friends', JSON.stringify(people));
-        }
+        saveFriends ?
+          localStorage.setItem('friends', JSON.stringify(people)) :
+          localStorage.removeItem('friends');
         setCurrentStep(1);
         break;
       case 1:
