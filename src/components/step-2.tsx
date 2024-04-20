@@ -1,7 +1,7 @@
 'use client';
 
 import { Item } from "@/models/item.models";
-import { Input, Button, Popconfirm, Avatar, Modal, Tooltip, Upload } from 'antd';
+import { Input, Button, Popconfirm, Avatar, Modal, Tooltip, Upload, Popover } from 'antd';
 import { 
   CheckOutlined, 
   CloseOutlined, 
@@ -30,7 +30,8 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
   const [openScanPopup, setOpenScanPopup] = useState<boolean>(false);
   const [originalItem, setOriginalItem] = useState<Item | null>(null);
   const [paidByIndex, setPaidByIndex] = useState<number | null>(null);
-  const [ currentIndex, setCurrentIndex ] = useState<number | null>(null);
+  const [currentIndex, setCurrentIndex ] = useState<number | null>(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (params.params.items.length === 1) {
@@ -127,6 +128,10 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
     }
   }
 
+  const personList = (
+    <PersonList profiles={params.params.people} />
+  )
+
   const props: UploadProps = {
     name: 'file',
     listType: "picture-card",
@@ -169,18 +174,8 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
                            open={!!eachItem.error.paidBy}
                            color={'#ff4d4f'}
                            zIndex={10} >
-                    <div className="w-full flex flex-col"
-                        onClick={() => togglePaidBy(itemIndex) }>
-                      <div className={`bg-third cursor-pointer p-1 w-fit h-fit rounded-full text-center m-auto hover:opacity-50 ${!eachItem.paidBy && '!w-10 !h-10 flex items-center justify-center'}`}
-                          id="paid-by">
-                        {
-                          eachItem.paidBy?.profile
-                          ? <Avatar src={eachItem.paidBy.profile} className='w-8 h-8 ' />
-                          : <QuestionCircleOutlined className='text-xl'/>
-                        }
-                      </div>
-                      <small>{ eachItem.paidBy?.name }</small>
-                    </div>
+                    <PaidBy person={eachItem.paidBy}
+                            toggle={() => togglePaidBy(itemIndex)} />
                   </Tooltip>
                 </td>
                 <td className="px-1 md:px-3">
@@ -282,7 +277,6 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
                 return <div className="flex flex-col"
                       key={personIndex}>
                   <div className='bg-third cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
-                                  
                                   onClick={() => setPaidBy(personIndex) }>
                         <Avatar src={person.profile} className='w-12 h-12 ' />
                       </div>
@@ -299,7 +293,16 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
              centered
              onCancel={ () => toggleScanItem() }
              open={ openScanPopup } >
-        <div className="h-[320px] overflow-auto flex flex-col">
+        <div className="h-[220px] overflow-auto flex flex-col">
+          <div className="mb-3">
+            <Popover content={() => (PersonList({ profiles: params.params.people }))}
+                    title="Title"
+                    trigger="click">
+              <Button className="w-full h-8 min-h-8">
+                Choose Paid By
+              </Button>
+            </Popover>
+          </div>
           <Dragger {...props}>
             <p className="ant-upload-drag-icon">
               <InboxOutlined />
@@ -316,3 +319,34 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
   </>
 }
 
+
+
+export function PaidBy(params: { person: Person | null, toggle: Function} ): JSX.Element {
+  return <div className="w-full flex flex-col">
+    <div className={`bg-third cursor-pointer p-1 w-fit h-fit rounded-full text-center m-auto hover:opacity-50 ${!params.person && '!w-10 !h-10 flex items-center justify-center'}`}
+        id="paid-by">
+      {
+        params.person?.profile
+        ? <Avatar src={params.person.profile} className='w-8 h-8 ' />
+        : <QuestionCircleOutlined className='text-xl'/>
+      }
+    </div>
+    <small>{ params.person?.name || '' }</small>
+  </div>
+}
+
+export function PersonList(params: { profiles: Person[]}): JSX.Element {
+  return <div className="w-[200px] h-20 flex flex-row gap-5 justify-between overflow-x-auto">
+    {
+      params.profiles.map((person, index) => {
+        return <div className="flex flex-col items-center gap-1 md:hover:opacity-50 cursor-pointer"
+                    key={`person-${index}`}>
+          <div className="p-1 w-fit h-fit bg-second rounded-full">
+            <Avatar src={person.profile} className='w-8 h-8 ' />
+          </div>
+          <small className="text-center">{ person.name || '-' }</small>
+        </div>
+      })
+    }
+  </div>
+}
