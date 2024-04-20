@@ -25,6 +25,7 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
   const props: UploadProps = {
     name: 'image',
     multiple: false,
+    defaultFileList: [],
     maxCount: 1,
     className: 'w-full',
     listType: "picture",
@@ -39,7 +40,7 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
           params.setScanner(params.scanner);
           break;
         case 'error':
-          message.error(`${info.file.name} file upload failed.`);
+          messageApi.error(`${info.file.name} file upload failed.`);
           break;
       }
     },
