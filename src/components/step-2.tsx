@@ -8,7 +8,7 @@ import {
   EditOutlined, 
   DeleteOutlined, 
   CameraOutlined, 
-  InboxOutlined,
+  UploadOutlined,
   QuestionCircleOutlined
 } from '@ant-design/icons';
 import { useEffect, useState } from "react";
@@ -134,7 +134,10 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
 
   const props: UploadProps = {
     name: 'file',
-    listType: "picture-card",
+    multiple: false,
+    maxCount: 1,
+    className: 'w-full',
+    listType: "picture",
     action: 'https://xw3pr7ak-7dqrsyftta-de.a.run.app/extract_data?output_language=English',
     onChange(info) {
       if (info.file.status !== 'uploading') {
@@ -293,7 +296,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
              centered
              onCancel={ () => toggleScanItem() }
              open={ openScanPopup } >
-        <div className="h-[220px] overflow-auto flex flex-col">
+        <div className="h-[350px] overflow-auto flex flex-col">
           <div className="mb-3">
             <Popover content={() => (PersonList({ profiles: params.params.people }))}
                     title="Title"
@@ -303,16 +306,9 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
               </Button>
             </Popover>
           </div>
-          <Dragger {...props}>
-            <p className="ant-upload-drag-icon">
-              <InboxOutlined />
-            </p>
-            <p className="ant-upload-text">Click or drag file to this area to upload</p>
-            <p className="ant-upload-hint">
-              Support for a single or bulk upload. Strictly prohibited from uploading company data or other
-              banned files.
-            </p>
-          </Dragger>
+          <Upload {...props}>
+            <Button className="w-full" icon={<UploadOutlined />}>Upload</Button>
+          </Upload>
         </div>
       </Modal>
     </div>
@@ -324,7 +320,8 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
 export function PaidBy(params: { person: Person | null, toggle: Function} ): JSX.Element {
   return <div className="w-full flex flex-col">
     <div className={`bg-third cursor-pointer p-1 w-fit h-fit rounded-full text-center m-auto hover:opacity-50 ${!params.person && '!w-10 !h-10 flex items-center justify-center'}`}
-        id="paid-by">
+        id="paid-by"
+        onClick={() => params.toggle() }>
       {
         params.person?.profile
         ? <Avatar src={params.person.profile} className='w-8 h-8 ' />
