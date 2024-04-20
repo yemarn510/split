@@ -1,10 +1,21 @@
 'use client';
 
 import { Item } from "@/models/item.models";
-import { Input, Button, Popconfirm, Avatar, Modal, Tooltip } from 'antd';
-import { CheckOutlined, CloseOutlined, EditOutlined, DeleteOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { Input, Button, Popconfirm, Avatar, Modal, Tooltip, Upload } from 'antd';
+import { 
+  CheckOutlined, 
+  CloseOutlined, 
+  EditOutlined, 
+  DeleteOutlined, 
+  CameraOutlined, 
+  InboxOutlined,
+  QuestionCircleOutlined
+} from '@ant-design/icons';
 import { useEffect, useState } from "react";
-import { AVATAR_URL, Person } from "@/models/person.models";
+import { Person } from "@/models/person.models";
+import type { UploadProps } from 'antd';
+
+const { Dragger } = Upload; 
 
 
 export interface StepTwoParams {
@@ -15,9 +26,11 @@ export interface StepTwoParams {
 
 export default function StepTwo(params: { params: StepTwoParams }): JSX.Element {
 
-  const [ currentIndex, setCurrentIndex ] = useState<number | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [openScanPopup, setOpenScanPopup] = useState<boolean>(false);
   const [originalItem, setOriginalItem] = useState<Item | null>(null);
   const [paidByIndex, setPaidByIndex] = useState<number | null>(null);
+  const [ currentIndex, setCurrentIndex ] = useState<number | null>(null);
 
   useEffect(() => {
     if (params.params.items.length === 1) {
@@ -101,8 +114,38 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
     delete params.params.items[paidByIndex!].error.paidBy;
     params.params.setItems([...params.params.items]);
     setPaidByIndex(null);
-
   }
+
+  function toggleScanItem(): void {
+    setOpenScanPopup(!openScanPopup);
+    setFile(null);
+  }
+
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>): void {
+    if (e.target.files && e.target.files.length) {
+      setFile(e.target.files[0]);
+    }
+  }
+
+  const props: UploadProps = {
+    name: 'file',
+    listType: "picture-card",
+    action: 'https://xw3pr7ak-7dqrsyftta-de.a.run.app/extract_data?output_language=English',
+    onChange(info) {
+      if (info.file.status !== 'uploading') {
+        console.log(info.file, info.fileList);
+      }
+      if (info.file.status === 'done') {
+        console.warn(info.file.response);
+        console.warn('File uploaded successfully');
+        // message.success(`${info.file.name} file uploaded successfully`);
+      } else if (info.file.status === 'error') {
+        console.warn(info.file.response);
+        console.warn('File uploaded successfully');
+        // message.error(`${info.file.name} file upload failed.`);
+      }
+    },
+  };
 
   return <>
     <div className="w-full step-one-h">
@@ -214,11 +257,18 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
         </tbody>
       </table>
 
-      <Button className="w-full mt-3 h-8 min-h-8 sticky bottom-0"
-        type="primary"
-        onClick={ () => addItem() }>
-        Add Item
-      </Button>
+      <div className="flex flex-row w-full gap-1 sticky bottom-0  mt-3">
+        <Button className="w-11/12 h-8 min-h-8 "
+          type="primary"
+          onClick={ () => addItem() }>
+          Add Item
+        </Button>
+        <Button className="w-1/12 flex items-center cursor-pointer md:hover:opacity-50"
+          type="primary"
+          onClick={ () => toggleScanItem() }>
+          <CameraOutlined className="text-lg" />
+        </Button>
+      </div>
 
       <Modal title="Set Paid By"
              footer={null}
@@ -241,6 +291,25 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
               })
             }
           </div>
+        </div>
+      </Modal>
+
+      <Modal title="Upload your receipt"
+             footer={null}
+             centered
+             onCancel={ () => toggleScanItem() }
+             open={ openScanPopup } >
+        <div className="h-[320px] overflow-auto flex flex-col">
+          <Dragger {...props}>
+            <p className="ant-upload-drag-icon">
+              <InboxOutlined />
+            </p>
+            <p className="ant-upload-text">Click or drag file to this area to upload</p>
+            <p className="ant-upload-hint">
+              Support for a single or bulk upload. Strictly prohibited from uploading company data or other
+              banned files.
+            </p>
+          </Dragger>
         </div>
       </Modal>
     </div>
