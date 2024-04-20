@@ -1,7 +1,7 @@
 'use client';
 
 import { Item } from "@/models/item.models";
-import { Input, Button, Popconfirm, Avatar, Modal, Tooltip, Upload, Popover, message } from 'antd';
+import { Input, Button, Popconfirm, Avatar, Modal, Tooltip, Upload, message } from 'antd';
 import { 
   CheckOutlined, 
   CloseOutlined, 
@@ -15,8 +15,8 @@ import { useEffect, useState } from "react";
 import { Person } from "@/models/person.models";
 import type { UploadProps } from 'antd';
 import { ScanResponse, Scanner } from "@/models/scanner.models";
+import ScanReceipt, { ScanReceiptParams } from "./scan-receipt";
 
-const { Dragger } = Upload; 
 
 
 export interface StepTwoParams {
@@ -27,11 +27,11 @@ export interface StepTwoParams {
 
 export default function StepTwo(params: { params: StepTwoParams }): JSX.Element {
 
-  const [messageApi, contextHolder] = message.useMessage();
+  
   const [openScanPopup, setOpenScanPopup] = useState<boolean>(false);
   const [originalItem, setOriginalItem] = useState<Item | null>(null);
   const [paidByIndex, setPaidByIndex] = useState<number | null>(null);
-  const [scanner, setNewScanner] = useState<Scanner>(new Scanner({}));
+  const [scanner, setScanner] = useState<Scanner>(new Scanner({}));
   const [open, setOpen] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex ] = useState<number | null>(null);
 
@@ -119,33 +119,10 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
     setPaidByIndex(null);
   }
 
-  function toggleScanItem(): void {
+  function toggleScan(): void {
     setOpenScanPopup(!openScanPopup);
-    setNewScanner(new Scanner({}));
+    setScanner(new Scanner({}));
   }
-
-  const props: UploadProps = {
-    name: 'image',
-    multiple: false,
-    maxCount: 1,
-    className: 'w-full',
-    listType: "picture",
-    action: 'https://xw3pr7ak-7dqrsyftta-de.a.run.app/extract_data?output_language=English',
-    onChange(info) {
-      switch (info.file.status) {
-        case 'uploading':
-          message.loading('Uploading file...');
-          break;
-        case 'done':
-          scanner.response =  info.file.response as ScanResponse;
-          setNewScanner(scanner);
-          break;
-        case 'error':
-          message.error(`${info.file.name} file upload failed.`);
-          break;
-      }
-    },
-  };
 
   function setScannedItems(): void {
     const scannedItems = scanner.response?.items || [];
@@ -161,9 +138,17 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
     setOpenScanPopup(false);
   }
 
+  const scanReceipt: ScanReceiptParams = {
+    scanner,
+    setScanner,
+    openScanPopup,
+    toggleScan,
+    people: params.params.people,
+  };
+
   return <>
     <div className="w-full step-one-h">
-      { contextHolder }
+      
       <table className="w-full">
         <thead>
           <tr>
@@ -270,10 +255,12 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
         </Button>
         <Button className="w-1/12 flex items-center cursor-pointer md:hover:opacity-50"
           type="primary"
-          onClick={ () => toggleScanItem() }>
+          onClick={ () => toggleScan() }>
           <CameraOutlined className="text-lg" />
         </Button>
       </div>
+
+      <ScanReceipt {...scanReceipt} />
 
       <Modal title="Set Paid By"
              footer={null}
@@ -285,12 +272,9 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
             {
               params.params.people.map((person, personIndex) => {
                 return <div className="flex flex-col"
+                      onClick={() => setPaidBy(personIndex) }
                       key={personIndex}>
-                  <div className='bg-third cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
-                                  onClick={() => setPaidBy(personIndex) }>
-                        <Avatar src={person.profile} className='w-12 h-12 ' />
-                      </div>
-                  <h6 className="text-center">{person.name || '-'}</h6>
+                  <RoundedAvatar person={person} />
                 </div>
               })
             }
@@ -298,64 +282,9 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
         </div>
       </Modal>
 
-      <Modal title="Upload your receipt"
-             footer={null}
-             centered
-             onCancel={ () => toggleScanItem() }
-             open={ openScanPopup } >
-        <div className="h-fit max-h-[350px] my-3 overflow-auto">
-          <div className="flex flex-col">
-            <Popover content={() => 
-                      (PersonList({ 
-                        profiles: params.params.people,
-                        scanner: scanner,
-                        setScanner: setNewScanner,
-                        setOpen: setOpen,
-                      }))
-                    }
-                    open={open}
-                    title="Choose Who Paid">
-              {
-                scanner.paidBy?.profile
-                ? <div className="flex flex-row gap-5 justify-center items-center"
-                       onClick={ () => setOpen(!open)}>
-                  <h5 className="w-auto">Paid By</h5>
-                  <div className="w-auto">
-                    <RoundedAvatar person={scanner.paidBy}/>
-                  </div> 
-                </div>
-                : <Button className="w-full h-8 min-h-8"
-                          onClick={ () => setOpen(!open)}>
-                  Choose Paid By
-                </Button>
-              }
-            </Popover>
-            <hr className="w-full my-3" />
-            <div className="w-auto h-auto">
-              <Dragger {...props}>
-                <p className="ant-upload-drag-icon">
-                  <InboxOutlined />
-                </p>
-                <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                <p className="ant-upload-hint">
-                  Support for a single or bulk upload. Strictly prohibited from uploading company data or other
-                  banned files.
-                </p>
-              </Dragger>
-            </div>
-          </div>
-        </div>
-        
-        <Button type="primary"
-          className="w-full max-h-8"
-          onClick={() => setScannedItems() }>
-          Set
-        </Button>
-      </Modal>
     </div>
   </>
 }
-
 
 
 export function PaidBy(params: { person: Person | null, toggle: Function} ): JSX.Element {
@@ -373,26 +302,6 @@ export function PaidBy(params: { person: Person | null, toggle: Function} ): JSX
   </div>
 }
 
-export function PersonList(params: { profiles: Person[], scanner: Scanner, setScanner: Function, setOpen: Function}): JSX.Element {
-  return <div className="w-[200px] h-16 flex flex-row gap-5 justify-between overflow-x-auto">
-    {
-      params.profiles.map((person, index) => {
-        return <div key={`person-${index}`}
-                    onClick={() => {
-                        params.setScanner({
-                          ...params.scanner,
-                          paidBy: person,
-                        });
-                        params.setOpen(false);
-                      }
-                    }>
-          <RoundedAvatar person={person} />
-        </div>
-      })
-    }
-  </div>
-}
-
 export function RoundedAvatar(params: { person: Person }): JSX.Element {
   return <div className="flex flex-col items-center gap-1 md:hover:opacity-50 cursor-pointer">
     <div className="p-1 w-fit h-fit bg-second rounded-full">
@@ -400,5 +309,4 @@ export function RoundedAvatar(params: { person: Person }): JSX.Element {
     </div>
     <small className="text-center">{ params.person.name || '-' }</small>
   </div>
-
 }
