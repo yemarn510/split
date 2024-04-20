@@ -1,9 +1,8 @@
 import { Person } from "@/models/person.models";
 import { ScanResponse, Scanner } from "@/models/scanner.models";
-import { InboxOutlined } from "@ant-design/icons";
+import { InboxOutlined, UserOutlined } from "@ant-design/icons";
 import { Modal, Popover, Button, UploadProps, message, Upload } from "antd";
 
-import Dragger from "antd/es/upload/Dragger";
 import { useEffect, useState } from "react";
 import RoundedAvatar from "./custom-avatar";
 import { Item } from "@/models/item.models";
@@ -85,7 +84,7 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
         <Button type="primary"
           className="w-full max-h-8 sticky bottom-0"
           onClick={() => params.mergeItems(scannedItems) }>
-          Done
+          Save Items
         </Button>
       </div>
     }
@@ -113,6 +112,7 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
                 </div> 
               </div>
               : <Button className="w-full h-8 min-h-8"
+                        icon={<UserOutlined />}
                         onClick={ () => setOpen(!open)}>
                 Choose Paid By
               </Button>
@@ -121,7 +121,10 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
           <hr className="w-full my-3" />
           <div className="w-auto h-auto">
             <Upload {...props}>
-              <Button icon={<InboxOutlined />}>Click to upload</Button>
+              <Button icon={<InboxOutlined />}
+                      className="w-full">
+                Click to upload
+              </Button>
             </Upload>
           </div>
         </div>
@@ -129,8 +132,9 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
       
       <Button type="primary"
         className="w-full max-h-8"
+        disabled={!params.scanner.paidBy && !params.scanner.response}
         onClick={() => scanImage() }>
-        Scan the Receipt
+        See the result
       </Button>
     </>
   }

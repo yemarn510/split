@@ -28,6 +28,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
   const [paidByIndex, setPaidByIndex] = useState<number | null>(null);
   const [currentIndex, setCurrentIndex]= useState<number | null>(null);
   const [scanner, setScanner] = useState<Scanner>(new Scanner({}));
+  const [originalItem, setOriginalItem] = useState<Item | null>(null);
 
   function setPaidBy(personIndex: number): void {
     params.params.items[paidByIndex!].paidBy = params.params.people[personIndex];
@@ -41,20 +42,6 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
     setScanner(new Scanner({}));
   }
 
-  function setScannedItems(): void {
-    const scannedItems = scanner.response?.items || [];
-    const cloned = [...params.params.items];
-    scannedItems.forEach(each => {
-      cloned.push(new Item({
-        name: each.translated_name,
-        price: each.price,
-        paidBy: scanner.paidBy,
-      }));
-    });
-    params.params.setItems(cloned);
-    setOpenScanPopup(false);
-  }
-
   function addItem(): void {
     if (params.params.items.length && !checkValidOrNot(params.params.items.length - 1, params.params.items, params.params.setItems)) {
       return;
@@ -65,9 +52,11 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
   }
 
   function mergeItems(newItems: Item[]): void {
-    const cloned = [...params.params.items.filter( each => each.name !== '' && each.price !== 0)];
+    const cloned = [...params.params.items.filter( each => each.name !== '' || each.price !== 0)];
     const finalItemList = cloned.concat(newItems);
     params.params.setItems(finalItemList);
+    setCurrentIndex(null);
+    setOriginalItem(null);
     toggleScan();
   }
 
@@ -82,10 +71,12 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
 
   const itemTable: ItemTableParams = {
     items: params.params.items,
+    originalItem,
     setItems: params.params.setItems,
     currentIndex,
     setCurrentIndex,
     setPaidByIndex,
+    setOriginalItem,
   };
 
   return <>

@@ -1,22 +1,22 @@
 import { Item } from "@/models/item.models";
 import { CheckOutlined, CloseOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Tooltip, Popconfirm, Input } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import RoundedAvatar from "./custom-avatar";
 import UnknownPerson from "./unknown-person";
 import checkValidOrNot from "@/common/service";
 
 export interface ItemTableParams {
   items: Item[];
+  originalItem: Item | null;
   setItems: Function;
   setCurrentIndex: Function;
   currentIndex: number | null;
   setPaidByIndex: Function;
+  setOriginalItem: Function;
 }
 
 export default function ItemTable(params: ItemTableParams): JSX.Element {
-
-  const [originalItem, setOriginalItem] = useState<Item | null>(null);
 
   useEffect(() => {
     if (params.items.length === 1) {
@@ -33,7 +33,7 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
       return;
     }
     params.setItems([...params.items]);
-    setOriginalItem(null);
+    params.setOriginalItem(null);
     params.setCurrentIndex(null);
   }
 
@@ -43,12 +43,12 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
       deleteItem(index);
       return;
     }
-    params.items[index] = originalItem || new Item({});
+    params.items[index] = params.originalItem || new Item({});
     const allItems = structuredClone(params.items);
     params.setItems([]);
     setTimeout(() => {
       params.setItems(allItems.map(each => new Item({...each})));
-      setOriginalItem(null);
+      params.setOriginalItem(null);
       params.setCurrentIndex(null);
     }, 1);
   }
@@ -58,7 +58,7 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
       return;
     }
     const cloned = structuredClone(params.items[index]);
-    setOriginalItem(cloned);
+    params.setOriginalItem(cloned);
     params.setCurrentIndex(index);
   }
 
@@ -88,7 +88,7 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
   <tbody>
     {
       params?.items?.map((eachItem, itemIndex) => {
-        return <tr key={`item-${itemIndex}`}>
+        return <tr key={`item-${itemIndex}-${eachItem.name}`}>
           <td className="text-center">{ itemIndex + 1}</td>
           <td className="text-center">
             <Tooltip title={eachItem.error.paidBy || '' }
