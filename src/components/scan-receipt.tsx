@@ -20,10 +20,12 @@ export interface ScanReceiptParams {
 export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
   
   const [open, setOpen]= useState<boolean>(false);
+  const [loading, setLoading]= useState<boolean>(false);
 
   const [messageApi, contextHolder] = message.useMessage();
 
   const [scannedItems, setScannedItems] = useState<Item[]>();
+  const [originalItem, setOriginalItem] = useState<Item | null>(null);
   const [paidByIndex, setPaidByIndex] = useState<number | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number | null>(null);
 
@@ -43,14 +45,19 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
     onChange(info) {
       switch (info.file.status) {
         case 'uploading':
-          messageApi.loading('Uploading file...');
+          if (!loading) {
+            messageApi.loading('Uploading file...');
+            setLoading(true);
+          }
           break;
         case 'done':
           params.scanner.response =  info.file.response as ScanResponse;
           params.setScanner(params.scanner);
+          setLoading(false);
           break;
         case 'error':
           messageApi.error(`${info.file.name} file upload failed.`);
+          setLoading(false);
           break;
       }
     },
@@ -75,6 +82,8 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
     setCurrentIndex: setCurrentIndex,
     currentIndex: currentIndex,
     setPaidByIndex: setPaidByIndex,
+    setOriginalItem,
+    originalItem,
   }
 
   function getContent(): JSX.Element {
@@ -132,7 +141,7 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
       
       <Button type="primary"
         className="w-full max-h-8"
-        disabled={!params.scanner.paidBy && !params.scanner.response}
+        disabled={!params.scanner.paidBy || !params.scanner.response}
         onClick={() => scanImage() }>
         See the result
       </Button>
