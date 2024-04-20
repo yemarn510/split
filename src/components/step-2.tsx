@@ -4,6 +4,7 @@ import { Item } from "@/models/item.models";
 import { Button, Modal } from 'antd';
 import {  
   CameraOutlined,
+  PlusOutlined,
 } from '@ant-design/icons';
 import { useState } from "react";
 import { Person } from "@/models/person.models";
@@ -85,12 +86,13 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
       <ItemTable {...itemTable} />
 
       <div className="flex flex-row w-full gap-1 sticky bottom-0  mt-3">
-        <Button className="w-11/12 h-8 min-h-8 "
+        <Button className="w-9/12 md:w-11/12 lg:w-10/12 h-8 min-h-8 "
           type="primary"
+          icon={<PlusOutlined />}
           onClick={ () => addItem() }>
           Add Item
         </Button>
-        <Button className="w-1/12 flex items-center cursor-pointer md:hover:opacity-50"
+        <Button className="w-3/12 md:w-1/12 lg:w-2/12 flex items-center justify-center cursor-pointer md:hover:opacity-50"
           type="primary"
           onClick={ () => toggleScan() }>
           <CameraOutlined className="text-lg" />
