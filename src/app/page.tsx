@@ -150,11 +150,14 @@ export default function Home() {
   }
 
   function copyToClipboard(): void {
-    const text = results.filter(each => each.total > 0).map(each => {
-      return `${each.person.name || '-'}\n${each.items.map((eachItem) => {
-        return `${eachItem.paidBy?.name} ( ${eachItem.name } ) - ${ (eachItem.price/eachItem.sharedNumber).toFixed(2)}`
-      }).join('\n')}\n----------------------`
-    }).join('\n');
+    const text = results
+      .filter( person => person.total > 0 )
+      .map((eachResult: Result, resultIndex: number) => {
+        const items = Object.keys(eachResult.totalToPayFor || {}).map((paidByName, paidByNameIndex) => {
+          return `${paidByName} - ${eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0}`;
+        }).join('\n');
+        return `${eachResult.person.name}\n${items}\n---------------------------------------------`;
+      }).join('\n');
     navigator.clipboard.writeText(text);
     messageApi.info('Copied !', 2);
   }
@@ -218,7 +221,8 @@ export default function Home() {
   }
 
   const stepFourParams: StepFourParams = {
-    results
+    results,
+    setResults,
   }
 
   return (
@@ -270,21 +274,26 @@ export default function Home() {
              open={openSharePopup} >
         <div className='h-[320px] rounded bg-[#faf1e6] overflow-auto p-5'>
           {
-            results.filter( person => person.total > 0 ).map((each, index) => {
-              return <h5 className=''
-                        key={`total-${index}`}>
-                <p className='font-bold'>{ each.person.name || '-'}</p>
-                {
-                  each.items.map((eachItem, itemIndex) => {
-                    return <p key={`result-item-${itemIndex}`}>
-                      { eachItem.paidBy?.name } ( { eachItem.name } ) -
-                      <b className='font-bold pl-1'>{ (eachItem.price/eachItem.sharedNumber).toFixed(2)}</b>
-                    </p>
-                  })
-                }
-                -------------------------------------------
-              </h5>
-            })
+            results
+              .filter( person => person.total > 0 )
+              .map((eachResult: Result, resultIndex: number) =>
+              <div key={`result-index-${resultIndex}`}
+                  className='flex flex-col justify-between mb-1'>
+                    <div className='w-full font-bold'>
+                      { eachResult.person.name }
+                    </div>
+                    {
+                      Object.keys(eachResult.totalToPayFor || {}).map((paidByName, paidByNameIndex) => {
+                        return <li key={`result-item-${paidByNameIndex}`}
+                                  className="flex flex-row">
+                        <span className='pr-2'>{ paidByName }</span> -
+                        <b className='font-bold pl-2'>{ (eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0).toFixed(2)}</b>
+                      </li>
+                      })
+                    }
+                    ---------------------------------------------
+                  </div>
+              )
           }
         </div>
         <div className='text-center mt-5'>
