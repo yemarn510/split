@@ -148,6 +148,12 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
+.step-3-h {
+  height: calc(100dvh - 350px);
+  overflow-y: auto;
+  border: 1px solid red;
+}
+
 
 
 .people-space {

@@ -1,14 +1,15 @@
 'use client';
 
 import Image from 'next/image';
-import { Carousel, Avatar, Modal, Spin } from 'antd';
-import { useEffect, useRef, useState } from 'react';
-import type { CarouselRef } from 'antd/es/carousel';
-import { LeftOutlined, RightOutlined, CheckOutlined, LoadingOutlined } from '@ant-design/icons';
+import { Avatar, Modal, Button } from 'antd';
+import { useEffect, useState } from 'react';
+import { UserAddOutlined, CheckOutlined } from '@ant-design/icons';
 
 import { Item } from '@/models/item.models';
 import { Person, generateRandomInteger } from '@/models/person.models';
 import { Split, SplitDictionary } from '@/models/split.models';
+import { split } from 'postcss/lib/list';
+import RoundedAvatar from './custom-avatar';
 
 export interface StepThreeParams {
   items: Item[];
@@ -17,6 +18,8 @@ export interface StepThreeParams {
   setSplitDict: Function;
   setItems: Function;
 }
+
+type PersonDict = { [key: string]: Person };
 
 const FOOD_IMAGES: string[] = [
   './svgs/reshot-icon-canned-fish-food-UHEQNSRM5T.svg',
@@ -43,15 +46,14 @@ const FOOD_IMAGES: string[] = [
 ];
 
 
-export default function StepThree(params: { params: StepThreeParams }): JSX.Element {
+export default function StepThree(params: { params: StepThreeParams}): JSX.Element {
 
-  const slider = useRef<CarouselRef>(null);
   const [changingItemIndex, setChangingItemIndex] = useState<number | null>(null);
-  const [showLoading, setShowLoading] = useState<boolean>(false);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
+
+  const [peopleDict, setPeopleDict] = useState<PersonDict>({});
+  const [participantItemIndex, setParticipantItemIndex] = useState<number | null>(null);
 
   useEffect(() =>  {
-    setShowLoading(true);
     const items = params.params.items;
     const splitDictLocal = params.params.splitDict;
 
@@ -67,29 +69,34 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
 
     params.params.setSplitDict(splitDictLocal);
     params.params.setItems(items);
-
-    showItems();
   }, []);
 
-  function showItems(): void {
-    setTimeout(() => {
-      setShowLoading(false);
-    }, 100);
-  }
-
-  function onChange(index: number) {
-    setCurrentIndex(index);
-  }
+  useEffect( () => {
+    const localPeopleDict: { [key: string]: Person } = {};
+    params.params.people.forEach((each, index) => {
+      localPeopleDict[index] = each;
+    });
+    setPeopleDict(localPeopleDict);
+  }, [params.params.people]);
 
   function assignPerson(index: number): void {
-    params.params.splitDict[currentIndex].sharingPersonIndex.has(index) 
-      ? params.params.splitDict[currentIndex].sharingPersonIndex.delete(index)
-      : params.params.splitDict[currentIndex].sharingPersonIndex.add(index);
-    params.params.setSplitDict({ ...params.params.splitDict });
+    if (participantItemIndex === null) {
+      return;
+    }
+    const cloned = {...params.params.splitDict};
+    const sharingPersonIndex = cloned[participantItemIndex]?.sharingPersonIndex || new Set<number>();
+    sharingPersonIndex.has(index)
+    ? sharingPersonIndex.delete(index)
+    : sharingPersonIndex.add(index);
+    cloned[participantItemIndex].sharingPersonIndex = sharingPersonIndex;
+    params.params.setSplitDict(cloned);
   }
 
   function isSelected(personIndex: number): boolean {
-    return params.params.splitDict[currentIndex]?.sharingPersonIndex.has(personIndex);
+    if (participantItemIndex === null) {
+      return false;
+    }
+    return params.params.splitDict[participantItemIndex!]?.sharingPersonIndex.has(personIndex) || false;
   }
 
   function toggleModal(index: number | null): void {
@@ -103,73 +110,55 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
     setChangingItemIndex(null);
   }
 
+  function toggleParticipants(index: number | null): void {
+    setParticipantItemIndex(index);
+  }
+
   return <>
     <div className='w-full'>
-      <div className='flex flex-row gap-3 w-full max-w-[320px] md:max-w-[350px] m-auto'>
-        <div className="w-1/5 flex items-center justify-center">
-          <LeftOutlined className='text-xl text-main bg-third rounded-full p-4 cursor-pointer hover:opacity-50'
-                        onClick={() => slider?.current?.prev() } />
-        </div>
-        <div className="w-3/5">
-          {
-            !showLoading 
-            ? 
-              <Carousel afterChange={onChange}
-                ref={slider}>
-                {
-                  params.params.items.map((each, itemIndex) => {
-                    return <div key={`food-image-${itemIndex}`}>
-                      <div className='cursor-pointer hover:opacity-50 relative'
-                          onClick={() => toggleModal(itemIndex) }>
-                        <ItemImage image={each.image} />
+      <div className='step-3-h'>
+        {
+          params.params.items?.map((each, itemIndex) => {
+            return <div className='w-full flex flex-row gap-5 items-center'
+                        key={`food-image-${itemIndex}`}>
+             <div className='w-1/3 flex flex-col'>
+              <div className='cursor-pointer hover:opacity-50'
+                  onClick={() => toggleModal(itemIndex) }>
+                <div className='w-fit h-fit m-auto relative'>
+                  <ItemImage image={each.image} />
 
-                        <div className='absolute top-0 left-0 flex flex-col justify-center bg-fourth p-1 rounded-lg'>
-                          <small className='text-center'>Paid By</small>
-                          <div className={`rounded-full w-8 h-8 mx-auto flex items-center justify-center`}>
-                            <Avatar src={each.paidBy?.profile} className='w-6 h-6 ' />
-                          </div>
-                          <small className='text-center mx-auto max-w-[30px]'>{ each.paidBy?.name }</small>
-                        </div>
-                      </div>
-                      <h6 className='text-center mx-auto text-grey text-xs'>
-                        Item Name / Price
-                      </h6>
-                      <h4 className='text-center mb-1'>
-                        { each.name } / { each.price }
-                      </h4>
+                  <div className='absolute top-0 -right-10 z-10 flex flex-col justify-center bg-fourth p-1 rounded-lg'>
+                    <small className='text-center'>Paid By</small>
+                    <div className={`rounded-full w-8 h-8 mx-auto flex items-center justify-center`}>
+                      <Avatar src={each.paidBy?.profile} className='w-6 h-6 ' />
                     </div>
-                  })
-                }
-              </Carousel>
-            : <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
-          }
-          
-        </div>
-        <div className="w-1/5 flex items-center justify-center">
-          <RightOutlined className='text-xl text-main bg-third rounded-full p-4 cursor-pointer hover:opacity-50'
-                        onClick={() => slider?.current?.next() } />
-        </div>
-      </div>
+                    <small className='text-center mx-auto max-w-[30px]'>{ each.paidBy?.name }</small>
+                  </div>
+                </div>
 
-      <div className='people-space'>
-        <div className="flex flex-row flex-wrap gap-5 mt-5 m-auto justify-center">
-          {
-            params.params.people.map((each, personIndex) => {
-              return <div key={`person-${personIndex}`} 
-                          onClick={() => assignPerson(personIndex)}
-                          className="flex flex-col items-center justify-center gap-1 md:gap-3 cursor-pointer relative">
-                <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center md:transition-opacity md:duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
-                  <CheckOutlined className='text-white' />
                 </div>
-                <div className={`rounded-full w-20 h-20 flex items-center justify-center md:transition-colors md:duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
-                  <Avatar src={each.profile} className='w-12 h-12 ' />
-                </div>
-                <p className="text-center">{ each.name || '-' }</p>
+                <h6 className='text-center mx-auto text-grey text-xs'>
+                  Item Name / Price
+                </h6>
+                <h4 className='text-center mb-1'>
+                  { each.name } / { each.price }
+                </h4>
+             </div>
+             <div className="w-2/3 flex flex-col gap-3 justify-center">
+              <div className='w-full flex flex-row justify-center'>
+                <ShowSomeSharedPeople personDict={peopleDict}
+                                      sharingParticipant={params.params.splitDict[itemIndex]?.sharingPersonIndex} />
               </div>
-            })
-          }
-        </div>
-      </div>
+              <Button icon={<UserAddOutlined />}
+                        onClick={() => toggleParticipants(itemIndex)}
+                        className='bg-second border border-main'>
+                Select Participants
+              </Button>
+             </div>
+            </div>
+          })
+        }
+      </div>  
     </div>
 
 
@@ -190,6 +179,30 @@ export default function StepThree(params: { params: StepThreeParams }): JSX.Elem
         }
       </div>
     </Modal>
+
+    <Modal title="Choose Participants"
+             footer={null}
+             centered
+             onCancel={ () => setParticipantItemIndex(null) }
+             open={participantItemIndex !== null} >
+      <div className='grid grid-cols-3 md:grid-cols-4 gap-4 h-[320px] overflow-auto p-5'>
+        {
+          params.params.people.map((each, personIndex) => {
+            return <div key={`person-${personIndex}`} 
+                        onClick={() => assignPerson(personIndex)}
+                        className="flex flex-col items-center justify-center gap-1 md:gap-3 cursor-pointer relative">
+              <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center md:transition-opacity md:duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
+                <CheckOutlined className='text-white' />
+              </div>
+              <div className={`rounded-full w-20 h-20 flex items-center justify-center md:transition-colors md:duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
+                <Avatar src={each.profile} className='w-12 h-12 ' />
+              </div>
+              <p className="text-center">{ each.name || '-' }</p>
+            </div>
+          })
+        }
+      </div>
+    </Modal>
   </>
 }
 
@@ -202,4 +215,27 @@ export function ItemImage(params: { image: string }): JSX.Element {
       className='m-auto'
       alt='Food Images' />
   </div>
+}
+
+export function ShowSomeSharedPeople(props: { personDict: PersonDict, sharingParticipant: Set<number> }): JSX.Element {
+  return <>
+    {
+      Array.from(props.sharingParticipant).slice(0, 3).map((each, index) => {
+        return <div className='flex flex-col'
+                    key={`shared-person-${index}`}>
+          <div className={`rounded-full bg-third w-auto h-auto p-2 mx-1 flex items-center justify-center`}>
+            <Avatar src={props.personDict[each].profile} className='w-8 h-8 md:w-12 md:h-12 ' />
+          </div>
+          <h5 className='text-center'>{ props.personDict[each].name || '-' }</h5>
+        </div>
+      })
+    }
+    {
+      props.sharingParticipant.size > 3
+      ? <div className='rounded-full bg-fourth w-12 h-12 md:w-16 md:h-16 mx-1 flex items-center justify-center'>
+        <h5 className='text-white'>+{props.sharingParticipant.size - 3}</h5>
+      </div>
+      : null
+    }
+  </>
 }
