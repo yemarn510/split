@@ -139,9 +139,9 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
       <div className='step-3-h'>
         {
           params.params.items?.map((each, itemIndex) => {
-            return <div className='w-full flex flex-row gap-5 items-center border-b border-main px-2 py-3 mt-2'
+            return <div className='w-full flex flex-col md:flex-row gap-5 items-center border-b border-main px-2 py-3 mt-2'
                         key={`food-image-${itemIndex}`}>
-             <div className='w-1/3 flex flex-col'>
+             <div className='w-full md:w-1/3 flex flex-col'>
               <div className='cursor-pointer hover:opacity-50'
                   onClick={() => toggleModal(itemIndex) }>
                 <div className='w-fit h-fit m-auto relative'>
@@ -161,7 +161,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
                 { each.name } / { each.price }
               </h4>
              </div>
-             <div className="w-2/3 flex flex-col gap-3 items-center justify-center">
+             <div className="w-full md:w-2/3 flex flex-col gap-3 items-center justify-center">
               {
                 params.params.splitDict[itemIndex]?.sharingPersonIndex.size > 0 &&
                 <div className='w-full flex flex-row justify-center'>
@@ -171,7 +171,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
               }
               <Button icon={<UserAddOutlined />}
                         onClick={() => toggleParticipants(itemIndex)}
-                        className='bg-second border border-main w-fit cursor-pointer'>
+                        className='bg-second border border-main w-fit cursor-pointer mb-3 md:mb-0'>
                 Select Participants
               </Button>
              </div>
