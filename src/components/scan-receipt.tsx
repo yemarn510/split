@@ -117,6 +117,7 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
     setPaidByIndex: setPaidByIndex,
     setOriginalItem,
     originalItem,
+    showTotal: true,
   }
 
   function getContent(): JSX.Element {

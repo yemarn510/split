@@ -14,6 +14,7 @@ export interface ItemTableParams {
   currentIndex: number | null;
   setPaidByIndex: Function;
   setOriginalItem: Function;
+  showTotal: boolean;
 }
 
 export default function ItemTable(params: ItemTableParams): JSX.Element {
@@ -180,6 +181,18 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
           </td>
         </tr>
       })
+    }
+    {
+      params.showTotal &&
+      <tr className="border-t-2 border-main">
+        <td colSpan={3}
+            className="text-right text-xl pr-3 font-bold py-4">
+          Total
+        </td>
+        <td className="font-bold pl-3 text-xl py-4">
+          { params.items.reduce((acc, each) => acc + each.price, 0).toFixed(2) }
+        </td>
+      </tr>
     }
   </tbody>
 </table>

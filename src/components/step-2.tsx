@@ -78,6 +78,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
     setCurrentIndex,
     setPaidByIndex,
     setOriginalItem,
+    showTotal: false,
   };
 
   return <>
