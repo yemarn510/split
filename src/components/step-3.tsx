@@ -114,6 +114,26 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
     setParticipantItemIndex(index);
   }
 
+  function toggleSelectAll(): void {
+    if (participantItemIndex === null) {
+      return;
+    }
+    const finalResult = new Set<number>();
+    const cloned = {...params.params.splitDict};
+    const sharingPersonIndex = params.params.splitDict[participantItemIndex]?.sharingPersonIndex || new Set<number>();
+    cloned[participantItemIndex].sharingPersonIndex = sharingPersonIndex.size === params.params.people.length
+      ? finalResult
+      : new Set<number>(params.params.people.map((_, index) => index));
+    params.params.setSplitDict(cloned);
+  }
+
+  function isAllSelected(): boolean {
+    if (participantItemIndex === null) {
+      return false;
+    }
+    return params.params.splitDict[participantItemIndex]?.sharingPersonIndex.size === params.params.people.length;
+  }
+
   return <>
     <div className='w-full'>
       <div className='step-3-h'>
@@ -185,22 +205,40 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
              centered
              onCancel={ () => setParticipantItemIndex(null) }
              open={participantItemIndex !== null} >
-      <div className='grid grid-cols-3 md:grid-cols-4 gap-4 h-[320px] overflow-auto p-5'>
-        {
-          params.params.people.map((each, personIndex) => {
-            return <div key={`person-${personIndex}`} 
-                        onClick={() => assignPerson(personIndex)}
-                        className="flex flex-col items-center justify-center gap-1 md:gap-3 cursor-pointer relative">
-              <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center md:transition-opacity md:duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
-                <CheckOutlined className='text-white' />
+      <div className='mt-3'>
+        <div className='w-full text-center'>
+          <Button type="default"
+                  className={`${isAllSelected() ? 'bg-main text-white' : ''} min-w-40 `}
+                  onClick={() => toggleSelectAll()}>
+            { 
+              isAllSelected()  ? 'Deselect All' : 'Select All'
+            }
+          </Button>
+        </div>
+        <div className='grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4 h-[320px] overflow-auto p-5'>
+          {
+            params.params.people.map((each, personIndex) => {
+              return <div key={`person-${personIndex}`} 
+                          onClick={() => assignPerson(personIndex)}
+                          className="flex flex-col items-center justify-center gap-1 md:gap-3 cursor-pointer relative">
+                <div className={`absolute right-2 top-2 w-[25px] h-[25px] flex justify-center items-center md:transition-opacity md:duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
+                  <CheckOutlined className='text-white' />
+                </div>
+                <div className={`rounded-full p-4 flex items-center justify-center md:transition-colors md:duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
+                  <Avatar src={each.profile} className='w-12 h-12 ' />
+                </div>
+                <p className="text-center">{ each.name || '-' }</p>
               </div>
-              <div className={`rounded-full w-20 h-20 flex items-center justify-center md:transition-colors md:duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
-                <Avatar src={each.profile} className='w-12 h-12 ' />
-              </div>
-              <p className="text-center">{ each.name || '-' }</p>
-            </div>
-          })
-        }
+            })
+          }
+        </div>
+
+        <div className='w-full text-right'>
+          <Button type="primary"
+                  onClick={() => setParticipantItemIndex(null)}>
+            Close
+          </Button>
+        </div>
       </div>
     </Modal>
   </>
@@ -220,7 +258,7 @@ export function ItemImage(params: { image: string }): JSX.Element {
 export function ShowSomeSharedPeople(props: { personDict: PersonDict, sharingParticipant: Set<number> }): JSX.Element {
   return <>
     {
-      Array.from(props.sharingParticipant).slice(0, 3).map((each, index) => {
+      props.sharingParticipant?.size > 0 && Array.from(props.sharingParticipant).slice(0, 3).map((each, index) => {
         return <div className='flex flex-col'
                     key={`shared-person-${index}`}>
           <div className={`rounded-full bg-third w-auto h-auto p-2 mx-1 flex items-center justify-center`}>
@@ -231,7 +269,7 @@ export function ShowSomeSharedPeople(props: { personDict: PersonDict, sharingPar
       })
     }
     {
-      props.sharingParticipant.size > 3
+      props.sharingParticipant?.size > 3
       ? <div className='rounded-full bg-fourth w-12 h-12 md:w-16 md:h-16 mx-1 flex items-center justify-center'>
         <h5 className='text-white'>+{props.sharingParticipant.size - 3}</h5>
       </div>
