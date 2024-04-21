@@ -147,12 +147,9 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
                 <div className='w-fit h-fit m-auto relative'>
                   <ItemImage image={each.image} />
 
-                  <div className='absolute top-0 -right-10 z-10 flex flex-col justify-center bg-fourth p-1 rounded-lg'>
+                  <div className='absolute -top-6 -right-8 z-10 flex flex-col justify-center p-1 rounded-lg'>
                     <small className='text-center text-xs'>Paid By</small>
-                    <div className={`rounded-full w-8 h-8 mx-auto flex items-center justify-center`}>
-                      <Avatar src={each.paidBy?.profile} className='w-6 h-6' />
-                    </div>
-                    <small className='text-center mx-auto max-w-[30px] text-xs'>{ each.paidBy?.name }</small>
+                    <RoundedAvatar person={each.paidBy!} size="small" bg={'bg-main'} />
                   </div>
                 </div>
               </div>
@@ -233,7 +230,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
         </div>
 
         <div className='w-full text-right'>
-          <Button type="primary"
+          <Button type="default"
                   onClick={() => setParticipantItemIndex(null)}>
             Close
           </Button>

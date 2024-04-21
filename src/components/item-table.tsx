@@ -99,7 +99,7 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
               <div onClick={() => params.setPaidByIndex(itemIndex)}>
                 {
                   eachItem.paidBy
-                  ? <RoundedAvatar person={eachItem.paidBy}/>
+                  ? <RoundedAvatar person={eachItem.paidBy} />
                   : <UnknownPerson />
                 }
               </div>
