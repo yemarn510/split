@@ -171,10 +171,13 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
             
             <div className="w-auto h-auto">
               <Upload { ...props }>
-                <Button icon={<InboxOutlined />}
-                        className="w-full">
-                  Click to upload
-                </Button>
+                {
+                  !loading && !params.scanner.response &&
+                  <Button icon={<InboxOutlined />}
+                          className="w-full">
+                    Click to upload
+                  </Button>
+                }
               </Upload>
               <small className="text-danger w-full mx-auto">{ error.image || ''}</small>
             </div>
