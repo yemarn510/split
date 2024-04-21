@@ -86,7 +86,7 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
     }
     const scannedItems = params.scanner.response.items.map(each => new Item({
       name: each.translated_name,
-      price: each.price,
+      price: each.total,
       paidBy: params.scanner.paidBy,
     }));
     setScannedItems(scannedItems);
