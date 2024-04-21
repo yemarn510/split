@@ -201,7 +201,13 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
     <Modal title="Upload your receipt"
              footer={null}
              centered
-             onCancel={ () => params.toggleScan() }
+             onCancel={ () => {
+                setOpen(false)
+                setTimeout( () => {
+                  params.toggleScan();
+                }, 1);
+              }
+            }
              open={ params.openScanPopup } >
       { getContent() }
     </Modal>

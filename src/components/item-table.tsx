@@ -105,25 +105,28 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
               </div>
             </Tooltip>
           </td>
-          <td className="px-1 md:px-3">
+          <td className="px-1 md:px-3"
+              id={`${itemIndex}-${eachItem.name}`}>
             <Tooltip title={eachItem.error.name || '' }
                      open={!!eachItem.error.name}
                      color={'#ff4d4f'}
-                     zIndex={10} >
-              <Input id="item-name"
-                  type="text"
-                  disabled={ params.currentIndex !== itemIndex }
-                  defaultValue={eachItem.name}
-                  onChange={(e) => {
-                    e.preventDefault();
-                    eachItem.name = e.target.value;
-                    params.items[itemIndex] = eachItem;
-                    params.setItems(params.items);
-                    delete eachItem.error.name;
-                  }}
-                  placeholder="KFC, McDonalds, etc."
-                  className="w-full"
-              />
+                     zIndex={10} fresh>
+              <div>
+                <Input id={`item-name-${itemIndex}-${eachItem.name}`}
+                    type="text"
+                    disabled={ params.currentIndex !== itemIndex }
+                    defaultValue={eachItem.name}
+                    onChange={(e) => {
+                      e.preventDefault();
+                      eachItem.name = e.target.value;
+                      delete eachItem.error.name;
+                      params.items[itemIndex] = eachItem;
+                      params.setItems(params.items);
+                    }}
+                    placeholder="KFC, McDonalds, etc."
+                    className="w-full"
+                />
+              </div>
             </Tooltip>
           </td>
           <td className="px-1 md:px-3">
@@ -131,7 +134,8 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
                      open={!!eachItem.error.price}
                      color={'#ff4d4f'}
                      zIndex={10} >
-              <Input id="item-price"
+              <div>
+                <Input id="item-price"
                       type="number"
                       inputMode="decimal"
                       disabled={ params.currentIndex !== itemIndex }
@@ -140,12 +144,13 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
                       onChange={(e) => {
                         e.preventDefault();
                         eachItem.price = +e.target.value || 0;
+                        delete eachItem.error.price;
                         params.items[itemIndex] = eachItem;
                         params.setItems(params.items);
-                        delete eachItem.error.price;
                       }}
                       className="w-full"
                 />
+              </div>
             </Tooltip>
           </td>
           <td>
