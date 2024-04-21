@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { Avatar, Modal, Button } from 'antd';
 import { useEffect, useState } from 'react';
-import { UserAddOutlined, CheckOutlined } from '@ant-design/icons';
+import { UserAddOutlined, CheckOutlined, UsergroupAddOutlined } from '@ant-design/icons';
 
 import { Item } from '@/models/item.models';
 import { Person, generateRandomInteger } from '@/models/person.models';
@@ -114,24 +114,25 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
     setParticipantItemIndex(index);
   }
 
-  function toggleSelectAll(): void {
-    if (participantItemIndex === null) {
+  function toggleSelectAll(easyIndex: number | null = null): void {
+    const index = participantItemIndex || easyIndex;
+    if (index === null) {
       return;
     }
     const finalResult = new Set<number>();
     const cloned = {...params.params.splitDict};
-    const sharingPersonIndex = params.params.splitDict[participantItemIndex]?.sharingPersonIndex || new Set<number>();
-    cloned[participantItemIndex].sharingPersonIndex = sharingPersonIndex.size === params.params.people.length
+    const sharingPersonIndex = params.params.splitDict[index]?.sharingPersonIndex || new Set<number>();
+    cloned[index].sharingPersonIndex = sharingPersonIndex.size === params.params.people.length
       ? finalResult
       : new Set<number>(params.params.people.map((_, index) => index));
     params.params.setSplitDict(cloned);
   }
 
-  function isAllSelected(): boolean {
-    if (participantItemIndex === null) {
+  function isAllSelected(easyIndex: number| null = null): boolean {
+    if (participantItemIndex === null && easyIndex === null) {
       return false;
     }
-    return params.params.splitDict[participantItemIndex]?.sharingPersonIndex.size === params.params.people.length;
+    return params.params.splitDict[participantItemIndex || easyIndex!]?.sharingPersonIndex.size === params.params.people.length;
   }
 
   return <>
@@ -166,11 +167,22 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
                                         sharingParticipant={params.params.splitDict[itemIndex]?.sharingPersonIndex} />
                 </div>
               }
-              <Button icon={<UserAddOutlined />}
+              
+              <div className='flex flex-row gap-1 md:gap-3 w-full'>
+                <Button icon={<UserAddOutlined />}
+                        type='primary'
                         onClick={() => toggleParticipants(itemIndex)}
-                        className='bg-second border border-main w-fit cursor-pointer mb-3 md:mb-0'>
-                Select Participants
-              </Button>
+                        className='w-1/2 cursor-pointer mb-3 md:mb-0'>
+                  Select Participants
+                </Button>
+
+                <Button icon={<UsergroupAddOutlined />}
+                        type='default'
+                        onClick={() => toggleSelectAll(itemIndex)}
+                        className='w-1/2 bg-second border border-main cursor-pointer mb-3 md:mb-0'>
+                  { isAllSelected(itemIndex) ? 'Deselect All' : 'Select All' }
+                </Button>
+              </div>
              </div>
             </div>
           })
