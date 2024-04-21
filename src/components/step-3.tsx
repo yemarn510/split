@@ -110,12 +110,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
     setChangingItemIndex(null);
   }
 
-  function toggleParticipants(index: number | null): void {
-    setParticipantItemIndex(index);
-  }
-
-  function toggleSelectAll(easyIndex: number | null = null): void {
-    const index = participantItemIndex || easyIndex;
+  function toggleSelectAll(index: number | null): void {
     if (index === null) {
       return;
     }
@@ -128,11 +123,11 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
     params.params.setSplitDict(cloned);
   }
 
-  function isAllSelected(easyIndex: number| null = null): boolean {
-    if (participantItemIndex === null && easyIndex === null) {
+  function isAllSelected(index: number| null): boolean {
+    if (index === null) {
       return false;
     }
-    return params.params.splitDict[participantItemIndex || easyIndex!]?.sharingPersonIndex.size === params.params.people.length;
+    return params.params.splitDict[index]?.sharingPersonIndex.size === params.params.people.length;
   }
 
   return <>
@@ -162,7 +157,8 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
              <div className="w-full md:w-2/3 flex flex-col gap-3 items-center justify-center">
               {
                 params.params.splitDict[itemIndex]?.sharingPersonIndex.size > 0 &&
-                <div className='w-full flex flex-row justify-center'>
+                <div className='w-full flex flex-row justify-center'
+                     onClick={() => setParticipantItemIndex(itemIndex)}>
                   <ShowSomeSharedPeople personDict={peopleDict}
                                         sharingParticipant={params.params.splitDict[itemIndex]?.sharingPersonIndex} />
                 </div>
@@ -171,7 +167,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
               <div className='flex flex-row gap-1 md:gap-3 w-full mb-3 md:mb-0'>
                 <Button icon={<UserAddOutlined />}
                         type='primary'
-                        onClick={() => toggleParticipants(itemIndex)}
+                        onClick={() => setParticipantItemIndex(itemIndex)}
                         className='w-1/2 cursor-pointer px-1'>
                   Select Participants
                 </Button>
@@ -218,9 +214,9 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
       <div className='mt-3'>
         <div className='w-full text-center'>
           <Button type="default"
-                  className={`${isAllSelected() ? 'bg-main text-white' : ''} min-w-40 `}
-                  onClick={() => toggleSelectAll()}>
-            { isAllSelected()  ? 'Deselect All' : 'Select All' }
+                  className={`${isAllSelected(participantItemIndex) ? 'bg-main text-white' : ''} min-w-40 `}
+                  onClick={() => toggleSelectAll(participantItemIndex)}>
+            { isAllSelected(participantItemIndex)  ? 'Deselect All' : 'Select All' }
           </Button>
         </div>
         <div className='h-[320px] overflow-auto p-5 my-2'>
