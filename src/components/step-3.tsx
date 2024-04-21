@@ -139,7 +139,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
       <div className='step-3-h'>
         {
           params.params.items?.map((each, itemIndex) => {
-            return <div className='w-full flex flex-row gap-5 items-center'
+            return <div className='w-full flex flex-row gap-5 items-center border-b border-main px-2 py-3 mt-2'
                         key={`food-image-${itemIndex}`}>
              <div className='w-1/3 flex flex-col'>
               <div className='cursor-pointer hover:opacity-50'
@@ -148,21 +148,18 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
                   <ItemImage image={each.image} />
 
                   <div className='absolute top-0 -right-10 z-10 flex flex-col justify-center bg-fourth p-1 rounded-lg'>
-                    <small className='text-center'>Paid By</small>
+                    <small className='text-center text-xs'>Paid By</small>
                     <div className={`rounded-full w-8 h-8 mx-auto flex items-center justify-center`}>
-                      <Avatar src={each.paidBy?.profile} className='w-6 h-6 ' />
+                      <Avatar src={each.paidBy?.profile} className='w-6 h-6' />
                     </div>
-                    <small className='text-center mx-auto max-w-[30px]'>{ each.paidBy?.name }</small>
+                    <small className='text-center mx-auto max-w-[30px] text-xs'>{ each.paidBy?.name }</small>
                   </div>
                 </div>
+              </div>
 
-                </div>
-                <h6 className='text-center mx-auto text-grey text-xs'>
-                  Item Name / Price
-                </h6>
-                <h4 className='text-center mb-1'>
-                  { each.name } / { each.price }
-                </h4>
+              <h4 className='text-center'>
+                { each.name } / { each.price }
+              </h4>
              </div>
              <div className="w-2/3 flex flex-col gap-3 items-center justify-center">
               {
@@ -174,7 +171,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
               }
               <Button icon={<UserAddOutlined />}
                         onClick={() => toggleParticipants(itemIndex)}
-                        className='bg-second border border-main w-fit'>
+                        className='bg-second border border-main w-fit cursor-pointer'>
                 Select Participants
               </Button>
              </div>
@@ -206,6 +203,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
     <Modal title="Choose Participants"
              footer={null}
              centered
+             closable={false}
              onCancel={ () => setParticipantItemIndex(null) }
              open={participantItemIndex !== null} >
       <div className='mt-3'>
@@ -213,9 +211,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
           <Button type="default"
                   className={`${isAllSelected() ? 'bg-main text-white' : ''} min-w-40 `}
                   onClick={() => toggleSelectAll()}>
-            { 
-              isAllSelected()  ? 'Deselect All' : 'Select All'
-            }
+            { isAllSelected()  ? 'Deselect All' : 'Select All' }
           </Button>
         </div>
         <div className='grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4 h-[320px] overflow-auto p-5'>
@@ -248,10 +244,10 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
 }
 
 export function ItemImage(params: { image: string }): JSX.Element {
-  return <div className='m-auto bg-third rounded-md w-fit p-4 mb-3'>
+  return <div className='m-auto bg-third rounded-md w-fit p-4 mb-1'>
     <Image src={params.image}
-      width={100}
-      height={100}
+      width={80}
+      height={80}
       priority
       className='m-auto'
       alt='Food Images' />
@@ -259,22 +255,39 @@ export function ItemImage(params: { image: string }): JSX.Element {
 }
 
 export function ShowSomeSharedPeople(props: { personDict: PersonDict, sharingParticipant: Set<number> }): JSX.Element {
+
+  const [noOfParticipants, setNoOfParticipants] = useState<number>(3);
+
+  useEffect(() => {
+    window?.addEventListener('resize', () => {
+      setNoOfParticipants(window.innerWidth < 500 ? 2 : 3)
+    });
+
+    return () => {
+      window?.removeEventListener('resize', () => {
+        setNoOfParticipants(window.innerWidth < 500 ? 2 : 3)
+      });
+    }
+  }, []);
+
+  
+
   return <>
     {
-      props.sharingParticipant?.size > 0 && Array.from(props.sharingParticipant).slice(0, 3).map((each, index) => {
+      props.sharingParticipant?.size > 0 && Array.from(props.sharingParticipant).slice(0, noOfParticipants).map((each, index) => {
         return <div className='flex flex-col'
                     key={`shared-person-${index}`}>
           <div className={`rounded-full bg-third w-auto h-auto p-2 mx-1 flex items-center justify-center`}>
-            <Avatar src={props.personDict[each].profile} className='w-8 h-8 md:w-12 md:h-12 ' />
+            <Avatar src={props.personDict[each]?.profile} className='w-8 h-8 md:w-12 md:h-12 ' />
           </div>
-          <h5 className='text-center'>{ props.personDict[each].name || '-' }</h5>
+          <h5 className='text-center'>{ props.personDict[each]?.name || '-' }</h5>
         </div>
       })
     }
     {
-      props.sharingParticipant?.size > 3
+      props.sharingParticipant?.size > noOfParticipants
       ? <div className='rounded-full bg-fourth w-12 h-12 md:w-16 md:h-16 mx-1 flex items-center justify-center'>
-        <h5 className='text-white'>+{props.sharingParticipant.size - 3}</h5>
+        <h5 className='text-white'>+{props.sharingParticipant.size - noOfParticipants}</h5>
       </div>
       : null
     }
