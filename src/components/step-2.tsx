@@ -113,7 +113,7 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
                 return <div className="flex flex-col"
                       onClick={() => setPaidBy(personIndex) }
                       key={personIndex}>
-                  <RoundedAvatar person={person} />
+                  <RoundedAvatar person={person} size="lg" />
                 </div>
               })
             }

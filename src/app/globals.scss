@@ -108,7 +108,7 @@ h5 {
   margin: 0.5rem;
   overflow-y: auto;
 
-  @media (max-width: 757px){
+  @media (max-width: 767px){
     width: 85vw;
     height: calc(100dvh - 220px);
     margin: auto;
@@ -146,6 +146,15 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+.step-3-h {
+  height: calc(100dvh - 350px);
+  overflow-y: auto;
+
+  @media (max-width: 767px) {
+    height: calc(100dvh - 240px);
+  }
 }
 
 
