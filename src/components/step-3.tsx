@@ -164,7 +164,10 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
                     <ShowSomeSharedPeople personDict={peopleDict}
                                           sharingParticipant={params.params.splitDict[itemIndex]?.sharingPersonIndex} />
                   </div>
-                : <UnknownPerson size='lg' />
+                : <div className='mb-[10px]'
+                       onClick={() => setParticipantItemIndex(itemIndex)}>
+                  <UnknownPerson size='lg' />
+                </div>
               }
               
               <div className='flex flex-row gap-1 md:gap-3 w-full mb-3 md:mb-0'>
@@ -228,14 +231,16 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
               params.params.people.map((each, personIndex) => {
                 return <div key={`person-${personIndex}`} 
                             onClick={() => assignPerson(personIndex)}
-                            className="flex flex-col items-center justify-center gap-1 md:gap-3 cursor-pointer relative">
-                  <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center md:transition-opacity md:duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
-                    <CheckOutlined className='text-white' />
+                            className="flex flex-col items-center justify-center gap-1 md:gap-3 cursor-pointer">
+                  <div className='relative w-fit h-fit'>
+                    <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center md:transition-opacity md:duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
+                      <CheckOutlined className='text-white' />
+                    </div>
+                    <div className={`rounded-full p-4 flex items-center justify-center md:transition-colors md:duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
+                      <Avatar src={each.profile} className='w-12 h-12 ' />
+                    </div>
+                    <p className="text-center">{ each.name || '-' }</p>
                   </div>
-                  <div className={`rounded-full p-4 flex items-center justify-center md:transition-colors md:duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
-                    <Avatar src={each.profile} className='w-12 h-12 ' />
-                  </div>
-                  <p className="text-center">{ each.name || '-' }</p>
                 </div>
               })
             }
