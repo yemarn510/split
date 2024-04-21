@@ -189,7 +189,8 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
             className="text-right text-xl pr-3 font-bold py-4">
           Total
         </td>
-        <td className="font-bold pl-3 text-xl py-4">
+        <td colSpan={2}
+            className="font-bold pl-3 text-xl py-4">
           { params.items.reduce((acc, each) => acc + each.price, 0).toFixed(2) }
         </td>
       </tr>
