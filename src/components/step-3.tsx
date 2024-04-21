@@ -148,7 +148,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
                 <div className='w-fit h-fit m-auto relative'>
                   <ItemImage image={each.image} />
 
-                  <div className='absolute -top-6 -right-8 z-10 flex flex-col justify-center p-1 rounded-lg'>
+                  <div className='absolute -top-4 -left-8 z-10 flex flex-col justify-center p-1 rounded-lg'>
                     <small className='text-center text-xs'>Paid By</small>
                     <RoundedAvatar person={each.paidBy!} size="small" bg={'bg-main'} />
                   </div>
