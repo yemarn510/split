@@ -140,7 +140,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
       <div className='step-3-h'>
         {
           params.params.items?.map((each, itemIndex) => {
-            return <div className='w-full flex flex-col md:flex-row gap-5 items-center border-b border-main px-2 py-3 mt-2'
+            return <div className='w-full flex flex-col md:flex-row gap-5 items-center border-b border-main mx-0 md:px-2 py-3 mt-2'
                         key={`food-image-${itemIndex}`}>
              <div className='w-full md:w-1/3 flex flex-col'>
               <div className='cursor-pointer hover:opacity-50'
@@ -168,18 +168,18 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
                 </div>
               }
               
-              <div className='flex flex-row gap-1 md:gap-3 w-full'>
+              <div className='flex flex-row gap-1 md:gap-3 w-full mb-3 md:mb-0'>
                 <Button icon={<UserAddOutlined />}
                         type='primary'
                         onClick={() => toggleParticipants(itemIndex)}
-                        className='w-1/2 cursor-pointer mb-3 md:mb-0'>
+                        className='w-1/2 cursor-pointer px-1'>
                   Select Participants
                 </Button>
 
                 <Button icon={<UsergroupAddOutlined />}
                         type='default'
                         onClick={() => toggleSelectAll(itemIndex)}
-                        className='w-1/2 bg-second border border-main cursor-pointer mb-3 md:mb-0'>
+                        className='w-1/2 bg-second border border-main cursor-pointer '>
                   { isAllSelected(itemIndex) ? 'Deselect All' : 'Select All' }
                 </Button>
               </div>
@@ -223,25 +223,27 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
             { isAllSelected()  ? 'Deselect All' : 'Select All' }
           </Button>
         </div>
-        <div className='grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4 h-[320px] overflow-auto p-5'>
-          {
-            params.params.people.map((each, personIndex) => {
-              return <div key={`person-${personIndex}`} 
-                          onClick={() => assignPerson(personIndex)}
-                          className="flex flex-col items-center justify-center gap-1 md:gap-3 cursor-pointer relative">
-                <div className={`absolute right-2 top-2 w-[25px] h-[25px] flex justify-center items-center md:transition-opacity md:duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
-                  <CheckOutlined className='text-white' />
+        <div className='h-[320px] overflow-auto p-5 my-2'>
+          <div className='grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4'>
+            {
+              params.params.people.map((each, personIndex) => {
+                return <div key={`person-${personIndex}`} 
+                            onClick={() => assignPerson(personIndex)}
+                            className="flex flex-col items-center justify-center gap-1 md:gap-3 cursor-pointer relative">
+                  <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center md:transition-opacity md:duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
+                    <CheckOutlined className='text-white' />
+                  </div>
+                  <div className={`rounded-full p-4 flex items-center justify-center md:transition-colors md:duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
+                    <Avatar src={each.profile} className='w-12 h-12 ' />
+                  </div>
+                  <p className="text-center">{ each.name || '-' }</p>
                 </div>
-                <div className={`rounded-full p-4 flex items-center justify-center md:transition-colors md:duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
-                  <Avatar src={each.profile} className='w-12 h-12 ' />
-                </div>
-                <p className="text-center">{ each.name || '-' }</p>
-              </div>
-            })
-          }
+              })
+            }
+          </div>
         </div>
 
-        <div className='w-full text-right mt-2'>
+        <div className='w-full text-right'>
           <Button type="default"
                   onClick={() => setParticipantItemIndex(null)}>
             Close
@@ -253,7 +255,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
 }
 
 export function ItemImage(params: { image: string }): JSX.Element {
-  return <div className='m-auto bg-third rounded-md w-fit p-4 mb-1'>
+  return <div className='m-auto bg-third rounded-md w-fit p-3 mb-1'>
     <Image src={params.image}
       width={80}
       height={80}
