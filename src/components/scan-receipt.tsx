@@ -221,7 +221,7 @@ export function PersonList(params: {
   setOpen: Function
   deleteError: Function
 }): JSX.Element {
-  return <div className="w-[200px] h-16 flex flex-row gap-5 justify-between overflow-x-auto">
+  return <div className="max-w-[200px] h-16 flex flex-row gap-5 justify-evenly overflow-x-auto">
     {
       params.profiles.map((person, index) => {
         return <div key={`person-${index}`}
