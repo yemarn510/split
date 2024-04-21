@@ -10,6 +10,7 @@ import { Person, generateRandomInteger } from '@/models/person.models';
 import { Split, SplitDictionary } from '@/models/split.models';
 import { split } from 'postcss/lib/list';
 import RoundedAvatar from './custom-avatar';
+import UnknownPerson from './unknown-person';
 
 export interface StepThreeParams {
   items: Item[];
@@ -156,12 +157,14 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
              </div>
              <div className="w-full md:w-2/3 flex flex-col gap-3 items-center justify-center">
               {
-                params.params.splitDict[itemIndex]?.sharingPersonIndex.size > 0 &&
-                <div className='w-full flex flex-row justify-center'
-                     onClick={() => setParticipantItemIndex(itemIndex)}>
-                  <ShowSomeSharedPeople personDict={peopleDict}
-                                        sharingParticipant={params.params.splitDict[itemIndex]?.sharingPersonIndex} />
-                </div>
+                params.params.splitDict[itemIndex]?.sharingPersonIndex.size > 0 
+                ?
+                  <div className='w-full flex flex-row justify-center cursor-pointer md:hover:opacity-50'
+                      onClick={() => setParticipantItemIndex(itemIndex)}>
+                    <ShowSomeSharedPeople personDict={peopleDict}
+                                          sharingParticipant={params.params.splitDict[itemIndex]?.sharingPersonIndex} />
+                  </div>
+                : <UnknownPerson size='lg' />
               }
               
               <div className='flex flex-row gap-1 md:gap-3 w-full mb-3 md:mb-0'>
