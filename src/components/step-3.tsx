@@ -229,7 +229,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
           }
         </div>
 
-        <div className='w-full text-right'>
+        <div className='w-full text-right mt-2'>
           <Button type="default"
                   onClick={() => setParticipantItemIndex(null)}>
             Close
