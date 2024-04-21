@@ -164,14 +164,17 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
                   { each.name } / { each.price }
                 </h4>
              </div>
-             <div className="w-2/3 flex flex-col gap-3 justify-center">
-              <div className='w-full flex flex-row justify-center'>
-                <ShowSomeSharedPeople personDict={peopleDict}
-                                      sharingParticipant={params.params.splitDict[itemIndex]?.sharingPersonIndex} />
-              </div>
+             <div className="w-2/3 flex flex-col gap-3 items-center justify-center">
+              {
+                params.params.splitDict[itemIndex]?.sharingPersonIndex.size > 0 &&
+                <div className='w-full flex flex-row justify-center'>
+                  <ShowSomeSharedPeople personDict={peopleDict}
+                                        sharingParticipant={params.params.splitDict[itemIndex]?.sharingPersonIndex} />
+                </div>
+              }
               <Button icon={<UserAddOutlined />}
                         onClick={() => toggleParticipants(itemIndex)}
-                        className='bg-second border border-main'>
+                        className='bg-second border border-main w-fit'>
                 Select Participants
               </Button>
              </div>
