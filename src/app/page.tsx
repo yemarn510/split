@@ -12,6 +12,7 @@ import StepThree, { StepThreeParams } from "@/components/step-3";
 import { SplitDictionary } from "@/models/split.models";
 import StepFour, { StepFourParams } from "@/components/step-4";
 import { Result } from "@/models/results.models";
+import LoginPopup from '@/components/login-popup';
 
 const STEPS = ['Add People', 'Add Items', 'Assign People & Items', 'Review & Split'];
 
@@ -228,9 +229,16 @@ export default function Home() {
   return (
     <main className="w-fit m-auto">
       { contextHolder }
-      <h1 className="text-center text-main my-5 md:my-10 text-4xl md:text-5xl">
-        Let&rsquo;s Split the Bills
-      </h1>
+      <div className='flex flex-row my-5 md:my-10'>
+        <div className='w-10/12'> 
+          <h1 className="text-center text-main text-4xl md:text-5xl">
+            Let&rsquo;s Split the Bills
+          </h1>
+        </div>  
+        <div className='w-1/12 flex items-center'>
+          <LoginPopup />
+        </div>
+      </div> 
       <div className="steps-container hidden md:flex">
         <Steps
           size="small"
