@@ -1,18 +1,42 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UnknownPerson from "./unknown-person";
 import { UndoOutlined } from "@ant-design/icons";
 import { Modal, Button } from "antd";
 import { createClient } from "@/utils/supabase/client";
+import { User } from "@supabase/auth-js";
+import Image from 'next/image';
 
 
 export default function LoginPopup(): JSX.Element {
+
+  const [user, setUser] = useState<User | null>(null);
 
   const supabase = createClient();
 
   const [openPopup, setOpenPopup] = useState(false);
 
+  useEffect( () => {
+    checkUser();
+  }, [])
+
   function togglePopup(): void {
     setOpenPopup(!openPopup);
+  }
+
+  async function checkUser(): Promise<void> {
+    const { data, error} = await supabase.auth.getUser();
+    if (error) {
+      console.error('Error getting user:', error.message);
+      logoutUser();
+      return;
+    }
+    const user = data.user;
+    setUser(user);
+  }
+
+  function logoutUser(): void {
+    supabase.auth.signOut();
+    setUser(null);
   }
 
   async function handleSignInWithGoogle() {
@@ -22,15 +46,28 @@ export default function LoginPopup(): JSX.Element {
         redirectTo: `${window.location.origin}/auth/callback`,
       }
     });
-
-    console.warn(data);
   }
 
 
   return <>
     <div className=""
          onClick={ () => togglePopup()}>
-      <UnknownPerson />
+      {
+        user
+        ?
+          <div className="flex flex-col">
+            <div className={`bg-third cursor-pointer p-1
+                           rounded-full text-center m-auto md:hover:opacity-50 flex
+                           items-center justify-center`}> 
+              <Image src={user?.identities?.at(0)?.identity_data?.avatar_url }
+                    width={30}
+                    height={30}
+                    className="rounded-full"
+                    alt={user?.identities?.at(0)?.identity_data?.full_name || 'full name' }  />
+            </div>
+          </div>
+        : <UnknownPerson /> 
+      }
     </div>
 
     <Modal title="Login"
@@ -51,9 +88,11 @@ export default function LoginPopup(): JSX.Element {
         </div>
         <div className='text-center mt-5'>
           <Button
-            onClick={ () => handleSignInWithGoogle() }
+            onClick={ () => user ? logoutUser() : handleSignInWithGoogle()}
             icon={<UndoOutlined />}>
-            Login With Google
+            {
+              user ? 'Logout' : 'Login with Google'
+            }
           </Button>
         </div>
       </Modal>

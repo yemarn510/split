@@ -13,7 +13,6 @@ import { SplitDictionary } from "@/models/split.models";
 import StepFour, { StepFourParams } from "@/components/step-4";
 import { Result } from "@/models/results.models";
 import LoginPopup from '@/components/login-popup';
-import { createClient } from '@/utils/supabase/client';
 
 const STEPS = ['Add People', 'Add Items', 'Assign People & Items', 'Review & Split'];
 
@@ -29,14 +28,9 @@ export default function Home() {
   const [messageApi, contextHolder] = message.useMessage();
   const steps = STEPS.map(each => ({ title: each }));
 
-  const supabase = createClient();
-
   useEffect(() => {
     setCurrentStep(0);
     setItems([ new Item({}) ]);
-
-    checkUser();
-    
 
     const friends = localStorage.getItem('friends') || '';
     if (friends) {
@@ -47,11 +41,6 @@ export default function Home() {
       setSaveFriends(false);
     }
   }, []);
-
-  async function checkUser(): Promise<void> {
-    const u = await supabase.auth.getUser();
-    console.warn(u);
-  }
 
   function goNext(): void {
     if (goNextButtonDisabled()) {
