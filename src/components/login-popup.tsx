@@ -5,9 +5,10 @@ import { Modal, Button } from "antd";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/auth-js";
 import Image from 'next/image';
+import { Person } from "@/models/person.models";
 
 
-export default function LoginPopup(): JSX.Element {
+export default function LoginPopup(params: { setPeople: Function }): JSX.Element {
 
   const [user, setUser] = useState<User | null>(null);
 
@@ -15,9 +16,9 @@ export default function LoginPopup(): JSX.Element {
 
   const [openPopup, setOpenPopup] = useState(false);
 
-  useEffect( () => {
+  useEffect(() => {
     checkUser();
-  }, [])
+  }, []);
 
   function togglePopup(): void {
     setOpenPopup(!openPopup);
@@ -32,6 +33,24 @@ export default function LoginPopup(): JSX.Element {
     }
     const user = data.user;
     setUser(user);
+    checkFriends();
+  }
+
+  async function checkFriends(): Promise<void> {
+    const { data, error } = await supabase.from('friend').select('*')
+    if (error) {
+      console.error('Error getting friends:', error.message);
+      return;
+    }
+    const peopleList = (data as Person[]).map( (eachPerson) => {
+      return new Person({
+        id: eachPerson.id,
+        name: eachPerson.name,
+        profile: eachPerson.profile,
+      })
+    });
+    peopleList.length === 0 && peopleList.push(new Person({}));
+    params.setPeople(peopleList);
   }
 
   function logoutUser(): void {
