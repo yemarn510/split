@@ -26,6 +26,7 @@ export default function Home() {
   const [splitDict, setSplitDict] = useState<SplitDictionary>({});
   const [results, setResults] = useState<Result[]>([]);
   const [saveFriends, setSaveFriends ] = useState<boolean>(false);
+  const [isPremiumUser, setIsPremiumUser] = useState<boolean>(false);
 
   const steps: { title: string}[] = STEPS.map(each => ({ title: each }));
 
@@ -158,7 +159,7 @@ export default function Home() {
           </h1>
         </div>  
         <div className='w-1/12 flex items-center'>
-          <LoginPopup setPeople={setPeople} />
+          <LoginPopup setPeople={setPeople} setIsPremiumUser={setIsPremiumUser} />
         </div>
       </div> 
       <div className="steps-container hidden md:flex">

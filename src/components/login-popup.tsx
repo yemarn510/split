@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { Person } from "@/models/person.models";
 
 
-export default function LoginPopup(params: { setPeople: Function }): JSX.Element {
+export default function LoginPopup(params: { setPeople: Function, setIsPremiumUser: Function }): JSX.Element {
 
   const [user, setUser] = useState<User | null>(null);
 
@@ -33,7 +33,17 @@ export default function LoginPopup(params: { setPeople: Function }): JSX.Element
     }
     const user = data.user;
     setUser(user);
+    checkPremiumUser();
     checkFriends();
+  }
+
+  async function checkPremiumUser(): Promise<void> {
+    const { data, error } = await supabase.from('premium').select('is_premium');
+    if (error) {
+      console.error('Error getting user:', error.message);
+      return;
+    }
+    params.setIsPremiumUser(data?.at(0)?.is_premium || false);
   }
 
   async function checkFriends(): Promise<void> {
