@@ -13,7 +13,7 @@ import { SplitDictionary } from "@/models/split.models";
 import StepFour, { StepFourParams } from "@/components/step-4";
 import { Result } from "@/models/results.models";
 import LoginPopup from '@/components/login-popup';
-import { calculateResults, someStepsAreEmpty } from '@/functions/common.functions';
+import { calculateResults, createOrUpdateFriends, someStepsAreEmpty } from '@/functions/common.functions';
 import getButton from '@/components/next-button';
 
 const STEPS = ['Add People', 'Add Items', 'Assign People & Items', 'Review & Split'];
@@ -51,7 +51,7 @@ export default function Home() {
     switch (currentStep) {
       case 0:
         saveFriends ?
-          localStorage.setItem('friends', JSON.stringify(people)) :
+          createOrUpdateFriends(people) :
           localStorage.removeItem('friends');
         setCurrentStep(1);
         break;

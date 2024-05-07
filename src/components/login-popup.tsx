@@ -37,7 +37,7 @@ export default function LoginPopup(params: { setPeople: Function }): JSX.Element
   }
 
   async function checkFriends(): Promise<void> {
-    const { data, error } = await supabase.from('friend').select('*')
+    const { data, error } = await supabase.from('friend').select('*');
     if (error) {
       console.error('Error getting friends:', error.message);
       return;
