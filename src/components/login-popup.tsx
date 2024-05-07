@@ -79,23 +79,28 @@ export default function LoginPopup(params: { setPeople: Function, setIsPremiumUs
 
 
   return <>
-    <div className=""
+    <div className="self-end"
          onClick={ () => togglePopup()}>
       {
         user
         ?
-          <div className="flex flex-col">
-            <div className={`bg-third cursor-pointer p-1
+          <div className="flex flex-row ">
+            <div className={`bg-third cursor-pointer p-1 md:pr-3
+                            gap-1 md:gap-3
                            rounded-full text-center m-auto md:hover:opacity-50 flex
                            items-center justify-center`}> 
               <Image src={user?.identities?.at(0)?.identity_data?.avatar_url }
-                    width={30}
-                    height={30}
+                    width={35}
+                    height={35}
                     className="rounded-full"
                     alt={user?.identities?.at(0)?.identity_data?.full_name || 'full name' }  />
+              <span>{ user?.identities?.at(0)?.identity_data?.full_name || '' }</span>
             </div>
           </div>
-        : <UnknownPerson /> 
+        : <div className="flex flex-row items-center gap-1 md:gap-3 md:hover:cursor-pointer md:hover:opacity-50">
+          <UnknownPerson /> 
+          <span>Login</span>
+        </div>
       }
     </div>
 

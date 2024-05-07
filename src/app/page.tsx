@@ -1,7 +1,7 @@
 'use client';
 
-import { Steps, Modal, Button, message } from 'antd';
-import { ArrowLeftOutlined, ArrowRightOutlined, ExportOutlined, CopyOutlined } from '@ant-design/icons';
+import { Steps } from 'antd';
+import { ArrowLeftOutlined, } from '@ant-design/icons';
 import { useState, useEffect } from "react";
 
 import StepOne, { StepOneParams } from "@/components/step-1";
@@ -152,16 +152,9 @@ export default function Home() {
 
   return (
     <main className="w-fit m-auto">
-      <div className='flex flex-row my-5 md:my-10'>
-        <div className='w-10/12'> 
-          <h1 className="text-center text-main text-4xl md:text-5xl">
-            Let&rsquo;s Split the Bills
-          </h1>
-        </div>  
-        <div className='w-1/12 flex items-center'>
-          <LoginPopup setPeople={setPeople} setIsPremiumUser={setIsPremiumUser} />
-        </div>
-      </div> 
+      <h1 className="text-center text-main text-4xl md:text-5xl mb-3 relative">
+        Let&rsquo;s Split the Bills
+      </h1>
       <div className="steps-container hidden md:flex">
         <Steps
           size="small"
@@ -185,7 +178,10 @@ export default function Home() {
         { getCurrentUI() }
       </div>
       
-      <div className="flex flex-row mt-3 gap-3 md:gap-5 justify-end">
+      <div className='w-full flex flex-row justify-between items-center'>
+        <LoginPopup setPeople={setPeople} setIsPremiumUser={setIsPremiumUser} />
+
+        <div className="flex flex-row mt-3 gap-3 md:gap-5 justify-end">
           <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 ${ currentStep === 0 && 'cursor-not-allowed opacity-50'}`}
               onClick={ () => goBack() }>
             <p className="mb-0 w-auto text-main">Go Back</p>
@@ -193,9 +189,9 @@ export default function Home() {
               <ArrowLeftOutlined className="text-main" />
             </div>
           </div>
-
           { getButton(currentStep, results, steps, goNextButtonDisabled, goNext) }
         </div>
+      </div>
     </main>
   );
 }
