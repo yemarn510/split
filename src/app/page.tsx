@@ -127,6 +127,7 @@ export default function Home() {
     items,
     setItems,
     people,
+    isPremiumUser,
   };
 
   const stepOneParams: StepOneParams = {

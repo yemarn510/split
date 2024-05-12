@@ -1,7 +1,7 @@
 'use client';
 
 import { Item } from "@/models/item.models";
-import { Button, Modal } from 'antd';
+import { Button, Modal, Tooltip } from 'antd';
 import {  
   CameraOutlined,
   PlusOutlined,
@@ -20,6 +20,7 @@ export interface StepTwoParams {
   items: Item[];
   people: Person[];
   setItems: Function;
+  isPremiumUser: boolean;
 }
 
 export default function StepTwo(params: { params: StepTwoParams }): JSX.Element {
@@ -39,6 +40,9 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
   }
 
   function toggleScan(): void {
+    if (!params.params.isPremiumUser) {
+      return;
+    }
     setOpenScanPopup(!openScanPopup);
     setScanner(new Scanner({}));
   }
@@ -93,11 +97,18 @@ export default function StepTwo(params: { params: StepTwoParams }): JSX.Element 
           onClick={ () => addItem() }>
           Add Item
         </Button>
-        <Button className="w-3/12 md:w-1/12 lg:w-2/12 flex items-center justify-center cursor-pointer md:hover:opacity-50"
+
+      <Tooltip title={ params.params.isPremiumUser ? '' : 'email to yemarn.510@gmail.com to get premium access' }
+               color={'#ff4d4f'}
+               zIndex={10} >
+        <Button className="w-3/12 md:w-1/12 lg:w-2/12 flex items-center border border-main-important justify-center cursor-pointer md:hover:opacity-50"
           type="primary"
+          disabled={ !params.params.isPremiumUser }
           onClick={ () => toggleScan() }>
           <CameraOutlined className="text-lg" />
         </Button>
+      </Tooltip>
+
       </div>
 
       <ScanReceipt {...scanReceipt} />

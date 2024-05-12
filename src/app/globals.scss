@@ -92,6 +92,10 @@ h5 {
   border-color: var(--main-color);
 }
 
+.border-main-important {
+  border-color: var(--main-color) !important;
+}
+
 .border-fourth {
   border-color: var(--fourth-color);
 }
