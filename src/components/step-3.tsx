@@ -8,7 +8,6 @@ import { UserAddOutlined, CheckOutlined, UsergroupAddOutlined } from '@ant-desig
 import { Item } from '@/models/item.models';
 import { Person, generateRandomInteger } from '@/models/person.models';
 import { Split, SplitDictionary } from '@/models/split.models';
-import { split } from 'postcss/lib/list';
 import RoundedAvatar from './custom-avatar';
 import UnknownPerson from './unknown-person';
 
