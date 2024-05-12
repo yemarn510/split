@@ -8,7 +8,6 @@ import { UserAddOutlined, CheckOutlined, UsergroupAddOutlined } from '@ant-desig
 import { Item } from '@/models/item.models';
 import { Person, generateRandomInteger } from '@/models/person.models';
 import { Split, SplitDictionary } from '@/models/split.models';
-import { split } from 'postcss/lib/list';
 import RoundedAvatar from './custom-avatar';
 import UnknownPerson from './unknown-person';
 
@@ -159,7 +158,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
               {
                 params.params.splitDict[itemIndex]?.sharingPersonIndex.size > 0 
                 ?
-                  <div className='w-full flex flex-row justify-center cursor-pointer md:hover:opacity-50'
+                  <div className='w-full flex flex-row justify-center cursor-pointer gap-1 md:hover:opacity-50'
                       onClick={() => setParticipantItemIndex(itemIndex)}>
                     <ShowSomeSharedPeople personDict={peopleDict}
                                           sharingParticipant={params.params.splitDict[itemIndex]?.sharingPersonIndex} />
@@ -236,7 +235,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
                     <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center md:transition-opacity md:duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
                       <CheckOutlined className='text-white' />
                     </div>
-                    <div className={`rounded-full p-4 flex items-center justify-center md:transition-colors md:duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
+                    <div className={`rounded-full p-4 w-fit flex items-center justify-center md:transition-colors md:duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
                       <Avatar src={each.profile} className='w-12 h-12 ' />
                     </div>
                     <p className="text-center">{ each.name || '-' }</p>
@@ -292,7 +291,7 @@ export function ShowSomeSharedPeople(props: { personDict: PersonDict, sharingPar
       props.sharingParticipant?.size > 0 && Array.from(props.sharingParticipant).slice(0, noOfParticipants).map((each, index) => {
         return <div className='flex flex-col'
                     key={`shared-person-${index}`}>
-          <div className={`rounded-full bg-third w-auto h-auto p-2 mx-1 flex items-center justify-center`}>
+          <div className={`rounded-full bg-third w-fit h-auto p-2 mx-auto flex items-center justify-center`}>
             <Avatar src={props.personDict[each]?.profile} className='w-8 h-8 md:w-12 md:h-12 ' />
           </div>
           <h5 className='text-center'>{ props.personDict[each]?.name || '-' }</h5>

@@ -1,7 +1,7 @@
 'use client';
 
-import { Steps, Modal, Button, message } from 'antd';
-import { ArrowLeftOutlined, ArrowRightOutlined, ExportOutlined, CopyOutlined } from '@ant-design/icons';
+import { Steps } from 'antd';
+import { ArrowLeftOutlined, } from '@ant-design/icons';
 import { useState, useEffect } from "react";
 
 import StepOne, { StepOneParams } from "@/components/step-1";
@@ -12,6 +12,10 @@ import StepThree, { StepThreeParams } from "@/components/step-3";
 import { SplitDictionary } from "@/models/split.models";
 import StepFour, { StepFourParams } from "@/components/step-4";
 import { Result } from "@/models/results.models";
+import LoginPopup from '@/components/login-popup';
+import { calculateResults, createOrUpdateFriends, someStepsAreEmpty } from '@/functions/common.functions';
+import getButton, { NextButtonProps } from '@/components/next-button';
+import GetButton from '@/components/next-button';
 
 const STEPS = ['Add People', 'Add Items', 'Assign People & Items', 'Review & Split'];
 
@@ -23,9 +27,9 @@ export default function Home() {
   const [splitDict, setSplitDict] = useState<SplitDictionary>({});
   const [results, setResults] = useState<Result[]>([]);
   const [saveFriends, setSaveFriends ] = useState<boolean>(false);
-  const [openSharePopup, setOpenSharePopup] = useState<boolean>(false);
-  const [messageApi, contextHolder] = message.useMessage();
-  const steps = STEPS.map(each => ({ title: each }));
+  const [isPremiumUser, setIsPremiumUser] = useState<boolean>(false);
+
+  const steps: { title: string}[] = STEPS.map(each => ({ title: each }));
 
   useEffect(() => {
     setCurrentStep(0);
@@ -49,7 +53,7 @@ export default function Home() {
     switch (currentStep) {
       case 0:
         saveFriends ?
-          localStorage.setItem('friends', JSON.stringify(people)) :
+          createOrUpdateFriends(people) :
           localStorage.removeItem('friends');
         setCurrentStep(1);
         break;
@@ -59,10 +63,11 @@ export default function Home() {
         }
         break;
       case 2:
-        if (someStepsAreEmpty()) {
+        if (someStepsAreEmpty(splitDict)) {
           return;
         }
-        calculateResults()
+        const results = calculateResults(items, people, splitDict);
+        setResults(results);
         setCurrentStep(3);
         break;
       case 3:
@@ -104,12 +109,6 @@ export default function Home() {
     }
   }
 
-  function someStepsAreEmpty(): boolean {
-    return Object.keys(splitDict).some((key) => {
-      return splitDict[key].sharingPersonIndex.size === 0;
-    });
-  }
-
   function goNextButtonDisabled(): boolean {
       switch (currentStep) {
         case 0:
@@ -117,90 +116,18 @@ export default function Home() {
         case 1:
           return items.length === 0;
         case 2:
-          return someStepsAreEmpty();
+          return someStepsAreEmpty(splitDict);
         case 3:
           return false;
       }
     return false;
   }
 
-  function getButton(): JSX.Element {
-    if (currentStep === 3) {
-      return <div className={`${currentStep !== 3 && 'hidden' } flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 `}
-            onClick={ () => toggleSharePopup() }>
-        <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
-          <ExportOutlined className="text-main" />
-        </div>
-        <p className="mb-0 w-auto text-main">Share</p>
-      </div>
-    }
-    return <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 
-                            ${ currentStep === (steps.length - 1) && 'cursor-not-allowed opacity-50'}
-                            ${ goNextButtonDisabled() && '!cursor-not-allowed opacity-50'}`} 
-        onClick={ () => goNext() }>
-      <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
-        <ArrowRightOutlined className="text-main" />
-      </div>
-      <p className="mb-0 w-auto text-main">Go Next</p>
-    </div>
-  }
-
-  function toggleSharePopup(): void {
-    setOpenSharePopup(!openSharePopup);
-  }
-
-  function copyToClipboard(): void {
-    const text = results
-      .filter( person => person.total > 0 )
-      .map((eachResult: Result, resultIndex: number) => {
-        const items = Object.keys(eachResult.totalToPayFor || {}).map((paidByName, paidByNameIndex) => {
-          return `${paidByName} - ${eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName].toFixed(2) : 0}`;
-        }).join('\n');
-        return `${eachResult.person.name}\n${items}\n---------------------------------------------`;
-      }).join('\n');
-    navigator.clipboard.writeText(text);
-    messageApi.info('Copied !', 2);
-  }
-
-  function calculateResults(): void {
-    const itemDict: { [key in string]: Item} = {};
-    items.forEach((each, index) => itemDict[index.toString()] = each); 
-
-    const personDict: { [key in string]: {
-      person: Person,
-      result: Result
-    }} = {};
-    people.forEach((each, index) => {
-      personDict[index.toString()] = {
-        person: each,
-        result: new Result({
-          person: each,
-          total: 0,
-          items: []
-        })
-      };
-    });
-
-    Object.keys(splitDict).forEach((itemIndex) => { // [ {'0': Split Obj, '1': Split Obj} ] -> [0, 1]
-      const split = splitDict[itemIndex]; // Split Obj
-      const peopleIndexes = Array.from(split.sharingPersonIndex); // [0, 1]
-      peopleIndexes.forEach((personIndex) => {
-        const person = personDict[personIndex.toString()]; // { person: Person, result: Result }
-        const item = itemDict[itemIndex]; // Get Item Object
-        item.sharedNumber = peopleIndexes.length;
-        person.result.items.push(item); // Add Item to Person's Result
-        person.result.total += item.price / peopleIndexes.length; // Add Price to Person's Total
-      });
-    });
-
-    const results = Object.keys(personDict).map((key) => personDict[key].result);
-    setResults(results);
-  }
-
   const stepTwoParams: StepTwoParams = {
     items,
     setItems,
     people,
+    isPremiumUser,
   };
 
   const stepOneParams: StepOneParams = {
@@ -225,10 +152,17 @@ export default function Home() {
     setResults,
   }
 
+  const getParams: NextButtonProps = {
+    currentStep,
+    results,
+    steps,
+    goNextButtonDisabled,
+    goNext,
+  };
+
   return (
     <main className="w-fit m-auto">
-      { contextHolder }
-      <h1 className="text-center text-main my-5 md:my-10 text-4xl md:text-5xl">
+      <h1 className="text-center text-main text-4xl md:text-5xl mb-3 relative">
         Let&rsquo;s Split the Bills
       </h1>
       <div className="steps-container hidden md:flex">
@@ -254,7 +188,10 @@ export default function Home() {
         { getCurrentUI() }
       </div>
       
-      <div className="flex flex-row mt-3 gap-3 md:gap-5 justify-end">
+      <div className='w-full flex flex-row justify-between items-center'>
+        <LoginPopup setPeople={setPeople} setIsPremiumUser={setIsPremiumUser} isPremiumUser={isPremiumUser} />
+
+        <div className="flex flex-row mt-3 gap-3 md:gap-5 justify-end">
           <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 ${ currentStep === 0 && 'cursor-not-allowed opacity-50'}`}
               onClick={ () => goBack() }>
             <p className="mb-0 w-auto text-main">Go Back</p>
@@ -262,48 +199,9 @@ export default function Home() {
               <ArrowLeftOutlined className="text-main" />
             </div>
           </div>
-
-          { getButton() }
+          <GetButton params={getParams} />
         </div>
-
-      <Modal title="Share with your friends"
-             footer={null}
-             centered
-             width={400}
-             onCancel={ () => toggleSharePopup() }
-             open={openSharePopup} >
-        <div className='h-[320px] rounded bg-[#faf1e6] overflow-auto p-5'>
-          {
-            results
-              .filter( person => person.total > 0 )
-              .map((eachResult: Result, resultIndex: number) =>
-              <div key={`result-index-${resultIndex}`}
-                  className='flex flex-col justify-between mb-1'>
-                    <div className='w-full font-bold'>
-                      { eachResult.person.name }
-                    </div>
-                    {
-                      Object.keys(eachResult.totalToPayFor || {}).map((paidByName, paidByNameIndex) => {
-                        return <li key={`result-item-${paidByNameIndex}`}
-                                  className="flex flex-row">
-                        <span className='pr-2'>{ paidByName }</span> -
-                        <b className='font-bold pl-2'>{ (eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0).toFixed(2)}</b>
-                      </li>
-                      })
-                    }
-                    ---------------------------------------------
-                  </div>
-              )
-          }
-        </div>
-        <div className='text-center mt-5'>
-          <Button
-            onClick={ () => copyToClipboard() }
-            icon={<CopyOutlined />}>
-            Copy To Clipboard
-          </Button>
-        </div>
-      </Modal>
+      </div>
     </main>
   );
 }
