@@ -1,16 +1,19 @@
+'use client';
+
 import { Result } from "@/models/results.models";
 import { ExportOutlined, ArrowRightOutlined, CopyOutlined } from "@ant-design/icons";
 import { message, Modal, Button } from "antd";
 import { useState } from "react";
 
-
-export default function getButton(
+export interface NextButtonProps {
   currentStep: number,
   results: Result[],
   steps: { title: string}[],
   goNextButtonDisabled: Function,
   goNext: Function
-): JSX.Element {
+}
+
+export default function GetButton(params: { params: NextButtonProps }): JSX.Element {
 
   const [openSharePopup, setOpenSharePopup] = useState<boolean>(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -20,7 +23,7 @@ export default function getButton(
   }
 
   function copyToClipboard(): void {
-    const text = results
+    const text = params.params.results
       .filter( person => person.total > 0 )
       .map((eachResult: Result, resultIndex: number) => {
         const items = Object.keys(eachResult.totalToPayFor || {}).map((paidByName, paidByNameIndex) => {
@@ -32,36 +35,41 @@ export default function getButton(
     messageApi.info('Copied !', 2);
   }
 
-  if (currentStep === 3) {
-    return <div className={`${currentStep !== 3 && 'hidden' } flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 `}
-          onClick={ () => toggleSharePopup() }>
-      <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
-        <ExportOutlined className="text-main" />
+  function whichButton(): JSX.Element {
+    if (params.params.currentStep === 3) {
+      return <div className={`${params.params.currentStep !== 3 && 'hidden' } flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 `}
+            onClick={ () => toggleSharePopup() }>
+        <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
+          <ExportOutlined className="text-main" />
+        </div>
+        <p className="mb-0 w-auto text-main">Share</p>
       </div>
-      <p className="mb-0 w-auto text-main">Share</p>
+    }
+  
+    return <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 
+                            ${ params.params.currentStep === (params.params.steps.length - 1) && 'cursor-not-allowed opacity-50'}
+                            ${ params.params.goNextButtonDisabled() && '!cursor-not-allowed opacity-50'}`} 
+        onClick={ () => params.params.goNext() }>
+      <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
+        <ArrowRightOutlined className="text-main" />
+      </div>
+      <p className="mb-0 w-auto text-main">Go Next</p>
     </div>
   }
+
   return <>
   { contextHolder }
-  <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 
-                          ${ currentStep === (steps.length - 1) && 'cursor-not-allowed opacity-50'}
-                          ${ goNextButtonDisabled() && '!cursor-not-allowed opacity-50'}`} 
-      onClick={ () => goNext() }>
-    <div className="w-10 h-10 flex justify-center items-center rounded-full border border-main">
-      <ArrowRightOutlined className="text-main" />
-    </div>
-    <p className="mb-0 w-auto text-main">Go Next</p>
-  </div>
-
+  { whichButton() }
+  
   <Modal title="Share with your friends"
-             footer={null}
-             centered
-             width={400}
-             onCancel={ () => toggleSharePopup() }
-             open={openSharePopup} >
+         footer={null}
+         centered
+         width={400}
+         onCancel={ () => toggleSharePopup() }
+         open={openSharePopup} >
         <div className='h-[320px] rounded bg-[#faf1e6] overflow-auto p-5'>
           {
-            results
+            params.params.results
               .filter( person => person.total > 0 )
               .map((eachResult: Result, resultIndex: number) =>
               <div key={`result-index-${resultIndex}`}

@@ -14,7 +14,8 @@ import StepFour, { StepFourParams } from "@/components/step-4";
 import { Result } from "@/models/results.models";
 import LoginPopup from '@/components/login-popup';
 import { calculateResults, createOrUpdateFriends, someStepsAreEmpty } from '@/functions/common.functions';
-import getButton from '@/components/next-button';
+import getButton, { NextButtonProps } from '@/components/next-button';
+import GetButton from '@/components/next-button';
 
 const STEPS = ['Add People', 'Add Items', 'Assign People & Items', 'Review & Split'];
 
@@ -150,6 +151,14 @@ export default function Home() {
     setResults,
   }
 
+  const getParams: NextButtonProps = {
+    currentStep,
+    results,
+    steps,
+    goNextButtonDisabled,
+    goNext,
+  };
+
   return (
     <main className="w-fit m-auto">
       <h1 className="text-center text-main text-4xl md:text-5xl mb-3 relative">
@@ -189,7 +198,7 @@ export default function Home() {
               <ArrowLeftOutlined className="text-main" />
             </div>
           </div>
-          { getButton(currentStep, results, steps, goNextButtonDisabled, goNext) }
+          <GetButton params={getParams} />
         </div>
       </div>
     </main>

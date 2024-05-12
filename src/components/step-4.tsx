@@ -1,6 +1,6 @@
 
 import { Avatar, Collapse, Modal, Button } from 'antd';
-import { CaretRightOutlined } from '@ant-design/icons';
+import { CaretRightOutlined, FileDoneOutlined } from '@ant-design/icons';
 import { Result } from "@/models/results.models";
 import type { CollapseProps } from 'antd';
 import { useEffect, useState } from 'react';
@@ -136,7 +136,8 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
         }
       </div>
       <div className='flex flex-row justify-end mt-3'>
-        <Button type='primary'>
+        <Button type='primary'
+          icon={<FileDoneOutlined />}>
           Save History
         </Button>
       </div>
