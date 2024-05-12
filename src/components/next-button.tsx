@@ -27,7 +27,7 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
       .filter( person => person.total > 0 )
       .map((eachResult: Result, resultIndex: number) => {
         const items = Object.keys(eachResult.totalToPayFor || {}).map((paidByName, paidByNameIndex) => {
-          return `${paidByName} - ${eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0}`;
+          return `${paidByName} - ${eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName].toFixed(2) : 0}`;
         }).join('\n');
         return `${eachResult.person.name}\n${items}\n---------------------------------------------`;
       }).join('\n');
