@@ -99,7 +99,7 @@ export default function LoginPopup(params: LoginPopupProps ): JSX.Element {
                     height={35}
                     className="rounded-full"
                     alt={user?.identities?.at(0)?.identity_data?.full_name || 'full name' }  />
-              <span>{ user?.identities?.at(0)?.identity_data?.full_name || '' }</span>
+              <span className="max-w-[100px] truncate">{ user?.identities?.at(0)?.identity_data?.full_name || '' }</span>
             </div>
           </div>
         : <div className="flex flex-row items-center gap-1 md:gap-3 md:hover:cursor-pointer md:hover:opacity-50">
@@ -126,7 +126,7 @@ export default function LoginPopup(params: LoginPopupProps ): JSX.Element {
                 <div className="text-left">
                   <h6 className="text-left">{ user?.identities?.at(0)?.identity_data?.full_name || '' }</h6>
                   <h6 className="text-left">{ user?.identities?.at(0)?.identity_data?.email || '' }</h6>
-                  <small className={`text-left ${ params.isPremiumUser ? 'text-main' : 'text-fourth'}`}>
+                  <small className={`text-left ${ params.isPremiumUser ? 'text-[#FFD700]' : 'text-fourth'}`}>
                     { params.isPremiumUser ? 'Premium User' : 'Regular User' }
                   </small>
                 </div>
@@ -134,9 +134,10 @@ export default function LoginPopup(params: LoginPopupProps ): JSX.Element {
 
               <Button
                 className="min-w-[300px]"
+                disabled
                 onClick={ () => user ? logoutUser() : handleSignInWithGoogle()}
                 icon={<HistoryOutlined />}>
-                History
+                History (Coming Soon)
               </Button>
 
             </div>

@@ -147,7 +147,7 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
           })
         }
       </div>
-      <div className='flex flex-row justify-end mt-3 sticky bottom-0'>
+      <div className='flex flex-row justify-end mt-3 sticky bottom-0 hidden'>
         <Button type='primary'
           onClick={() => saveHistory() }
           icon={<FileDoneOutlined />}>
