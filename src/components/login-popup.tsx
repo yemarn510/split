@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
 import UnknownPerson from "./unknown-person";
-import { UndoOutlined } from "@ant-design/icons";
+import { GoogleOutlined, HistoryOutlined } from "@ant-design/icons";
 import { Modal, Button } from "antd";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/auth-js";
 import Image from 'next/image';
 import { Person } from "@/models/person.models";
 
+export interface LoginPopupProps { 
+  setPeople: Function, 
+  isPremiumUser: boolean,
+  setIsPremiumUser: Function
+}
 
-export default function LoginPopup(params: { setPeople: Function, setIsPremiumUser: Function }): JSX.Element {
+export default function LoginPopup(params: LoginPopupProps ): JSX.Element {
 
   const [user, setUser] = useState<User | null>(null);
 
@@ -104,26 +109,43 @@ export default function LoginPopup(params: { setPeople: Function, setIsPremiumUs
       }
     </div>
 
-    <Modal title="Login"
+    <Modal title={ user ? 'User Information' : 'Login'}
              footer={null}
              centered
              onCancel={ () => togglePopup() }
              open={openPopup} >
-        <div className='grid grid-cols-3 md:grid-cols-4 gap-4 h-[320px] overflow-auto p-5'>
-          {/* {
-            avatarNumbers.map((eachNumber, index) => {
-              return <div className='bg-third cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
-                          key={index}
-                          onClick={() => changeAvatar(index) }>
-                <Avatar src={`${AVATAR_URL}${eachNumber}`} className='w-12 h-12 ' />
+        <div className='text-center mt-5 min-h-[180px] flex flex-col justify-center items-center'>
+          {
+            user && <div className="flex flex-col items-center mb-7">
+              <div className="flex flex-col md:flex-row gap-3 md:gap-5 items-center mb-7">
+                <Image src={user?.identities?.at(0)?.identity_data?.avatar_url }
+                      width={60}
+                      height={60}
+                      className="rounded-full"
+                      alt={user?.identities?.at(0)?.identity_data?.full_name || 'full name' }  />
+                <div className="text-left">
+                  <h6 className="text-left">{ user?.identities?.at(0)?.identity_data?.full_name || '' }</h6>
+                  <h6 className="text-left">{ user?.identities?.at(0)?.identity_data?.email || '' }</h6>
+                  <small className={`text-left ${ params.isPremiumUser ? 'text-main' : 'text-fourth'}`}>
+                    { params.isPremiumUser ? 'Premium User' : 'Regular User' }
+                  </small>
+                </div>
               </div>
-            })
-          } */}
-        </div>
-        <div className='text-center mt-5'>
+
+              <Button
+                className="min-w-[300px]"
+                onClick={ () => user ? logoutUser() : handleSignInWithGoogle()}
+                icon={<HistoryOutlined />}>
+                History
+              </Button>
+
+            </div>
+          }
           <Button
+            className="min-w-[300px]"
+            type="primary"
             onClick={ () => user ? logoutUser() : handleSignInWithGoogle()}
-            icon={<UndoOutlined />}>
+            icon={<GoogleOutlined />}>
             {
               user ? 'Logout' : 'Login with Google'
             }

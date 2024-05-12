@@ -179,7 +179,7 @@ export default function Home() {
       </div>
       
       <div className='w-full flex flex-row justify-between items-center'>
-        <LoginPopup setPeople={setPeople} setIsPremiumUser={setIsPremiumUser} />
+        <LoginPopup setPeople={setPeople} setIsPremiumUser={setIsPremiumUser} isPremiumUser={isPremiumUser} />
 
         <div className="flex flex-row mt-3 gap-3 md:gap-5 justify-end">
           <div className={`flex flex-row gap-1 md:gap-3 items-center cursor-pointer md:hover:opacity-50 ${ currentStep === 0 && 'cursor-not-allowed opacity-50'}`}
