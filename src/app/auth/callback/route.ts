@@ -9,8 +9,6 @@ export async function GET(request: Request) {
   // if "next" is in param, use it in the redirect URL
   const next = searchParams.get("next") ?? "/";
 
-  console.warn(next, code);
-
   if (code) {
     const supabase = createClient();
 
