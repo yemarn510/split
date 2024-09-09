@@ -81,8 +81,9 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
     <tr>
       <th className="w-[20px]">No.</th>
       <th className="w-2/12">Paid By</th>
-      <th className="w-5/12">Item Name</th>
-      <th className="w-3/12">Price</th>
+      <th className="w-4/12">Item Name</th>
+      <th className="w-2/12">Quantity</th>
+      <th className="w-2/12">Total Price</th>
       <th className="w-1/12"></th>
     </tr>
   </thead>
@@ -126,6 +127,30 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
                     }}
                     placeholder="KFC, McDonalds, etc."
                     className="w-full"
+                />
+              </div>
+            </Tooltip>
+          </td>
+          <td className="px-1 md:px-3">
+            <Tooltip title={eachItem.error.quantity || '' }
+                     open={!!eachItem.error.quantity}
+                     color={'#ff4d4f'}
+                     zIndex={10} >
+              <div>
+                <Input id="item-price"
+                      type="number"
+                      inputMode="decimal"
+                      disabled={ params.currentIndex !== itemIndex }
+                      placeholder="1"
+                      defaultValue={eachItem.quantity}
+                      onChange={(e) => {
+                        e.preventDefault();
+                        eachItem.quantity = +e.target.value || 0;
+                        delete eachItem.error.quantity;
+                        params.items[itemIndex] = eachItem;
+                        params.setItems(params.items);
+                      }}
+                      className="w-full"
                 />
               </div>
             </Tooltip>
@@ -185,7 +210,7 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
     {
       params.showTotal &&
       <tr className="border-t-2 border-main">
-        <td colSpan={3}
+        <td colSpan={4}
             className="text-right text-xl pr-3 font-bold py-4">
           Total
         </td>

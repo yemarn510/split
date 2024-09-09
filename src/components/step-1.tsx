@@ -87,7 +87,7 @@ export default function StepOne(params: {params: StepOneParams }): JSX.Element {
         <table className='w-full custom-table'> 
           <thead>
             <tr>
-              <th className='w-1/5'>Selected</th>
+              <th className='w-[50px]'>Selected</th>
               <th className='text-main pb-3 w-1/5'>No.</th>
               <th className='text-main pb-3 w-1/5'>Profile</th>
               <th className='text-main pb-3 w-2/5'>Name</th>

@@ -14,7 +14,7 @@ import StepFour, { StepFourParams } from "@/components/step-4";
 import { Result } from "@/models/results.models";
 import LoginPopup from '@/components/login-popup';
 import { calculateResults, createOrUpdateFriends, someStepsAreEmpty } from '@/functions/common.functions';
-import getButton, { NextButtonProps } from '@/components/next-button';
+import { NextButtonProps } from '@/components/next-button';
 import GetButton from '@/components/next-button';
 
 const STEPS = ['Add People', 'Add Items', 'Assign People & Items', 'Review & Split'];
@@ -144,7 +144,7 @@ export default function Home() {
     items,
     setItems,
     people: people.filter(each => each.selected),
-    isPremiumUser,
+    isPremiumUser: true,
   };
 
   const stepThreeParams: StepThreeParams = {

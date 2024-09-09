@@ -7,6 +7,7 @@ export interface ItemError {
 export class Item {
   name: string;
   price: number;
+  quantity: number;
   image: string;
   sharedNumber: number;
   error: ItemError;
@@ -16,6 +17,7 @@ export class Item {
   constructor ({
     name = '' as string,
     price = 0 as number,
+    quantity = 1 as number,
     image = '' as string,
     error = {} as ItemError,
     sharedNumber = 0 as number,
@@ -23,6 +25,7 @@ export class Item {
   }) {
     this.name = name;
     this.price = price;
+    this.quantity = quantity;
     this.image = image;
     this.sharedNumber = sharedNumber;
     this.paidBy = paidBy;
@@ -39,6 +42,9 @@ export class Item {
     }
     if (this.paidBy === null) {
       error.paidBy = 'Cannot be blank';
+    }
+    if (this.quantity === 0) {
+      error.quantity = 'Cannot be zero';
     }
     this.error = error;
     return Object.keys(error).length === 0;
