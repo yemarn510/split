@@ -68,6 +68,10 @@ h5 {
   background-color: var(--main-color);
 }
 
+.bg-main-light {
+  background-color: var(--main-color-light);
+}
+
 .bg-second {
   background-color: var(--second-color);
 }
@@ -243,3 +247,26 @@ input[type=number] {
   }
 } 
 
+.custom-table {
+  tbody {
+    tr {
+      &:hover {
+        td {
+          background-color: var(--third-color);
+
+          &:first-child {
+            border-radius: 8px 0 0 8px;
+          }
+
+          &:last-child {
+            border-radius: 0 8px 8px 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+table tbody tr td {
+  padding: 0.5rem;
+}

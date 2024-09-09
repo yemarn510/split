@@ -1,6 +1,6 @@
 'use client';
 
-import { Steps } from 'antd';
+import { Steps, message } from 'antd';
 import { ArrowLeftOutlined, } from '@ant-design/icons';
 import { useState, useEffect } from "react";
 
@@ -29,6 +29,8 @@ export default function Home() {
   const [saveFriends, setSaveFriends ] = useState<boolean>(false);
   const [isPremiumUser, setIsPremiumUser] = useState<boolean>(false);
 
+  const [messageApi, contextHolder] = message.useMessage();
+
   const steps: { title: string}[] = STEPS.map(each => ({ title: each }));
 
   useEffect(() => {
@@ -47,6 +49,12 @@ export default function Home() {
 
   function goNext(): void {
     if (goNextButtonDisabled()) {
+      if (currentStep === 0 && people.every(each => each.selected === false)) {
+        messageApi.open({
+          type: 'error',
+          content: 'Please select at least one person to continue',
+        });
+      }
       return;
     }
 
@@ -112,7 +120,7 @@ export default function Home() {
   function goNextButtonDisabled(): boolean {
       switch (currentStep) {
         case 0:
-          return people.length === 0;
+          return people.length === 0 || people.every( each => each.selected === false);
         case 1:
           return items.length === 0;
         case 2:
@@ -123,13 +131,6 @@ export default function Home() {
     return false;
   }
 
-  const stepTwoParams: StepTwoParams = {
-    items,
-    setItems,
-    people,
-    isPremiumUser,
-  };
-
   const stepOneParams: StepOneParams = {
     people,
     setPeople,
@@ -139,9 +140,16 @@ export default function Home() {
     setItems,
   }
 
+  const stepTwoParams: StepTwoParams = {
+    items,
+    setItems,
+    people: people.filter(each => each.selected),
+    isPremiumUser,
+  };
+
   const stepThreeParams: StepThreeParams = {
     items,
-    people,
+    people: people.filter(each => each.selected),
     splitDict,
     setSplitDict,
     setItems,
@@ -160,7 +168,8 @@ export default function Home() {
     goNext,
   };
 
-  return (
+  return <>
+    { contextHolder }
     <main className="w-fit m-auto">
       <h1 className="text-center text-main text-4xl md:text-5xl mb-3 relative">
         Let&rsquo;s Split the Bills
@@ -203,5 +212,5 @@ export default function Home() {
         </div>
       </div>
     </main>
-  );
+  </>
 }

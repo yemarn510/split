@@ -3,7 +3,7 @@
 import { Input, Button, Modal, Avatar, Checkbox } from 'antd';
 import { AVATAR_URL, Person, generateRandomInteger } from "@/models/person.models";
 import { useEffect, useState } from 'react';
-import { UndoOutlined, DeleteOutlined } from '@ant-design/icons';
+import { UndoOutlined, DeleteOutlined, CheckCircleTwoTone, MinusCircleTwoTone } from '@ant-design/icons';
 import { Item } from '@/models/item.models';
 
 export interface StepOneParams {
@@ -63,6 +63,11 @@ export default function StepOne(params: {params: StepOneParams }): JSX.Element {
     toggleModal(null);
   }
 
+  function toggleSelectPerson(index: number): void {
+    params.params.people[index].selected = !params.params.people[index].selected;
+    params.params.setPeople([...params.params.people]);
+  }
+
   function deletePerson(index: number): void {
     const cloned = [...params.params.people];
     const paidByIndex = params.params.items.findIndex(each => each.paidBy?.name === cloned[index].name && each.paidBy?.profile === cloned[index].profile);
@@ -79,9 +84,10 @@ export default function StepOne(params: {params: StepOneParams }): JSX.Element {
   return <>
     <div className="flex flex-col w-full">
       <div className="w-full">
-        <table className='w-full'>
+        <table className='w-full custom-table'> 
           <thead>
             <tr>
+              <th className='w-1/5'>Selected</th>
               <th className='text-main pb-3 w-1/5'>No.</th>
               <th className='text-main pb-3 w-1/5'>Profile</th>
               <th className='text-main pb-3 w-2/5'>Name</th>
@@ -93,6 +99,14 @@ export default function StepOne(params: {params: StepOneParams }): JSX.Element {
               params.params.people?.map((person, index) => {
                 return <tr key={`person-${index}`}
                            id={`person-row-${index}`}>
+                  <td className='text-2xl text-center cursor-pointer'
+                      onClick={() => toggleSelectPerson(index)}>
+                    {
+                      person.selected 
+                      ? <CheckCircleTwoTone twoToneColor="#52c41a" />
+                      : <MinusCircleTwoTone />
+                    }
+                  </td>
                   <td className='text-center'> { index + 1 } </td>
                   <td className='text-center'>
                     <div className='bg-third cursor-pointer p-1 w-fit h-fit rounded-full m-auto hover:opacity-50'
