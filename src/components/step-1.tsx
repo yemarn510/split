@@ -27,7 +27,7 @@ export default function StepOne(params: {params: StepOneParams }): JSX.Element {
 
   useEffect(() => {
     scrollToId();
-  }, [params.params.people]);
+  }, [params.params.people.length]);
 
   function scrollToId(): void {
     const id = document.getElementById(`person-row-${params.params.people.length - 1}`);
