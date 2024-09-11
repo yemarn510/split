@@ -160,7 +160,7 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
                           <SplitItem item={eachItem} items={params.items} index={itemIndex} setItems={params.setItems} />
                         </div>
                       }
-                      <div className="grow-0">
+                      <div className="grow-0 mx-auto max-w-[40px]">
                         <Input id="item-price"
                               type="number"
                               inputMode="decimal"
