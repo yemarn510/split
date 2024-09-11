@@ -67,37 +67,37 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
          width={400}
          onCancel={ () => toggleSharePopup() }
          open={openSharePopup} >
-        <div className='h-[320px] rounded bg-[#faf1e6] overflow-auto p-5'>
-          {
-            params.params.results
-              .filter( person => person.total > 0 )
-              .map((eachResult: Result, resultIndex: number) =>
-              <div key={`result-index-${resultIndex}`}
-                  className='flex flex-col justify-between mb-1'>
-                    <div className='w-full font-bold'>
-                      { eachResult.person.name }
-                    </div>
-                    {
-                      Object.keys(eachResult.totalToPayFor || {}).map((paidByName, paidByNameIndex) => {
-                        return <li key={`result-item-${paidByNameIndex}`}
-                                  className="flex flex-row">
-                        <span className='pr-2'>{ paidByName }</span> -
-                        <b className='font-bold pl-2'>{ (eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0).toFixed(2)}</b>
-                      </li>
-                      })
-                    }
-                    ---------------------------------------------
+      <div className='h-[320px] rounded bg-[#faf1e6] overflow-auto p-5'>
+        {
+          params.params.results
+            .filter( person => person.total > 0 )
+            .map((eachResult: Result, resultIndex: number) =>
+            <div key={`result-index-${resultIndex}`}
+                className='flex flex-col justify-between mb-1'>
+                  <div className='w-full font-bold'>
+                    { eachResult.person.name }
                   </div>
-              )
-          }
-        </div>
-        <div className='text-center mt-5'>
-          <Button
-            onClick={ () => copyToClipboard() }
-            icon={<CopyOutlined />}>
-            Copy To Clipboard
-          </Button>
-        </div>
-      </Modal>
+                  {
+                    Object.keys(eachResult.totalToPayFor || {}).map((paidByName, paidByNameIndex) => {
+                      return <li key={`result-item-${paidByNameIndex}`}
+                                className="flex flex-row">
+                      <span className='pr-2'>{ paidByName }</span> -
+                      <b className='font-bold pl-2'>{ (eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0).toFixed(2)}</b>
+                    </li>
+                    })
+                  }
+                  ---------------------------------------------
+                </div>
+            )
+        }
+      </div>
+      <div className='text-center mt-5'>
+        <Button
+          onClick={ () => copyToClipboard() }
+          icon={<CopyOutlined />}>
+          Copy To Clipboard
+        </Button>
+      </div>
+    </Modal>
   </>
 }

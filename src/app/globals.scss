@@ -117,7 +117,7 @@ h5 {
   overflow-y: auto;
 
   @media (max-width: 767px){
-    width: 85vw;
+    width: 95vw;
     height: calc(100dvh - 220px);
     margin: auto;
   }
@@ -192,7 +192,7 @@ input[type=number] {
 
 .ant-input {
   font-size: 16px;
-  padding: 0.15rem 1rem;
+  padding: 0.15rem 0.5rem;
 
   @media (max-width: 575px) {
     padding: 0.15rem 0.25rem;
