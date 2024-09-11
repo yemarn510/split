@@ -55,6 +55,12 @@ export default function Home() {
           content: 'Please select at least one person to continue',
         });
       }
+      if (currentStep === 2 && someStepsAreEmpty(splitDict)) {
+        messageApi.open({
+          type: 'error',
+          content: 'Some items are not assigned to anyone. Please assign them to continue',
+        });
+      }
       return;
     }
 
@@ -71,9 +77,6 @@ export default function Home() {
         }
         break;
       case 2:
-        if (someStepsAreEmpty(splitDict)) {
-          return;
-        }
         const results = calculateResults(items, people, splitDict);
         setResults(results);
         setCurrentStep(3);
