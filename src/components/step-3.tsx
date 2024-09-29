@@ -259,12 +259,15 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
 
 export function ItemImage(params: { image: string }): JSX.Element {
   return <div className='m-auto bg-third rounded-md w-fit p-3 mb-1'>
-    <Image src={params.image}
-      width={80}
-      height={80}
-      priority
-      className='m-auto'
-      alt='Food Images' />
+    {
+      params.image &&
+      <Image src={params.image}
+             width={80}
+             height={80}
+             priority
+             className='m-auto'
+             alt='Food Images' />
+    }
   </div>
 }
 

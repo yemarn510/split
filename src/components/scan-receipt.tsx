@@ -88,6 +88,7 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
       name: each.translated_name,
       price: each.total,
       paidBy: params.scanner.paidBy,
+      quantity: each.quantity,
     }));
     setScannedItems(scannedItems);
   }
