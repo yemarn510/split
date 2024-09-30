@@ -77,7 +77,7 @@ export default function Home() {
         }
         break;
       case 2:
-        const results = calculateResults(items, people, splitDict);
+        const results = calculateResults(items, people.filter(each => each.selected), splitDict);
         setResults(results);
         setCurrentStep(3);
         break;

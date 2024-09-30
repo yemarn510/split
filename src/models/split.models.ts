@@ -4,21 +4,21 @@
 export class Split {
   itemIndex: number;
   itemPrice: number;
-  sharingPersonIndex: Set<number>;
+  sharingPersonUUIDs: Set<string>;
 
   constructor({
     itemIndex = 0,
     itemPrice = 0,
-    sharingPersonIndex = new Set<number>(),
+    sharingPersonUUIDs = new Set<string>(),
   }) {
     this.itemIndex = itemIndex;
     this.itemPrice = itemPrice;
-    this.sharingPersonIndex = sharingPersonIndex;
+    this.sharingPersonUUIDs = sharingPersonUUIDs;
   };
 
 }
 
 
 export interface SplitDictionary {
-  [key: string]: Split;
+  [itemIndex: string]: Split;
 }

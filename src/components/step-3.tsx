@@ -56,15 +56,23 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
   useEffect(() =>  {
     const items = params.params.items;
     const splitDictLocal = params.params.splitDict;
+    const peopleUUIDs = new Set<string>(params.params.people.map((each) => each.uuid));
 
     for (let index = 0; index < items.length; index++) {
       const eachItem = items[index];
       eachItem.image = FOOD_IMAGES[generateRandomInteger(0, 20)];
-      splitDictLocal[index] = splitDictLocal[index] || new Split({
-        itemIndex: index,
-        itemPrice: eachItem.price,
-        sharingPersonIndex: new Set<number>(),
-      });
+      let splitDictPerItem = splitDictLocal[index];
+      if (splitDictPerItem) {
+        splitDictPerItem.sharingPersonUUIDs = new Set<string>(Array.from(splitDictPerItem.sharingPersonUUIDs).filter((each) => peopleUUIDs.has(each)));
+      } else { 
+        splitDictPerItem = new Split({
+          itemIndex: index,
+          itemPrice: eachItem.price,
+          sharingPersonUUIDs: new Set<string>(),
+        });
+      }
+
+      splitDictLocal[index] = splitDictPerItem;
     }
 
     params.params.setSplitDict(splitDictLocal);
@@ -72,31 +80,31 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
   }, []);
 
   useEffect( () => {
-    const localPeopleDict: { [key: string]: Person } = {};
-    params.params.people.forEach((each, index) => {
-      localPeopleDict[index] = each;
+    const localPeopleDict: PersonDict = {};
+    params.params.people.forEach((each) => {
+      localPeopleDict[each.uuid] = each;
     });
     setPeopleDict(localPeopleDict);
   }, [params.params.people]);
 
-  function assignPerson(index: number): void {
+  function assignPerson(uuid: string): void {
     if (participantItemIndex === null) {
       return;
     }
     const cloned = {...params.params.splitDict};
-    const sharingPersonIndex = cloned[participantItemIndex]?.sharingPersonIndex || new Set<number>();
-    sharingPersonIndex.has(index)
-    ? sharingPersonIndex.delete(index)
-    : sharingPersonIndex.add(index);
-    cloned[participantItemIndex].sharingPersonIndex = sharingPersonIndex;
+    const sharingPersonUUIDs = cloned[participantItemIndex]?.sharingPersonUUIDs || new Set<number>();
+    sharingPersonUUIDs.has(uuid)
+    ? sharingPersonUUIDs.delete(uuid)
+    : sharingPersonUUIDs.add(uuid);
+    cloned[participantItemIndex].sharingPersonUUIDs = sharingPersonUUIDs;
     params.params.setSplitDict(cloned);
   }
 
-  function isSelected(personIndex: number): boolean {
+  function isSelected(uuid: string): boolean {
     if (participantItemIndex === null) {
       return false;
     }
-    return params.params.splitDict[participantItemIndex!]?.sharingPersonIndex.has(personIndex) || false;
+    return params.params.splitDict[participantItemIndex!]?.sharingPersonUUIDs.has(uuid) || false;
   }
 
   function toggleModal(index: number | null): void {
@@ -114,12 +122,12 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
     if (index === null) {
       return;
     }
-    const finalResult = new Set<number>();
+    const finalResult = new Set<string>();
     const cloned = {...params.params.splitDict};
-    const sharingPersonIndex = params.params.splitDict[index]?.sharingPersonIndex || new Set<number>();
-    cloned[index].sharingPersonIndex = sharingPersonIndex.size === params.params.people.length
+    const sharingPersonUUIDs = params.params.splitDict[index]?.sharingPersonUUIDs || new Set<string>();
+    cloned[index].sharingPersonUUIDs = sharingPersonUUIDs.size === params.params.people.length
       ? finalResult
-      : new Set<number>(params.params.people.map((_, index) => index));
+      : new Set<string>(params.params.people.map((each) => each.uuid));
     params.params.setSplitDict(cloned);
   }
 
@@ -127,7 +135,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
     if (index === null) {
       return false;
     }
-    return params.params.splitDict[index]?.sharingPersonIndex.size === params.params.people.length;
+    return params.params.splitDict[index]?.sharingPersonUUIDs.size === params.params.people.length;
   }
 
   return <>
@@ -156,12 +164,12 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
              </div>
              <div className="w-full md:w-2/3 flex flex-col gap-3 items-center justify-center">
               {
-                params.params.splitDict[itemIndex]?.sharingPersonIndex.size > 0 
+                params.params.splitDict[itemIndex]?.sharingPersonUUIDs.size > 0 
                 ?
                   <div className='w-full flex flex-row justify-center cursor-pointer gap-1 md:hover:opacity-50'
                       onClick={() => setParticipantItemIndex(itemIndex)}>
                     <ShowSomeSharedPeople personDict={peopleDict}
-                                          sharingParticipant={params.params.splitDict[itemIndex]?.sharingPersonIndex} />
+                                          sharingParticipant={params.params.splitDict[itemIndex]?.sharingPersonUUIDs} />
                   </div>
                 : <div className='mb-[10px]'
                        onClick={() => setParticipantItemIndex(itemIndex)}>
@@ -229,13 +237,16 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
             {
               params.params.people.map((each, personIndex) => {
                 return <div key={`person-${personIndex}`} 
-                            onClick={() => assignPerson(personIndex)}
+                            onClick={() => assignPerson(each.uuid)}
                             className="flex flex-col items-center justify-center gap-1 md:gap-3 cursor-pointer">
                   <div className='relative w-fit h-fit'>
-                    <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center md:transition-opacity md:duration-200 bg-main border-2 border-white rounded-full ${isSelected(personIndex) ? 'opacity-100': 'opacity-0'}`}>
+                    <div className={`absolute right-0 top-0 w-[25px] h-[25px] flex justify-center items-center 
+                                      md:transition-opacity md:duration-200 bg-main border-2 border-white rounded-full
+                                      ${isSelected(each.uuid) ? 'opacity-100': 'opacity-0'}`}>
                       <CheckOutlined className='text-white' />
                     </div>
-                    <div className={`rounded-full p-4 w-fit flex items-center justify-center md:transition-colors md:duration-200 ${isSelected(personIndex) ? 'bg-fourth' : 'bg-third '}`}>
+                    <div className={`rounded-full p-4 w-fit flex items-center justify-center md:transition-colors 
+                                     md:duration-200 ${isSelected(each.uuid) ? 'bg-fourth' : 'bg-third '}`}>
                       <Avatar src={each.profile} className='w-12 h-12 ' />
                     </div>
                     <p className="text-center">{ each.name || '-' }</p>
@@ -271,7 +282,7 @@ export function ItemImage(params: { image: string }): JSX.Element {
   </div>
 }
 
-export function ShowSomeSharedPeople(props: { personDict: PersonDict, sharingParticipant: Set<number> }): JSX.Element {
+export function ShowSomeSharedPeople(props: { personDict: PersonDict, sharingParticipant: Set<string> }): JSX.Element {
 
   const [noOfParticipants, setNoOfParticipants] = useState<number>(3);
 
@@ -285,13 +296,12 @@ export function ShowSomeSharedPeople(props: { personDict: PersonDict, sharingPar
         setNoOfParticipants(window.innerWidth < 500 ? 2 : 3)
       });
     }
-  }, []);
-
-  
+  }, []);  
 
   return <>
     {
-      props.sharingParticipant?.size > 0 && Array.from(props.sharingParticipant).slice(0, noOfParticipants).map((each, index) => {
+      props.sharingParticipant?.size > 0 &&
+      Array.from(props.sharingParticipant).slice(0, noOfParticipants).map((each, index) => {
         return <div className='flex flex-col'
                     key={`shared-person-${index}`}>
           <div className={`rounded-full bg-third w-fit h-auto p-2 mx-auto flex items-center justify-center`}>
