@@ -1,2 +1,3 @@
 .next/cache
 automated-testing/.env
+automated-testing/.auth

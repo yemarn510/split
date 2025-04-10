@@ -1,12 +1,13 @@
-import { test, expect, Page } from '@playwright/test';
-import { addFriends } from '../utils/common-functions';
+import { expect } from '@playwright/test';
+import { addFriends, delay } from '../utils/common-functions';
+import { test } from '../fixtures';
 
-test.describe('Testing First Step', () => {
+test.describe('Testing First Step Without Login', () => {
+
   test.beforeEach(async ({ page }) => {
     // Go to the starting url before each test.
     await page.goto('/');
   });
-
 
   test('should show the error message when friend is not selected', async ({ page }) => {
     await page.locator('div').filter({ hasText: /^Go Next$/ }).click();
@@ -50,6 +51,21 @@ test.describe('Testing First Step', () => {
     await page.getByText('Please select at least one').isHidden();
     await page.getByRole('button', { name: 'plus Add Item' }).isVisible();
   });
-})
+});
 
+
+test.describe('Testing First Step After Logged In', () => {
+  test('login should be fine', async ({ loggedInPage }) => {
+    const page = loggedInPage.page;
+    await page.goto('/');
+    await expect(page.getByText('split my bills')).toBeVisible();
+  });
+
+  test('Adding friend should be fine', async ({ loggedInPage }) => {
+    const page = loggedInPage.page;
+    await page.goto('/');
+    await delay(2000);
+    await addFriends(page);
+  });
+});
 
