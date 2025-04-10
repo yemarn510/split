@@ -1,0 +1,11 @@
+{
+  "name": "automated-testing",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.51.1",
+    "@types/node": "^22.14.0"
+  },
+  "scripts": {}
+}
