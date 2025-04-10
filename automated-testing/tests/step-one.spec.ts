@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
-import { addFriends, delay } from '../utils/common-functions';
-import { test } from '../fixtures';
+import { addFriends, delay, selectFriends } from '../utils/common-functions';
+import { test, Response } from '../fixtures';
+import { API_ENDPOINT } from '../constants/friend-list.constants';
 
 test.describe('Testing First Step Without Login', () => {
 
@@ -61,11 +62,23 @@ test.describe('Testing First Step After Logged In', () => {
     await expect(page.getByText('split my bills')).toBeVisible();
   });
 
-  test('Adding friend should be fine', async ({ loggedInPage }) => {
+  test('Adding friend should be fine with API call', async ({ loggedInPage }) => {
     const page = loggedInPage.page;
+
     await page.goto('/');
-    await delay(2000);
     await addFriends(page);
+    await selectFriends(page);
+    await page.getByRole('checkbox', { name: 'Save This List' }).check();
+    await page.getByText('Go Next').click();
+
+    const apiCallList: Array<Promise<Response>> = [
+      page.waitForResponse(`${API_ENDPOINT.friends}`),
+    ];
+
+    await page.waitForLoadState('networkidle');
+    (await Promise.all(apiCallList)).every(eachCall => {
+      expect(eachCall.ok()).toBeTruthy();
+    });
   });
 });
 

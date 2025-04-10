@@ -1,7 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import path from "path";
 
-
 export async function addFriends(page: Page): Promise<void> {
   await page.getByRole('textbox', { name: 'Full Name, Nickname, etc.' }).click();
   await page.getByRole('textbox', { name: 'Full Name, Nickname, etc.' }).fill('YM');
@@ -17,6 +16,14 @@ export async function addFriends(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Add Person' }).click();
   await page.getByRole('row', { name: 'minus-circle 5 delete' }).getByPlaceholder('Full Name, Nickname, etc.').click();
   await page.getByRole('row', { name: 'minus-circle 5 delete' }).getByPlaceholder('Full Name, Nickname, etc.').fill('CC');
+}
+
+export async function selectFriends(page: Page): Promise<void> {
+  await page.locator('#person-row-0').getByRole('cell', { name: 'minus-circle' }).click();
+  await page.locator('#person-row-1').getByRole('cell', { name: 'minus-circle' }).click();
+  await page.locator('#person-row-2').getByRole('cell', { name: 'minus-circle' }).click();
+  await page.locator('#person-row-3').getByRole('cell', { name: 'minus-circle' }).click();
+  await page.locator('#person-row-4').getByRole('cell', { name: 'minus-circle' }).click();
 }
 
 export async function login(page: Page): Promise<Page> {
