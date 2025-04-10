@@ -77,7 +77,7 @@ export default function LoginPopup(params: LoginPopupProps ): JSX.Element {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_DOMAIN}/auth/callback`,
+        redirectTo: `${process.env.NEXT_PUBLIC_DOMAIN}/auth/v1/callback`,
       }
     });
   }
