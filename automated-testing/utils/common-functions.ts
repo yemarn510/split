@@ -3,8 +3,8 @@ import path from "path";
 import { friendPayload } from "../constants/friend-list.constants";
 
 
-export async function deleteFriends(page: Page): Promise<void> {
-  const numberOffriends = 10;
+export async function deleteFriends(page: Page, maxNumber: number = 0): Promise<void> {
+  const numberOffriends = maxNumber || 10;
   const friendArray = Array.from(Array(numberOffriends).keys()).reverse();
   for (const aFriend in friendArray) {
     const locator = await page.locator(`#person-row-${aFriend}`) || null;
@@ -14,8 +14,11 @@ export async function deleteFriends(page: Page): Promise<void> {
   }
 }
 
-export async function addFriends(page: Page): Promise<void> {
+export async function addFriends(page: Page, maxNumber: number = 0): Promise<void> {
   for (let index = 0; index < friendPayload.length; index++) {
+    if (maxNumber && index > maxNumber ) {
+      return;
+    }
     const friendName = friendPayload[index].name;
     await page.getByRole('button', { name: 'Add Person' }).click();
     await page.getByRole('row', { name: `minus-circle ${ index + 1 } delete` }).getByPlaceholder('Full Name, Nickname, etc.').click();
@@ -23,8 +26,8 @@ export async function addFriends(page: Page): Promise<void> {
   }
 }
 
-export async function selectFriends(page: Page): Promise<void> {
-  const numberOffriends = 10;
+export async function selectFriends(page: Page, maxNumber: number = 0): Promise<void> {
+  const numberOffriends = maxNumber || 10;
   const friendArray = Array.from(Array(numberOffriends).keys());
   for (const aFriend of friendArray) {
     const locator = await page.locator(`#person-row-${aFriend}`);

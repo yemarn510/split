@@ -33,6 +33,7 @@ export default defineConfig({
     // launchOptions: {
     //   slowMo: 1,
     // }
+    permissions: ["clipboard-read", 'clipboard-write']
   },
 
   /* Configure projects for major browsers */
