@@ -1,29 +1,37 @@
 import { expect, Page } from "@playwright/test";
 import path from "path";
+import { friendPayload } from "../constants/friend-list.constants";
+
+
+export async function deleteFriends(page: Page): Promise<void> {
+  const numberOffriends = 10;
+  const friendArray = Array.from(Array(numberOffriends).keys()).reverse();
+  for (const aFriend in friendArray) {
+    const locator = await page.locator(`#person-row-${aFriend}`) || null;
+    if(await locator.isVisible()) {
+      await locator.getByRole('img', { name: 'delete' })?.locator('svg').click();
+    }
+  }
+}
 
 export async function addFriends(page: Page): Promise<void> {
-  await page.getByRole('textbox', { name: 'Full Name, Nickname, etc.' }).click();
-  await page.getByRole('textbox', { name: 'Full Name, Nickname, etc.' }).fill('YM');
-  await page.getByRole('button', { name: 'Add Person' }).click();
-  await page.getByRole('row', { name: 'minus-circle 2 delete' }).getByPlaceholder('Full Name, Nickname, etc.').click();
-  await page.getByRole('row', { name: 'minus-circle 2 delete' }).getByPlaceholder('Full Name, Nickname, etc.').fill('NN');
-  await page.getByRole('button', { name: 'Add Person' }).click();
-  await page.getByRole('row', { name: 'minus-circle 3 delete' }).getByPlaceholder('Full Name, Nickname, etc.').click();
-  await page.getByRole('row', { name: 'minus-circle 3 delete' }).getByPlaceholder('Full Name, Nickname, etc.').fill('Zwe');
-  await page.getByRole('button', { name: 'Add Person' }).click();
-  await page.getByRole('row', { name: 'minus-circle 4 delete' }).getByPlaceholder('Full Name, Nickname, etc.').click();
-  await page.getByRole('row', { name: 'minus-circle 4 delete' }).getByPlaceholder('Full Name, Nickname, etc.').fill('MTE');
-  await page.getByRole('button', { name: 'Add Person' }).click();
-  await page.getByRole('row', { name: 'minus-circle 5 delete' }).getByPlaceholder('Full Name, Nickname, etc.').click();
-  await page.getByRole('row', { name: 'minus-circle 5 delete' }).getByPlaceholder('Full Name, Nickname, etc.').fill('CC');
+  for (let index = 0; index < friendPayload.length; index++) {
+    const friendName = friendPayload[index].name;
+    await page.getByRole('button', { name: 'Add Person' }).click();
+    await page.getByRole('row', { name: `minus-circle ${ index + 1 } delete` }).getByPlaceholder('Full Name, Nickname, etc.').click();
+    await page.getByRole('row', { name: `minus-circle ${ index + 1 } delete` }).getByPlaceholder('Full Name, Nickname, etc.').fill(friendName);
+  }
 }
 
 export async function selectFriends(page: Page): Promise<void> {
-  await page.locator('#person-row-0').getByRole('cell', { name: 'minus-circle' }).click();
-  await page.locator('#person-row-1').getByRole('cell', { name: 'minus-circle' }).click();
-  await page.locator('#person-row-2').getByRole('cell', { name: 'minus-circle' }).click();
-  await page.locator('#person-row-3').getByRole('cell', { name: 'minus-circle' }).click();
-  await page.locator('#person-row-4').getByRole('cell', { name: 'minus-circle' }).click();
+  const numberOffriends = 10;
+  const friendArray = Array.from(Array(numberOffriends).keys());
+  for (const aFriend of friendArray) {
+    const locator = await page.locator(`#person-row-${aFriend}`);
+    if (await locator.isVisible()) {
+      await locator.getByRole('cell', { name: 'minus-circle' }).click()
+    }
+  }
 }
 
 export async function login(page: Page): Promise<Page> {
