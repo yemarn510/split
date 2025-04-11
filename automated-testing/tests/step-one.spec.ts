@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { addFriends, delay, selectFriends } from '../utils/common-functions';
 import { test, Response } from '../fixtures';
-import { API_ENDPOINT } from '../constants/friend-list.constants';
+import { API_ENDPOINT, friendPayload } from '../constants/friend-list.constants';
 
 test.describe('Testing First Step Without Login', () => {
 
@@ -69,16 +69,20 @@ test.describe('Testing First Step After Logged In', () => {
     await addFriends(page);
     await selectFriends(page);
     await page.getByRole('checkbox', { name: 'Save This List' }).check();
-    await page.getByText('Go Next').click();
 
-    const apiCallList: Array<Promise<Response>> = [
-      page.waitForResponse(`${API_ENDPOINT.friends}`),
-    ];
-
+    const [request, click, response] = await Promise.all([
+      page.waitForRequest(request => 
+        request.url().includes(`${API_ENDPOINT.friends}`) && request.method() === 'POST'
+      ),
+      await page.getByText('Go Next').click(),
+      page.waitForResponse(`${API_ENDPOINT.friends}`)
+    ]);
+    
+    const postData: { name: string, profile: string}[] = request.postDataJSON(); // get parsed JSON body
+    
+    expect(postData.flatMap(each => each.name)).toEqual(friendPayload.flatMap(each => each.name));
+    expect(response.ok()).toBeTruthy();
     await page.waitForLoadState('networkidle');
-    (await Promise.all(apiCallList)).every(eachCall => {
-      expect(eachCall.ok()).toBeTruthy();
-    });
   });
 });
 
