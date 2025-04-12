@@ -1,4 +1,4 @@
-import { MOCKED_CLIPBOARD_CONTENT_GENERAL, UN_EVENLY_DIVIDED } from '../constants/friend-list.constants';
+import { MOCKED_CLIPBOARD_CONTENT_GENERAL, TEST_DELETED_A_FRIEND, TEST_DELETED_AFTER_ITEM_DELETE, TEST_DELETED_ITEMS, UN_EVENLY_DIVIDED } from '../constants/friend-list.constants';
 import { test, expect } from '../fixtures';
 import path from 'path';
 import { addFriends, delay, deleteFriends, selectFriends } from '../utils/common-functions';
@@ -312,5 +312,197 @@ test.describe('with login', () => {
 
     await page.getByRole('table').getByRole('img', { name: 'check' }).locator('svg').click();
     await page.getByText('Go Next').click();
+  });
+
+  test('deleted items after calculation should not mess up the result', async ({ loggedInPage }) => {
+    /*
+      1 -> add 6 people.
+      2 -> two items.
+      3 -> assign people to items.
+      4 -> calculate and
+      5 -> go back to step 2.
+      6 -> delete one item.
+      7 -> go next
+      8 -> it should show only one item in step 3.
+      9 -> go next
+      10 -> the calculation should be done only related to one item.
+    */
+
+      let page = loggedInPage.page;
+
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await delay(1000);
+    await deleteFriends(page);
+    await addFriends(page);
+    await selectFriends(page);
+
+    await page.getByText('Go Next').click();
+
+    await page.getByRole('img', { name: 'question' }).locator('svg').click();
+    await page.getByRole('dialog', { name: 'Set Paid By' }).locator('img').first().click();
+    await page.getByRole('textbox', { name: 'KFC, McDonalds, etc.' }).click();
+    await page.getByRole('textbox', { name: 'KFC, McDonalds, etc.' }).fill('KFC');
+    await page.getByRole('textbox', { name: 'KFC, McDonalds, etc.' }).press('Tab');
+    await page.getByPlaceholder('1').press('Tab');
+    await page.getByPlaceholder('0.00').fill('1290');
+    await page.getByRole('table').getByRole('img', { name: 'check' }).locator('svg').click();
+    await page.getByRole('button', { name: 'plus Add Item' }).click();
+
+    await page.getByRole('row', { name: 'question 1 0 check close' }).getByPlaceholder('KFC, McDonalds, etc.').click();
+    await page.getByRole('row', { name: 'question 1 0 check close' }).getByPlaceholder('KFC, McDonalds, etc.').fill('true coffee');
+    await page.getByRole('img', { name: 'question' }).locator('svg').click();
+    await page.getByRole('dialog', { name: 'Set Paid By' }).locator('img').nth(4).click();
+    await page.getByRole('row', { name: 'CC true coffee 1 0 check close' }).getByPlaceholder('0.00').click();
+    await page.getByRole('row', { name: 'CC true coffee 1 0 check close' }).getByPlaceholder('0.00').fill('900');
+    await page.getByRole('table').getByRole('img', { name: 'check' }).locator('svg').click();
+
+
+    await page.locator('div').filter({ hasText: /^Go Next$/ }).click();
+
+    await expect(page.getByRole('heading', { name: 'KFC /' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'true coffee /' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'usergroup-add Select All' }).first().click();
+    await expect(page.getByRole('heading', { name: '+' })).toBeVisible();
+    await page.locator('.w-full > .bg-third').click();    
+
+    await page.locator('.flex > .relative > div:nth-child(2)').first().click();
+    await page.locator('div:nth-child(5) > .relative > div:nth-child(2)').click();
+    await page.getByRole('button', { name: 'Close' }).click();
+
+    await page.getByText('Go Next').click();
+    await expect(page.locator('div').filter({ hasText: /^NNYM1258\.00Total258\.00$/ }).locator('b')).toBeVisible();
+    await expect(page.locator('div').filter({ hasText: /^ZweYM1258\.00Total258\.00$/ }).locator('b')).toBeVisible();
+    await expect(page.locator('div').filter({ hasText: /^MTEYM1258\.00Total258\.00$/ }).locator('b')).toBeVisible();
+    await expect(page.locator('b').filter({ hasText: '258.00' }).nth(4)).toBeVisible();
+    await expect(page.getByText('450.00').nth(1)).toBeVisible();
+    await expect(page.getByText('708.00').first()).toBeVisible();
+    await expect(page.locator('span').filter({ hasText: '258.00' }).first()).toBeVisible();
+    await expect(page.locator('span').filter({ hasText: '258.00' }).nth(1)).toBeVisible();
+    await expect(page.locator('span').filter({ hasText: '258.00' }).nth(2)).toBeVisible();
+    await expect(page.getByText('708.00').nth(1)).toBeVisible();
+    await page.locator('div').filter({ hasText: /^Share$/ }).click();
+
+    await page.getByRole('button', { name: 'copy Copy To Clipboard' }).click();
+    const clipboardContent = await page.evaluate(() => navigator.clipboard.readText());
+    await expect(clipboardContent).toBe(TEST_DELETED_ITEMS);
+
+    await page.getByRole('button', { name: 'Close' }).click();
+    await page.locator('div').filter({ hasText: /^Go Back$/ }).click();
+    await page.locator('div').filter({ hasText: /^Go Back$/ }).click();
+    await page.getByRole('row', { name: 'CC true coffee 1 900 edit delete' }).locator('svg').nth(1).click();
+    await page.getByRole('button', { name: 'Yes' }).click();
+    await expect(page.getByRole('cell', { name: 'CC' }).getByRole('paragraph')).not.toBeVisible();
+    await page.getByText('Go Next').click();
+    await expect(page.getByRole('heading', { name: 'KFC /' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'true coffee /' })).not.toBeVisible();
+
+    await page.getByText('Go Next').click();
+    await expect(page.locator('span').filter({ hasText: '258.00' }).first()).toBeVisible();
+    await expect(page.locator('span').filter({ hasText: '258.00' }).nth(1)).toBeVisible();
+    await expect(page.locator('span').filter({ hasText: '258.00' }).nth(2)).toBeVisible();
+    await expect(page.locator('span').filter({ hasText: '258.00' }).nth(3)).toBeVisible();
+    await expect(page.locator('span').filter({ hasText: '258.00' }).nth(4)).toBeVisible();
+    await page.getByText('Share', { exact: true }).click();
+    await page.getByRole('button', { name: 'copy Copy To Clipboard' }).click();
+
+    await page.getByRole('button', { name: 'copy Copy To Clipboard' }).click();
+    const clipboardContentAfterDeletion = await page.evaluate(() => navigator.clipboard.readText());
+    await expect(clipboardContentAfterDeletion).toBe(TEST_DELETED_AFTER_ITEM_DELETE);
+  });
+
+  test('deleted a friend after calculation should not mess up the result', async ({ loggedInPage }) => {
+    /*
+      1 -> add 6 people.
+      2 -> two items.
+      3 -> assign people to items.
+      4 -> calculate and
+      5 -> go back to step 1.
+      6 -> delete one friend.
+      7 -> go next
+      8 -> go next
+      8 -> it should show only 4 friends in step 3.
+      9 -> go next
+      10 -> the calculation should be done only related to 4 friends.
+    */
+
+      let page = loggedInPage.page;
+
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await delay(1000);
+    await deleteFriends(page);
+    await addFriends(page);
+    await selectFriends(page);
+
+    await page.getByText('Go Next').click();
+
+    await page.getByRole('img', { name: 'question' }).locator('svg').click();
+    await page.getByRole('dialog', { name: 'Set Paid By' }).locator('img').first().click();
+    await page.getByRole('textbox', { name: 'KFC, McDonalds, etc.' }).click();
+    await page.getByRole('textbox', { name: 'KFC, McDonalds, etc.' }).fill('KFC');
+    await page.getByRole('textbox', { name: 'KFC, McDonalds, etc.' }).press('Tab');
+    await page.getByPlaceholder('1').press('Tab');
+    await page.getByPlaceholder('0.00').fill('1290');
+    await page.getByRole('table').getByRole('img', { name: 'check' }).locator('svg').click();
+    await page.getByRole('button', { name: 'plus Add Item' }).click();
+
+    await page.getByRole('row', { name: 'question 1 0 check close' }).getByPlaceholder('KFC, McDonalds, etc.').click();
+    await page.getByRole('row', { name: 'question 1 0 check close' }).getByPlaceholder('KFC, McDonalds, etc.').fill('true coffee');
+    await page.getByRole('img', { name: 'question' }).locator('svg').click();
+    await page.getByRole('dialog', { name: 'Set Paid By' }).locator('img').nth(4).click();
+    await page.getByRole('row', { name: 'CC true coffee 1 0 check close' }).getByPlaceholder('0.00').click();
+    await page.getByRole('row', { name: 'CC true coffee 1 0 check close' }).getByPlaceholder('0.00').fill('900');
+    await page.getByRole('table').getByRole('img', { name: 'check' }).locator('svg').click();
+
+
+    await page.locator('div').filter({ hasText: /^Go Next$/ }).click();
+
+    await expect(page.getByRole('heading', { name: 'KFC /' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'true coffee /' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'usergroup-add Select All' }).first().click();
+    await expect(page.getByRole('heading', { name: '+' })).toBeVisible();
+    await page.locator('.w-full > .bg-third').click();    
+
+    await page.locator('.flex > .relative > div:nth-child(2)').first().click();
+    await page.locator('div:nth-child(5) > .relative > div:nth-child(2)').click();
+    await page.getByRole('button', { name: 'Close' }).click();
+
+    await page.getByText('Go Next').click();
+    await expect(page.locator('div').filter({ hasText: /^NNYM1258\.00Total258\.00$/ }).locator('b')).toBeVisible();
+    await expect(page.locator('div').filter({ hasText: /^ZweYM1258\.00Total258\.00$/ }).locator('b')).toBeVisible();
+    await expect(page.locator('div').filter({ hasText: /^MTEYM1258\.00Total258\.00$/ }).locator('b')).toBeVisible();
+    await expect(page.locator('b').filter({ hasText: '258.00' }).nth(4)).toBeVisible();
+    await expect(page.getByText('450.00').nth(1)).toBeVisible();
+    await expect(page.getByText('708.00').first()).toBeVisible();
+    await expect(page.locator('span').filter({ hasText: '258.00' }).first()).toBeVisible();
+    await expect(page.locator('span').filter({ hasText: '258.00' }).nth(1)).toBeVisible();
+    await expect(page.locator('span').filter({ hasText: '258.00' }).nth(2)).toBeVisible();
+    await expect(page.getByText('708.00').nth(1)).toBeVisible();
+    await page.locator('div').filter({ hasText: /^Share$/ }).click();
+
+    await page.getByRole('button', { name: 'copy Copy To Clipboard' }).click();
+    const clipboardContent = await page.evaluate(() => navigator.clipboard.readText());
+    await expect(clipboardContent).toBe(TEST_DELETED_ITEMS);
+
+    await page.getByRole('button', { name: 'Close' }).click();
+    await page.getByText('Go Back').click();
+    await page.getByText('Go Back').click();
+    await page.locator('div').filter({ hasText: /^Go Back$/ }).click();
+    await page.locator('#person-row-1').getByRole('img', { name: 'delete' }).locator('svg').click();
+    await page.getByText('Go Next').click();
+    await page.getByText('Go Next').click();
+    await page.getByText('Go Next').click();
+    await expect(page.getByText('772.50').first()).toBeVisible();
+    await expect(page.locator('span').filter({ hasText: '322.50' }).first()).toBeVisible();
+    await expect(page.locator('span').filter({ hasText: '322.50' }).nth(1)).toBeVisible();
+    await expect(page.getByText('772.50').nth(1)).toBeVisible();
+    await page.getByText('Share', { exact: true }).click();
+
+    await page.getByRole('button', { name: 'copy Copy To Clipboard' }).click();
+    const clipboardContentAfterDeletion = await page.evaluate(() => navigator.clipboard.readText());
+    await expect(clipboardContentAfterDeletion).toBe(TEST_DELETED_A_FRIEND);
   });
 })
