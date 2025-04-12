@@ -24,7 +24,7 @@ test.describe('Testing First Step Without Login', () => {
 
   test('delete button should work', async ({page}) => {
     await expect(page.locator('#person-row-0')).toBeVisible();
-    await addFriends(page);
+    await addFriends(page, 3);
     await page.locator('#person-row-4').getByRole('img', { name: 'delete' }).locator('svg').click();
     await expect(page.locator('#person-row-4')).not.toBeVisible();
   });
