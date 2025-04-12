@@ -26,7 +26,9 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
     const text = params.params.results
       .filter( person => person.total > 0 )
       .map((eachResult: Result, resultIndex: number) => {
-        const items = Object.keys(eachResult.totalToPayFor || {}).map((paidByName, paidByNameIndex) => {
+        const items = Object.keys(eachResult.totalToPayFor || {})
+        .filter(eachPerson => eachPerson !== eachResult.person.name)
+        .map((paidByName) => {
           return `${paidByName} - ${eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName].toFixed(2) : 0}`;
         }).join('\n');
         return `${eachResult.person.name} has to pay\n${items}\n-------------------------`;
@@ -79,12 +81,14 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
                     <span className="pl-1">has to pay</span>
                   </div>
                   {
-                    Object.keys(eachResult.totalToPayFor || {}).map((paidByName, paidByNameIndex) => {
+                    Object.keys(eachResult.totalToPayFor || {})
+                    .filter(eachPersonName => eachPersonName !== eachResult.person.name)
+                    .map((paidByName, paidByNameIndex) => {
                       return <li key={`result-item-${paidByNameIndex}`}
-                                className="flex flex-row">
-                      <span className='pr-2'>{ paidByName }</span> -
-                      <b className='font-bold pl-2'>{ (eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0).toFixed(2)}</b>
-                    </li>
+                           className="flex flex-row">
+                        <span className='pr-2'>{ paidByName }</span> -
+                        <b className='font-bold pl-2'>{ (eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0).toFixed(2)}</b>
+                      </li>
                     })
                   }
                   ---------------------------------------------
