@@ -14,7 +14,7 @@ export function calculateResults(
 ): Result[] {
 
   const itemDict: { [key in string]: Item} = {};
-  items.forEach((each, index) => itemDict[index.toString()] = each); 
+  items.forEach((each) => itemDict[each.uuid.toString()] = each); 
 
   const personDict: { [key in string]: {
     person: Person,

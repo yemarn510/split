@@ -51,7 +51,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
   const [changingItemIndex, setChangingItemIndex] = useState<number | null>(null);
 
   const [peopleDict, setPeopleDict] = useState<PersonDict>({});
-  const [participantItemIndex, setParticipantItemIndex] = useState<number | null>(null);
+  const [participantItemUUID, setParticipantItemUUID] = useState<string | null>(null);
 
   useEffect(() =>  {
     const items = params.params.items;
@@ -61,18 +61,18 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
     for (let index = 0; index < items.length; index++) {
       const eachItem = items[index];
       eachItem.image = FOOD_IMAGES[generateRandomInteger(0, 20)];
-      let splitDictPerItem = splitDictLocal[index];
+      let splitDictPerItem = splitDictLocal[eachItem.uuid];
       if (splitDictPerItem) {
         splitDictPerItem.sharingPersonUUIDs = new Set<string>(Array.from(splitDictPerItem.sharingPersonUUIDs).filter((each) => peopleUUIDs.has(each)));
       } else { 
         splitDictPerItem = new Split({
-          itemIndex: index,
+          itemUUID: eachItem.uuid,
           itemPrice: eachItem.price,
           sharingPersonUUIDs: new Set<string>(),
         });
       }
 
-      splitDictLocal[index] = splitDictPerItem;
+      splitDictLocal[eachItem.uuid] = splitDictPerItem;
     }
 
     params.params.setSplitDict(splitDictLocal);
@@ -88,23 +88,23 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
   }, [params.params.people]);
 
   function assignPerson(uuid: string): void {
-    if (participantItemIndex === null) {
+    if (participantItemUUID === null) {
       return;
     }
     const cloned = {...params.params.splitDict};
-    const sharingPersonUUIDs = cloned[participantItemIndex]?.sharingPersonUUIDs || new Set<number>();
+    const sharingPersonUUIDs = cloned[participantItemUUID]?.sharingPersonUUIDs || new Set<number>();
     sharingPersonUUIDs.has(uuid)
     ? sharingPersonUUIDs.delete(uuid)
     : sharingPersonUUIDs.add(uuid);
-    cloned[participantItemIndex].sharingPersonUUIDs = sharingPersonUUIDs;
+    cloned[participantItemUUID].sharingPersonUUIDs = sharingPersonUUIDs;
     params.params.setSplitDict(cloned);
   }
 
   function isSelected(uuid: string): boolean {
-    if (participantItemIndex === null) {
+    if (participantItemUUID === null) {
       return false;
     }
-    return params.params.splitDict[participantItemIndex!]?.sharingPersonUUIDs.has(uuid) || false;
+    return params.params.splitDict[participantItemUUID!]?.sharingPersonUUIDs.has(uuid) || false;
   }
 
   function toggleModal(index: number | null): void {
@@ -118,24 +118,24 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
     setChangingItemIndex(null);
   }
 
-  function toggleSelectAll(index: number | null): void {
-    if (index === null) {
+  function toggleSelectAll(uuid: string | null): void {
+    if (uuid === null) {
       return;
     }
     const finalResult = new Set<string>();
     const cloned = {...params.params.splitDict};
-    const sharingPersonUUIDs = params.params.splitDict[index]?.sharingPersonUUIDs || new Set<string>();
-    cloned[index].sharingPersonUUIDs = sharingPersonUUIDs.size === params.params.people.length
+    const sharingPersonUUIDs = params.params.splitDict[uuid]?.sharingPersonUUIDs || new Set<string>();
+    cloned[uuid].sharingPersonUUIDs = sharingPersonUUIDs.size === params.params.people.length
       ? finalResult
       : new Set<string>(params.params.people.map((each) => each.uuid));
     params.params.setSplitDict(cloned);
   }
 
-  function isAllSelected(index: number| null): boolean {
-    if (index === null) {
+  function isAllSelected(uuid: string| null): boolean {
+    if (uuid === null) {
       return false;
     }
-    return params.params.splitDict[index]?.sharingPersonUUIDs.size === params.params.people.length;
+    return params.params.splitDict[uuid]?.sharingPersonUUIDs.size === params.params.people.length;
   }
 
   return <>
@@ -164,15 +164,15 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
              </div>
              <div className="w-full md:w-2/3 flex flex-col gap-3 items-center justify-center">
               {
-                params.params.splitDict[itemIndex]?.sharingPersonUUIDs.size > 0 
+                params.params.splitDict[each.uuid]?.sharingPersonUUIDs.size > 0 
                 ?
                   <div className='w-full flex flex-row justify-center cursor-pointer gap-1 md:hover:opacity-50'
-                      onClick={() => setParticipantItemIndex(itemIndex)}>
+                      onClick={() => setParticipantItemUUID(each.uuid)}>
                     <ShowSomeSharedPeople personDict={peopleDict}
-                                          sharingParticipant={params.params.splitDict[itemIndex]?.sharingPersonUUIDs} />
+                                          sharingParticipant={params.params.splitDict[each.uuid]?.sharingPersonUUIDs} />
                   </div>
                 : <div className='mb-[10px]'
-                       onClick={() => setParticipantItemIndex(itemIndex)}>
+                       onClick={() => setParticipantItemUUID(each.uuid)}>
                   <UnknownPerson size='lg' />
                 </div>
               }
@@ -180,16 +180,16 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
               <div className='flex flex-row gap-1 md:gap-3 w-full mb-3 md:mb-0'>
                 <Button icon={<UserAddOutlined />}
                         type='primary'
-                        onClick={() => setParticipantItemIndex(itemIndex)}
+                        onClick={() => setParticipantItemUUID(each.uuid)}
                         className='w-1/2 cursor-pointer px-1'>
                   Select Participants
                 </Button>
 
                 <Button icon={<UsergroupAddOutlined />}
                         type='default'
-                        onClick={() => toggleSelectAll(itemIndex)}
+                        onClick={() => toggleSelectAll(each.uuid)}
                         className='w-1/2 bg-second border border-main cursor-pointer '>
-                  { isAllSelected(itemIndex) ? 'Deselect All' : 'Select All' }
+                  { isAllSelected(each.uuid) ? 'Deselect All' : 'Select All' }
                 </Button>
               </div>
              </div>
@@ -222,14 +222,14 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
              footer={null}
              centered
              closable={false}
-             onCancel={ () => setParticipantItemIndex(null) }
-             open={participantItemIndex !== null} >
+             onCancel={ () => setParticipantItemUUID(null) }
+             open={participantItemUUID !== null} >
       <div className='mt-3'>
         <div className='w-full text-center'>
           <Button type="default"
-                  className={`${isAllSelected(participantItemIndex) ? 'bg-main text-white' : ''} min-w-40 `}
-                  onClick={() => toggleSelectAll(participantItemIndex)}>
-            { isAllSelected(participantItemIndex)  ? 'Deselect All' : 'Select All' }
+                  className={`${isAllSelected(participantItemUUID) ? 'bg-main text-white' : ''} min-w-40 `}
+                  onClick={() => toggleSelectAll(participantItemUUID)}>
+            { isAllSelected(participantItemUUID)  ? 'Deselect All' : 'Select All' }
           </Button>
         </div>
         <div className='h-[320px] overflow-auto p-5 my-2'>
@@ -259,7 +259,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
 
         <div className='w-full text-right'>
           <Button type="default"
-                  onClick={() => setParticipantItemIndex(null)}>
+                  onClick={() => setParticipantItemUUID(null)}>
             Close
           </Button>
         </div>

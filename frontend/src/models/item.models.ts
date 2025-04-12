@@ -5,6 +5,7 @@ export interface ItemError {
 }
 
 export class Item {
+  uuid: string;
   name: string;
   price: number;
   quantity: number;
@@ -15,6 +16,7 @@ export class Item {
 
 
   constructor ({
+    uuid = '' as string,
     name = '' as string,
     price = 0 as number,
     quantity = 1 as number,
@@ -23,6 +25,7 @@ export class Item {
     sharedNumber = 0 as number,
     paidBy = null as Person | null,
   }) {
+    this.uuid = uuid || this.randomUUID();
     this.name = name;
     this.price = price;
     this.quantity = quantity;
@@ -30,6 +33,12 @@ export class Item {
     this.sharedNumber = sharedNumber;
     this.paidBy = paidBy;
     this.error = error;
+  }
+
+  randomUUID(): string {
+    return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
+      (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+    );
   }
 
   isValid(): boolean {

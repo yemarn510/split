@@ -2,16 +2,16 @@
 
 
 export class Split {
-  itemIndex: number;
+  itemUUID: string;
   itemPrice: number;
   sharingPersonUUIDs: Set<string>;
 
   constructor({
-    itemIndex = 0,
+    itemUUID = '',
     itemPrice = 0,
     sharingPersonUUIDs = new Set<string>(),
   }) {
-    this.itemIndex = itemIndex;
+    this.itemUUID = itemUUID;
     this.itemPrice = itemPrice;
     this.sharingPersonUUIDs = sharingPersonUUIDs;
   };

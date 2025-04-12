@@ -74,6 +74,12 @@ export default function Home() {
       case 1:
         if (isStepTwoValid()) {
           setCurrentStep(2);
+          const newSplitDict: SplitDictionary = {};
+          Object.keys(splitDict).forEach(eachUUID => {
+            const item = items.find(each => each.uuid === eachUUID);
+            item && (newSplitDict[eachUUID] = splitDict[eachUUID]);
+          });
+          setSplitDict(newSplitDict);
         }
         break;
       case 2:
