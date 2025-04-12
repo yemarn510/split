@@ -5,8 +5,8 @@ import { friendPayload } from "../constants/friend-list.constants";
 
 export async function deleteFriends(page: Page, maxNumber: number = 0): Promise<void> {
   const numberOffriends = maxNumber || 10;
-  const friendArray = Array.from(Array(numberOffriends).keys()).reverse();
-  for (const aFriend in friendArray) {
+  const friendArray = Array.from(Array(numberOffriends).keys());
+  for (const aFriend of friendArray.reverse()) {
     const locator = await page.locator(`#person-row-${aFriend}`) || null;
     if(await locator.isVisible()) {
       await locator.getByRole('img', { name: 'delete' })?.locator('svg').click();

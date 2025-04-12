@@ -18,7 +18,7 @@ test.describe('Testing First Step Without Login', () => {
 
   test('Should be able to add friends', async ({page}) => {
     await expect(page.locator('#person-row-0')).toBeVisible();
-    await addFriends(page);
+    await addFriends(page, 3);
     await expect(page.locator('#person-row-3')).toBeVisible();
   });
 
@@ -70,18 +70,16 @@ test.describe('Testing First Step After Logged In', () => {
     await addFriends(page);
     await selectFriends(page);
     await page.getByRole('checkbox', { name: 'Save This List' }).check();
-
-    const [request] = await Promise.all([
-      page.waitForRequest(request => 
-        request.url().includes(`${API_ENDPOINT.friends}`) && request.method() === 'POST'
-      ),
-      await page.getByText('Go Next').click(),
-    ]);
+    await page.getByText('Go Next').click();
+    const request = await page.waitForRequest(request => 
+      request.url().includes(`${API_ENDPOINT.friends}`) && request.method() === 'POST'
+    );
+    const response = await page.waitForResponse(`${API_ENDPOINT.friends}`);
+    expect(response.ok()).toBeTruthy();
     
     const postData: { name: string, profile: string}[] = request.postDataJSON(); // get parsed JSON body
     
     expect(postData.flatMap(each => each.name)).toEqual(friendPayload.flatMap(each => each.name));
-    await page.waitForLoadState('networkidle');
   });
 });
 
