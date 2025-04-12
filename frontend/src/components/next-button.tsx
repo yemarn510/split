@@ -29,7 +29,7 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
         const items = Object.keys(eachResult.totalToPayFor || {}).map((paidByName, paidByNameIndex) => {
           return `${paidByName} - ${eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName].toFixed(2) : 0}`;
         }).join('\n');
-        return `${eachResult.person.name}\n${items}\n---------------------------------------------`;
+        return `${eachResult.person.name} has to pay\n${items}\n-------------------------`;
       }).join('\n');
     navigator.clipboard.writeText(text);
     messageApi.info('Copied !', 2);
@@ -74,8 +74,9 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
             .map((eachResult: Result, resultIndex: number) =>
             <div key={`result-index-${resultIndex}`}
                 className='flex flex-col justify-between mb-1'>
-                  <div className='w-full font-bold'>
-                    { eachResult.person.name }
+                  <div className='w-full'>
+                    <span className="font-bold">{ eachResult.person.name }</span>
+                    <span className="pl-1">has to pay</span>
                   </div>
                   {
                     Object.keys(eachResult.totalToPayFor || {}).map((paidByName, paidByNameIndex) => {
