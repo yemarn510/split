@@ -104,25 +104,23 @@ test.describe('with login', () => {
 
     await page.locator('div').filter({ hasText: /^Share$/ }).click();
     // for YM
-    await expect(page.getByLabel('Share with your friends').getByText('312.50').first()).toBeVisible();
+    
     await expect(page.getByLabel('Share with your friends').getByText('92.50').first()).toBeVisible();
     await expect(page.getByLabel('Share with your friends').getByText('245.00').first()).toBeVisible();
     // for NN
-    await expect(page.getByLabel('Share with your friends').getByText('312.50').nth(1)).toBeVisible();
-    await expect(page.getByLabel('Share with your friends').getByText('92.50').nth(1)).toBeVisible();
+    await expect(page.getByLabel('Share with your friends').getByText('312.50').first()).toBeVisible();
     await expect(page.getByLabel('Share with your friends').getByText('245.00').nth(1)).toBeVisible();
     // for Zwe
+    await expect(page.getByLabel('Share with your friends').getByText('312.50').nth(1)).toBeVisible();
+    await expect(page.getByLabel('Share with your friends').getByText('92.50').nth(1)).toBeVisible();
+    // for MTE
     await expect(page.getByLabel('Share with your friends').getByText('312.50').nth(2)).toBeVisible();
     await expect(page.getByLabel('Share with your friends').getByText('92.50').nth(2)).toBeVisible();
     await expect(page.getByLabel('Share with your friends').getByText('245.00').nth(2)).toBeVisible();
-    // for MTE
-    await expect(page.getByLabel('Share with your friends').getByText('312.50').nth(3)).toBeVisible();
-    await expect(page.getByLabel('Share with your friends').getByText('92.50').nth(3)).toBeVisible();
-    await expect(page.getByLabel('Share with your friends').getByText('245.00').nth(3)).toBeVisible();
     // for CC (should not show in UI)
-    await expect(page.getByLabel('Share with your friends').getByText('312.50').nth(4)).not.toBeVisible();
-    await expect(page.getByLabel('Share with your friends').getByText('92.50').nth(4)).not.toBeVisible();
-    await expect(page.getByLabel('Share with your friends').getByText('245.00').nth(4)).not.toBeVisible();
+    await expect(page.getByLabel('Share with your friends').getByText('312.50').nth(3)).not.toBeVisible();
+    await expect(page.getByLabel('Share with your friends').getByText('92.50').nth(3)).not.toBeVisible();
+    await expect(page.getByLabel('Share with your friends').getByText('245.00').nth(3)).not.toBeVisible();
 
     await page.getByRole('button', { name: 'copy Copy To Clipboard' }).click();
 
@@ -227,8 +225,6 @@ test.describe('with login', () => {
     await expect(clipboardContent).toBe(UN_EVENLY_DIVIDED);
   });
 
-  
-
   test('should work with receipt image upload', async ({ loggedInPage }) => {
     let page = loggedInPage.page;
 
@@ -328,7 +324,7 @@ test.describe('with login', () => {
       10 -> the calculation should be done only related to one item.
     */
 
-      let page = loggedInPage.page;
+    let page = loggedInPage.page;
 
     await page.goto('/');
     await page.waitForLoadState('networkidle');
