@@ -33,14 +33,13 @@ export default defineConfig({
     // launchOptions: {
     //   slowMo: 1,
     // }
-    permissions: ["clipboard-read", 'clipboard-write']
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'] , permissions: ["clipboard-read", 'clipboard-write']},
     },
     {
       name: 'webkit',

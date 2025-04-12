@@ -1,7 +1,6 @@
 import { MOCKED_CLIPBOARD_CONTENT_GENERAL, UN_EVENLY_DIVIDED } from '../constants/friend-list.constants';
 import { test, expect } from '../fixtures';
-
-
+import path from 'path';
 import { addFriends, delay, deleteFriends, selectFriends } from '../utils/common-functions';
 
 test.describe('without login', () => {
@@ -58,7 +57,7 @@ test.describe('with login', () => {
     await page.getByRole('row', { name: '2 question Mala Hotpot 1 0' }).getByPlaceholder('1').fill('1');
     await page.getByRole('row', { name: '2 question Mala Hotpot 1 0' }).getByPlaceholder('1').press('Tab');
     await page.getByRole('row', { name: '2 question Mala Hotpot 1 0' }).getByPlaceholder('0.00').fill('370');
-    await page.getByRole('img', { name: 'question' }).locator('svg').click();
+    await page.getByRole('cell', { name: 'question' }).locator('div').nth(1).click();
     await page.getByRole('dialog', { name: 'Set Paid By' }).getByRole('img').nth(2).click();
     await page.getByRole('table').getByRole('img', { name: 'check' }).locator('svg').click();
     await delay(500);
@@ -89,7 +88,7 @@ test.describe('with login', () => {
     await page.locator('div:nth-child(3) > .relative > div:nth-child(2)').click();
     await page.getByRole('dialog', { name: 'Choose Participants' }).locator('img').nth(3).click();
     await page.getByRole('button', { name: 'Close' }).click();
-    await page.locator('.w-full > .bg-third').click();
+    await page.locator('.w-full > .bg-third').first().click();
     await page.getByRole('dialog', { name: 'Choose Participants' }).locator('img').first().click();
     await page.locator('div:nth-child(2) > .relative > div:nth-child(2)').click();
     await page.getByRole('dialog', { name: 'Choose Participants' }).locator('img').nth(2).click();
@@ -226,5 +225,92 @@ test.describe('with login', () => {
 
     const clipboardContent = await page.evaluate(() => navigator.clipboard.readText());
     await expect(clipboardContent).toBe(UN_EVENLY_DIVIDED);
+  });
+
+  
+
+  test('should work with receipt image upload', async ({ loggedInPage }) => {
+    let page = loggedInPage.page;
+
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await delay(1000);
+    await deleteFriends(page);
+    await addFriends(page);
+    await selectFriends(page);
+
+    await page.getByText('Go Next').click();
+
+    await page.getByRole('button', { name: 'camera' }).click();
+    await page.getByRole('button', { name: 'user Choose Paid By' }).click();
+    await page.locator('.max-w-\\[200px\\] > div > .flex > .p-1').first().click();
+
+    const uploadButtonLocator = page.getByRole('button', { name: 'inbox Click to upload' });
+    const fileName = 'receipt.jpeg';
+    const fileDirectory = '../test-files/receipt.jpeg';
+
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await uploadButtonLocator.click();
+    const fileChooser = await fileChooserPromise;
+    if (!fileDirectory) {
+      throw Error('File Path is not available');
+    }
+    
+    await fileChooser.setFiles(path.join(__dirname, fileDirectory));
+    await page.waitForResponse(`https://xw3pr7ak-7dqrsyftta-de.a.run.app/extract_data?output_language=English`);
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByText(fileName)).toBeVisible();
+
+    await page.getByRole('button', { name: 'See the result' }).click();
+    
+    await expect(page.getByRole('cell', { name: '313.00' })).toBeVisible();
+    
+    await page.getByRole('row', { name: '1 YM Boba Strawberry 1 72' }).locator('svg').first().click();
+    await expect(page.getByRole('cell', { name: 'Boba Strawberry' }).getByPlaceholder('KFC, McDonalds, etc.')).toBeVisible();
+    await expect(page.getByRole('row', { name: '1 YM Boba Strawberry 1 72' }).getByPlaceholder('1')).toBeVisible();
+    await expect(page.getByRole('row', { name: '1 YM Boba Strawberry 1 72' }).getByPlaceholder('0.00')).toBeVisible();
+    await expect(page.getByLabel('Upload your receipt').getByRole('img', { name: 'check' }).locator('svg')).toBeVisible();
+    await page.getByLabel('Upload your receipt').getByRole('img', { name: 'check' }).locator('svg').click();
+
+    await page.getByRole('row', { name: 'YM Boba Blueberry 1 72 edit delete' }).locator('svg').first().click();
+    await expect(page.getByRole('cell', { name: 'Boba Blueberry' }).getByPlaceholder('KFC, McDonalds, etc.')).toBeVisible();
+    await expect(page.getByRole('row', { name: '2 YM Boba Blueberry 1 72' }).getByPlaceholder('1')).toBeVisible();
+    await expect(page.getByRole('row', { name: '2 YM Boba Blueberry 1 72' }).getByPlaceholder('0.00')).toBeVisible();
+    await expect(page.getByLabel('Upload your receipt').getByRole('img', { name: 'check' }).locator('svg')).toBeVisible();
+    await page.getByLabel('Upload your receipt').getByRole('img', { name: 'check' }).locator('svg').click();
+    
+    await page.getByRole('row', { name: '3 YM Korean Strawberry 1 169' }).locator('svg').first().click();
+    await expect(page.getByRole('cell', { name: 'Korean Strawberry' }).getByPlaceholder('KFC, McDonalds, etc.')).toBeVisible();
+    await expect(page.getByRole('row', { name: '3 YM Korean Strawberry 1 169' }).getByPlaceholder('1')).toBeVisible();
+    await expect(page.getByRole('cell', { name: '169' }).getByPlaceholder('0.00')).toBeVisible();
+    await page.getByLabel('Upload your receipt').getByRole('img', { name: 'check' }).locator('svg').click();
+
+    await expect(page.getByRole('button', { name: 'Save Items' })).toBeVisible();
+    await page.getByRole('button', { name: 'Save Items' }).click();
+
+    await delay(1000);
+
+    await page.getByRole('row', { name: '1 YM Boba Strawberry 1 72' }).locator('svg').first().click();
+    await expect(page.getByRole('cell', { name: 'Boba Strawberry' }).getByPlaceholder('KFC, McDonalds, etc.')).toBeVisible();
+    await expect(page.getByRole('row', { name: '1 YM Boba Strawberry 1 72' }).getByPlaceholder('1')).toBeVisible();
+    await expect(page.getByRole('row', { name: '1 YM Boba Strawberry 1 72' }).getByPlaceholder('0.00')).toBeVisible();
+    await expect(page.getByRole('table').getByRole('img', { name: 'check' }).locator('svg')).toBeVisible();
+
+    await page.getByRole('table').getByRole('img', { name: 'check' }).locator('svg').click();
+    await page.getByRole('row', { name: 'YM Boba Blueberry 1 72 edit delete' }).locator('svg').first().click();
+    await expect(page.getByRole('cell', { name: 'Boba Blueberry' }).getByPlaceholder('KFC, McDonalds, etc.')).toBeVisible();
+    await expect(page.getByRole('row', { name: '2 YM Boba Blueberry 1 72' }).getByPlaceholder('1')).toBeVisible();
+    await expect(page.getByRole('row', { name: '2 YM Boba Blueberry 1 72' }).getByPlaceholder('0.00')).toBeVisible();
+    await expect(page.getByRole('table').getByRole('img', { name: 'check' }).locator('svg')).toBeVisible();
+
+    await page.getByRole('table').getByRole('img', { name: 'check' }).locator('svg').click();
+    await page.getByRole('row', { name: '3 YM Korean Strawberry 1 169' }).locator('svg').first().click();
+    await expect(page.getByRole('cell', { name: 'Korean Strawberry' }).getByPlaceholder('KFC, McDonalds, etc.')).toBeVisible();
+    await expect(page.getByRole('row', { name: '3 YM Korean Strawberry 1 169' }).getByPlaceholder('1')).toBeVisible();
+    await expect(page.getByRole('cell', { name: '169' }).getByPlaceholder('0.00')).toBeVisible();
+    await expect(page.getByRole('table').getByRole('img', { name: 'check' }).locator('svg')).toBeVisible();
+
+    await page.getByRole('table').getByRole('img', { name: 'check' }).locator('svg').click();
+    await page.getByText('Go Next').click();
   });
 })
