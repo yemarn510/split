@@ -10,7 +10,8 @@ const supabase = createClient();
 export function calculateResults(
   items: Item[], 
   people: Person[], 
-  splitDict:SplitDictionary): Result[] {
+  splitDict: SplitDictionary
+): Result[] {
 
   const itemDict: { [key in string]: Item} = {};
   items.forEach((each, index) => itemDict[index.toString()] = each); 
@@ -36,9 +37,11 @@ export function calculateResults(
     peopleUUIDs.forEach((personIndex) => {
       const person = personDict[personIndex.toString()]; // { person: Person, result: Result }
       const item = itemDict[itemIndex]; // Get Item Object
-      item.sharedNumber = peopleUUIDs.length;
-      person.result.items.push(item); // Add Item to Person's Result
-      person.result.total += item.price / peopleUUIDs.length; // Add Price to Person's Total
+      if (item) {
+        item.sharedNumber = peopleUUIDs.length || 0;
+        person.result.items.push(item); // Add Item to Person's Result
+        person.result.total += item.price / peopleUUIDs.length; // Add Price to Person's Total
+      }
     });
   });
 
