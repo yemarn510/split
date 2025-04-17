@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     },
   },
   icons: `/images/favicon.png`,
+  publisher: 'YeMarn',
   openGraph: {
     title: 'Split My Bill',
     description: 'Split the bills among your friends with ease. Share the amounts and items with your friends.',

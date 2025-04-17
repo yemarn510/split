@@ -36,7 +36,7 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
 
     setTimeout(() => {
       setRendering(false);
-    }, 250);
+    }, 50);
   }, [params.items.length])
 
   function saveEdit(): void {
