@@ -1,0 +1,16 @@
+{
+  "configurations": [
+    {
+      "name": "Flutter: Attach to Device",
+      "type": "dart",
+      "request": "attach"
+    },
+    {
+      "name": "Flutter (lib/main.dart)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "flutter",
+      "program": "lib/main.dart"
+    }
+  ]
+}
