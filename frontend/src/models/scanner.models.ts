@@ -4,7 +4,7 @@ import { Person } from "./person.models";
 
 export class Scanner {
   paidBy: Person | null;
-  image: UploadFile | null;
+  image: File | null;
   response: ScanResponse | null;
 
   constructor({
@@ -13,7 +13,7 @@ export class Scanner {
     response = null,
   }: {
     paidBy?: Person | null;
-    image?: UploadFile | null;
+    image?: File | null;
     response?: ScanResponse | null;
   }) {
     this.paidBy = paidBy;
