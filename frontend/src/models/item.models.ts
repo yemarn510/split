@@ -13,6 +13,7 @@ export class Item {
   sharedNumber: number;
   error: ItemError;
   paidBy: Person | null;
+  isPercentage: boolean;
 
 
   constructor ({
@@ -24,6 +25,7 @@ export class Item {
     error = {} as ItemError,
     sharedNumber = 0 as number,
     paidBy = null as Person | null,
+    isPercentage = false,
   }) {
     this.uuid = uuid || this.randomUUID();
     this.name = name;
@@ -33,6 +35,7 @@ export class Item {
     this.sharedNumber = sharedNumber;
     this.paidBy = paidBy;
     this.error = error;
+    this.isPercentage = isPercentage;
   }
 
   randomUUID(): string {

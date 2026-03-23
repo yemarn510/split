@@ -1,5 +1,5 @@
 import { Item } from "@/models/item.models";
-import { CheckOutlined, CloseOutlined, EditOutlined, DeleteOutlined, LoadingOutlined } from "@ant-design/icons";
+import { CheckOutlined, CloseOutlined, EditOutlined, DeleteOutlined, LoadingOutlined, PercentageOutlined, DollarOutlined } from "@ant-design/icons";
 import { Tooltip, Popconfirm, Input } from "antd";
 import { useEffect, useState } from "react";
 import RoundedAvatar from "./custom-avatar";
@@ -86,6 +86,18 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
     }
   }
 
+  function setIsPercentage(itemIndex: number, isPercentage: boolean, ): void {
+    if (params.items[itemIndex].isPercentage === isPercentage) {
+      return;
+    }
+    params.items[itemIndex].isPercentage = isPercentage
+    params.setItems(params.items)
+    setRendering(true)
+    setTimeout(() => {
+      setRendering(false)
+    }, 1)
+  }
+
   return <>
   {
     rendering 
@@ -96,11 +108,11 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
       : <table className="w-full">
         <thead>
           <tr>
-            <th className="w-[20px]">No.</th>
+            <th className="w-1/12 max-w-10">No.</th>
             <th className="w-2/12">Paid By</th>
-            <th className="w-4/12">Item Name</th>
-            <th className="w-2/12">Quantity</th>
-            <th className="w-2/12">Total Price</th>
+            <th className="w-3/12">Name</th>
+            <th className="w-2/12 max-w-10">Qty</th>
+            <th className="w-3/12">Price</th>
             <th className="w-1/12"></th>
           </tr>
         </thead>
@@ -156,11 +168,11 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
                     <div className="flex flex-row items-center">
                       {
                         eachItem.quantity > 1 && params.currentIndex !== itemIndex &&
-                        <div className="min-w-[30px] p-1">
+                        <div className="min-w-[10px]">
                           <SplitItem item={eachItem} items={params.items} index={itemIndex} setItems={params.setItems} />
                         </div>
                       }
-                      <div className="grow-0 mx-auto max-w-[40px]">
+                      <div className="grow-0 mx-auto max-w-[30px]">
                         <Input id="item-price"
                               type="number"
                               inputMode="decimal"
@@ -174,7 +186,7 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
                                 params.items[itemIndex] = eachItem;
                                 params.setItems(params.items);
                               }}
-                              className="w-full"
+                              className="w-full text-center px-1 md:px-2"
                         />
                       </div>
                     </div>
@@ -199,7 +211,19 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
                               params.items[itemIndex] = eachItem;
                               params.setItems(params.items);
                             }}
-                            className="w-full"
+                            suffix={<Popconfirm title="Price / Percentage"
+                                                description="Change this to Price or Percentage"
+                                                onConfirm={() => (setIsPercentage(itemIndex, true))}
+                                                onCancel={ () => {setIsPercentage(itemIndex, false)}}
+                                                okText="Percentage %"
+                                                cancelText="Price $">
+                                      {
+                                        params.items[itemIndex].isPercentage
+                                        ? <PercentageOutlined />
+                                        : <DollarOutlined />
+                                      }
+                                    </Popconfirm>}
+                            className="w-full px-1 md:px-2"
                       />
                     </div>
                   </Tooltip>
@@ -208,14 +232,14 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
                   {
                     params.currentIndex === itemIndex
                       ? 
-                        <div className="flex flex-row justify-center items-end pb-1 gap-3 md:gap-5">
+                        <div className="flex flex-row justify-center items-end pb-1 gap-1 md:gap-3">
                           <CheckOutlined className="text-main text-xl" 
                                         onClick={() => saveEdit()}/>
                           <CloseOutlined className="text-danger text-xl"
                                         onClick={() => cancelEdit(itemIndex)}/>
                         </div>
                       : 
-                        <div className="flex flex-row justify-center items-end pb-1 gap-3 md:gap-5">
+                        <div className="flex flex-row justify-center items-end pb-1 gap-1 md:gap-3">
                           <EditOutlined className="text-main text-xl"
                                         onClick={() => editItem(itemIndex)} />
                           <Popconfirm title="Delete the task"
@@ -241,7 +265,7 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
               </td>
               <td colSpan={2}
                   className="font-bold pl-3 text-xl py-4">
-                { params.items.reduce((acc, each) => acc + each.price, 0).toFixed(2) }
+                { params.items.filter(each => !each.isPercentage).reduce((acc, each) => acc + each.price, 0).toFixed(2) }
               </td>
             </tr>
           }

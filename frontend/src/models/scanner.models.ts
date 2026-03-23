@@ -40,6 +40,7 @@ export interface OrderItem {
 	price: number;
 	quantity: number;
 	total: number;
+  isPercentage: boolean;
 }
 
 export interface ScanResponse {

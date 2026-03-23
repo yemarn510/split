@@ -81,9 +81,10 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
     }
     const scannedItems = params.scanner.response.items.map(each => new Item({
       name: each.translated_name,
-      price: each.total,
+      price: each.price * each.quantity,
       paidBy: params.scanner.paidBy,
       quantity: each.quantity,
+      isPercentage: each.isPercentage
     }));
     setScannedItems(scannedItems);
   }
@@ -194,16 +195,16 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
   return <>
     { contextHolder }
     <Modal title="Upload your receipt"
-             footer={null}
-             centered
-             onCancel={ () => {
-                setOpen(false)
-                setTimeout( () => {
-                  params.toggleScan();
-                }, 1);
-              }
-            }
-             open={ params.openScanPopup } >
+           footer={null}
+           centered
+           onCancel={ () => {
+             setOpen(false)
+             setTimeout( () => {
+               params.toggleScan();
+             }, 1);
+           }
+          }
+          open={ params.openScanPopup } >
       { getContent() }
     </Modal>
   </>
