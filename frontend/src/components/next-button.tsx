@@ -19,13 +19,14 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
   const [openSharePopup, setOpenSharePopup] = useState<boolean>(false);
   const [messageApi, contextHolder] = message.useMessage();
 
+  const results = params.params.results.filter( person => person.total > 0 );
+
   function toggleSharePopup(): void {
     setOpenSharePopup(!openSharePopup);
   }
 
   function copyToClipboard(): void {
-    const text = params.params.results
-      .filter( person => person.total > 0 )
+    const text = results
       .map((eachResult: Result) => {
         const items = eachResult?.items
           .filter(eachItem => eachItem.paidBy?.name !== eachResult.person.name)
@@ -83,9 +84,7 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
          open={openSharePopup} >
       <div className='h-[320px] rounded bg-[#faf1e6] overflow-auto p-5'>
         {
-          params.params.results
-            .filter(person => person.total > 0 )
-            .map((eachResult: Result, resultIndex: number) =>
+          results.map((eachResult: Result, resultIndex: number) =>
             <div key={`result-index-${resultIndex}`}
                 className='flex flex-col justify-between mb-1'>
                   <div className='w-full mb-3'>
@@ -94,18 +93,20 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
                   </div>
                   <ItemResults items={eachResult?.items.filter(eachItem => eachItem.paidBy?.name !== eachResult.person.name) || []} />
 
+                  <hr className="my-2" />
+
                   {
                     Object.keys(eachResult.totalToPayFor || {})
                     .filter(eachPersonName => eachPersonName !== eachResult.person.name)
                     .map((paidByName, paidByNameIndex) => {
                       return <li key={`result-item-${paidByNameIndex}`}
-                           className="flex flex-row w-full justify-between mt-3">
+                           className="flex flex-row w-full justify-between ">
                         <span className='pr-2 font-bold'>{ paidByName } total</span>
                         <b className='font-bold pl-2'>{ (eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0).toFixed(2)}</b>
                       </li>
                     })
                   }
-                  ---------------------------------------------
+                  ----------------------------------------------------------
                 </div>
             )
         }
