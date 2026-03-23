@@ -8,6 +8,7 @@ export class Item {
   uuid: string;
   name: string;
   price: number;
+  percent: number;
   quantity: number;
   image: string;
   sharedNumber: number;
@@ -26,6 +27,7 @@ export class Item {
     sharedNumber = 0 as number,
     paidBy = null as Person | null,
     isPercentage = false,
+    percent = 0,
   }) {
     this.uuid = uuid || this.randomUUID();
     this.name = name;
@@ -36,6 +38,7 @@ export class Item {
     this.paidBy = paidBy;
     this.error = error;
     this.isPercentage = isPercentage;
+    this.percent = percent;
   }
 
   randomUUID(): string {

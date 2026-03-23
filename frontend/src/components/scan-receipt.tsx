@@ -81,10 +81,11 @@ export default function ScanReceipt(params: ScanReceiptParams): JSX.Element {
     }
     const scannedItems = params.scanner.response.items.map(each => new Item({
       name: each.translated_name,
-      price: each.price * each.quantity,
+      price: each.isPercentage ? each.percent : (each.price * each.quantity),
       paidBy: params.scanner.paidBy,
       quantity: each.quantity,
-      isPercentage: each.isPercentage
+      isPercentage: each.isPercentage,
+      percent: each.percent
     }));
     setScannedItems(scannedItems);
   }

@@ -9,12 +9,13 @@ export class Result {
   total: number;
   paidByNItems?: PaidByAndItems;
   totalToPayFor?: TotalToPayFor;
-
+  totalPercentage: number;
 
   constructor({
     person = new Person({}),
     items = [],
     total = 0,
+    totalPercentage = 0,
     paidByNItems: paidByNItems = {},
     totalToPayFor: TotalToPayFor = {}
   }) {
@@ -23,5 +24,6 @@ export class Result {
     this.total = total;
     this.paidByNItems = paidByNItems;
     this.totalToPayFor = TotalToPayFor;
+    this.totalPercentage = totalPercentage;
   }
 }

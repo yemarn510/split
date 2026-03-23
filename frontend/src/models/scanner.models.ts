@@ -41,6 +41,7 @@ export interface OrderItem {
 	quantity: number;
 	total: number;
   isPercentage: boolean;
+  percent: number;
 }
 
 export interface ScanResponse {

@@ -38,7 +38,7 @@ export default function SplitItem(params: SplitItemParams): JSX.Element {
     const initialQuantity = initialItem.quantity;
     const newQuantity = initialQuantity - 1;
 
-    const newItem = new Item({...initialItem, quantity: 1, price: initialItem.price * (1 / initialQuantity)});
+    const newItem = new Item({...initialItem, uuid: '', quantity: 1, price: initialItem.price * (1 / initialQuantity)});
 
     initialItem.quantity = newQuantity;
     initialItem.price = initialItem.price * (newQuantity / initialQuantity);

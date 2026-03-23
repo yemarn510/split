@@ -4,6 +4,7 @@ import { Result } from "@/models/results.models";
 import { ExportOutlined, ArrowRightOutlined, CopyOutlined } from "@ant-design/icons";
 import { message, Modal, Button } from "antd";
 import { useState } from "react";
+import ItemResults from "./item-results";
 
 export interface NextButtonProps {
   currentStep: number,
@@ -25,11 +26,13 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
   function copyToClipboard(): void {
     const text = params.params.results
       .filter( person => person.total > 0 )
-      .map((eachResult: Result, resultIndex: number) => {
-        // Individual items with same format as UI (only items paid by others)
+      .map((eachResult: Result) => {
         const items = eachResult?.items
           .filter(eachItem => eachItem.paidBy?.name !== eachResult.person.name)
           .map((eachItem) => {
+          if (eachItem.isPercentage) {
+            return `${eachItem.paidBy?.name} - ${eachItem.name} ${eachItem.percent} % - ${eachItem.price.toFixed(2)}`;
+          }
           return `${eachItem.paidBy?.name} - ${eachItem.name} ${eachItem.price} / ${eachItem.sharedNumber} - ${(eachItem.price/eachItem.sharedNumber).toFixed(2)}`;
         }).join('\n');
         
@@ -89,26 +92,7 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
                     <span className="font-bold">{ eachResult.person.name }</span>
                     <span className="pl-1">has to pay</span>
                   </div>
-                  {
-                    eachResult?.items
-                      .filter(eachItem => eachItem.paidBy?.name !== eachResult.person.name)
-                      .map((eachItem, itemIndex) => {
-                      return <li key={`result-item-${itemIndex}`}
-                                 className='flex flex-row justify-between mb-1'>
-                        <div className='w-1/2'>
-                          { eachItem.paidBy?.name } - { eachItem.name }
-                        </div>
-                        <div className='w-1/2 flex flex-row justify-end'>
-                          <span>
-                            { eachItem.price } / { eachItem.sharedNumber } -
-                          </span>
-                          <span className='min-w-[70px] text-right font-bold'>
-                            { (eachItem.price/eachItem.sharedNumber).toFixed(2)}
-                          </span>
-                        </div>
-                      </li>
-                    })
-                  }
+                  <ItemResults items={eachResult?.items.filter(eachItem => eachItem.paidBy?.name !== eachResult.person.name) || []} />
 
                   {
                     Object.keys(eachResult.totalToPayFor || {})

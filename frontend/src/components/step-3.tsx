@@ -159,7 +159,7 @@ export default function StepThree(params: { params: StepThreeParams}): JSX.Eleme
               </div>
 
               <h4 className='text-center'>
-                { each.name } / { each.price }
+                { each.name } { each.isPercentage ? '' : '- ' +each.price }
               </h4>
              </div>
              <div className="w-full md:w-2/3 flex flex-col gap-3 items-center justify-center">

@@ -14,12 +14,12 @@ export function calculateResults(
 ): Result[] {
 
   const itemDict: { [key in string]: Item} = {};
-  items.forEach((each) => itemDict[each.uuid.toString()] = each); 
-
   const personDict: { [key in string]: {
     person: Person,
     result: Result
   }} = {};
+
+  items.forEach((each) => itemDict[each.uuid.toString()] = each);
   people.forEach((each) => {
     personDict[each.uuid] = {
       person: each,
@@ -34,18 +34,38 @@ export function calculateResults(
   Object.keys(splitDict).forEach((itemIndex) => { // [ {'0': Split Obj, '1': Split Obj} ] -> [0, 1]
     const split = splitDict[itemIndex]; // Split Obj
     const peopleUUIDs = Array.from(split.sharingPersonUUIDs); // [0000-0000-0000-0000, 0000-0000-0000-1234]
+    
     peopleUUIDs.forEach((personIndex) => {
       const person = personDict[personIndex.toString()]; // { person: Person, result: Result }
       const item = itemDict[itemIndex]; // Get Item Object
+
       if (item) {
         item.sharedNumber = peopleUUIDs.length || 0;
         person.result.items.push(item); // Add Item to Person's Result
-        person.result.total += item.price / peopleUUIDs.length; // Add Price to Person's Total
+        if (!item.isPercentage) {
+          person.result.total += item.price / peopleUUIDs.length; // Add Price to Person's Total
+        }
       }
     });
   });
 
-  return Object.keys(personDict).map((key) => personDict[key].result);
+  return Object.keys(personDict).map((key) => {
+    const percentItems = personDict[key].result.items.filter(each => each.isPercentage)
+    const total = structuredClone(personDict[key].result.total);
+    let finalTotal = structuredClone(personDict[key].result.total);
+
+    percentItems.map(eachPercent => {
+      const percentage = structuredClone(eachPercent.percent);
+      eachPercent.price = total * (percentage / 100)
+      return eachPercent
+    }).forEach(each => {
+      finalTotal += each.price;
+    })
+
+
+    personDict[key].result.total = finalTotal;
+    return personDict[key].result
+  });
 }
 
 

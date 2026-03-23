@@ -5,6 +5,7 @@ import { Result } from "@/models/results.models";
 import type { CollapseProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { Item } from '@/models/item.models';
+import ItemResults from './item-results';
 
 export interface PaidByAndItems {
   [ key: string ]: Item[];
@@ -50,7 +51,7 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
       Object.keys(paidByNItems).forEach((name: string) => {
         let totalForPerson = 0;
         paidByNItems[name].forEach((eachItem: Item, acc: number) => {
-          totalForPerson += eachItem.price / eachItem.sharedNumber;
+          totalForPerson += eachItem.isPercentage ? eachItem.price : eachItem.price / eachItem.sharedNumber;
         });
         totalToPayFor[name] = totalForPerson;
       });
@@ -163,26 +164,7 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
              onCancel={ () => toggleDetails(null, '') }
              open={ detailResults !== null} >
       <div className='max-h-[300px] overflow-auto bg-second rounded-lg p-3'>
-        <ul>
-          {
-            detailResults?.items.map((eachItem, itemIndex) => {
-              return <li key={`result-item-${itemIndex}`}
-                         className='flex flex-row justify-between mb-1'>
-                <div className='w-1/2'>
-                  { eachItem.paidBy?.name } ( { eachItem.name } )
-                </div>
-                <div className='w-1/2 flex flex-row justify-end'>
-                  <span>
-                    { eachItem.price } / { eachItem.sharedNumber } -
-                  </span>
-                  <span className='min-w-[70px] text-right font-bold'>
-                    { (eachItem.price/eachItem.sharedNumber).toFixed(2)}
-                  </span>
-                </div>
-              </li>
-            })
-          }
-        </ul>
+        <ItemResults items={detailResults?.items || []} />
       </div>
     </Modal>
   </>;
