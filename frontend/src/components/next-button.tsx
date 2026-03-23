@@ -115,7 +115,7 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
                     .filter(eachPersonName => eachPersonName !== eachResult.person.name)
                     .map((paidByName, paidByNameIndex) => {
                       return <li key={`result-item-${paidByNameIndex}`}
-                           className="flex flex-row w-full justify-between">
+                           className="flex flex-row w-full justify-between mt-3">
                         <span className='pr-2 font-bold'>{ paidByName } total</span> -
                         <b className='font-bold pl-2'>{ (eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0).toFixed(2)}</b>
                       </li>
