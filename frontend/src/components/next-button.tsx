@@ -26,12 +26,21 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
     const text = params.params.results
       .filter( person => person.total > 0 )
       .map((eachResult: Result, resultIndex: number) => {
-        const items = Object.keys(eachResult.totalToPayFor || {})
-        .filter(eachPerson => eachPerson !== eachResult.person.name)
-        .map((paidByName) => {
-          return `${paidByName} - ${eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName].toFixed(2) : 0}`;
+        // Individual items with same format as UI (only items paid by others)
+        const items = eachResult?.items
+          .filter(eachItem => eachItem.paidBy?.name !== eachResult.person.name)
+          .map((eachItem) => {
+          return `${eachItem.paidBy?.name} - ${eachItem.name} ${eachItem.price} / ${eachItem.sharedNumber} - ${(eachItem.price/eachItem.sharedNumber).toFixed(2)}`;
         }).join('\n');
-        return `${eachResult.person.name} has to pay\n${items}\n-------------------------`;
+        
+        // Totals per person who was paid to (same as UI)
+        const totals = Object.keys(eachResult.totalToPayFor || {})
+        .filter(eachPersonName => eachPersonName !== eachResult.person.name)
+        .map((paidByName) => {
+          return `${paidByName} total ${(eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0).toFixed(2)}`;
+        }).join('\n');
+        
+        return `${eachResult.person.name} has to pay\n${items}\n${totals}\n---------------------------------------------`;
       }).join('\n');
     navigator.clipboard.writeText(text);
     messageApi.info('Copied !', 2);
@@ -72,21 +81,42 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
       <div className='h-[320px] rounded bg-[#faf1e6] overflow-auto p-5'>
         {
           params.params.results
-            .filter( person => person.total > 0 )
+            .filter(person => person.total > 0 )
             .map((eachResult: Result, resultIndex: number) =>
             <div key={`result-index-${resultIndex}`}
                 className='flex flex-col justify-between mb-1'>
-                  <div className='w-full'>
+                  <div className='w-full mb-3'>
                     <span className="font-bold">{ eachResult.person.name }</span>
                     <span className="pl-1">has to pay</span>
                   </div>
+                  {
+                    eachResult?.items
+                      .filter(eachItem => eachItem.paidBy?.name !== eachResult.person.name)
+                      .map((eachItem, itemIndex) => {
+                      return <li key={`result-item-${itemIndex}`}
+                                 className='flex flex-row justify-between mb-1'>
+                        <div className='w-1/2'>
+                          { eachItem.paidBy?.name } - { eachItem.name }
+                        </div>
+                        <div className='w-1/2 flex flex-row justify-end'>
+                          <span>
+                            { eachItem.price } / { eachItem.sharedNumber } -
+                          </span>
+                          <span className='min-w-[70px] text-right font-bold'>
+                            { (eachItem.price/eachItem.sharedNumber).toFixed(2)}
+                          </span>
+                        </div>
+                      </li>
+                    })
+                  }
+
                   {
                     Object.keys(eachResult.totalToPayFor || {})
                     .filter(eachPersonName => eachPersonName !== eachResult.person.name)
                     .map((paidByName, paidByNameIndex) => {
                       return <li key={`result-item-${paidByNameIndex}`}
-                           className="flex flex-row">
-                        <span className='pr-2'>{ paidByName }</span> -
+                           className="flex flex-row w-full justify-between">
+                        <span className='pr-2 font-bold'>{ paidByName } total</span> -
                         <b className='font-bold pl-2'>{ (eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0).toFixed(2)}</b>
                       </li>
                     })
