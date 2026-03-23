@@ -117,7 +117,7 @@ export default function StepOne(params: {params: StepOneParams }): JSX.Element {
                   <td className='px-3 md:px-10'>
                     <Input type='text'
                           value={person.name}
-                          placeholder='Full Name, Nickname, etc.'
+                          placeholder='Nickname'
                           onChange={(e) => {
                             const cloned = [...params.params.people];
                             cloned[index].name = e.target.value;
