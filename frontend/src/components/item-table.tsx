@@ -203,7 +203,7 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
                             inputMode="decimal"
                             disabled={ params.currentIndex !== itemIndex }
                             placeholder="0.00"
-                            defaultValue={eachItem.price}
+                            defaultValue={eachItem.percent || eachItem.price}
                             onChange={(e) => {
                               e.preventDefault();
                               eachItem.price = +e.target.value || 0;
