@@ -22,7 +22,7 @@
 body {
   @apply bg-second;
   font-optical-sizing: auto;
-  font-style: var(--font-size);
+  font-style: var(--font-size) !important;
   overflow: hidden;
   height: 100dvh;
   display: flex;
