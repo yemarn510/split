@@ -172,14 +172,14 @@ export default function HistoryPage(): JSX.Element {
 
               <ItemResults items={items} />
 
-              <hr className="my-2" />
+              <hr className="my-2 border-dashed border-gray-400" />
 
               {Object.keys(totalsByPaidByName)
                 .filter((paidByName) => paidByName !== group.needToBePaidByName)
                 .map((paidByName, paidByNameIndex) => (
                   <li
                     key={`history-total-${paidByNameIndex}`}
-                    className="flex flex-row w-full justify-between"
+                    className="flex flex-row w-full justify-between my-1"
                   >
                     <span className="pr-2 font-bold">{paidByName} total</span>
                     <b className="font-bold pl-2">
@@ -188,7 +188,7 @@ export default function HistoryPage(): JSX.Element {
                   </li>
                 ))}
               
-              <hr className='border-dashed border-gray-900 w-full my-3'/>
+              <hr className='border-gray-900 w-full my-3'/>
             </div>
           );
         })}

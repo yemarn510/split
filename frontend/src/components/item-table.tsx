@@ -216,7 +216,7 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
                             }}
                             suffix={<Popover title="Price / Percentage"
                                              content={
-                                               <div className="flex flex-col gap-3">
+                                               <div className="flex flex-col gap-3 pb-3">
                                                  <h5>Change this to Price or Percentage</h5>
                                                  <Radio.Group
                                                    value={eachItem.isPercentage}

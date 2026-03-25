@@ -214,20 +214,20 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
               </div>
               <ItemResults items={eachResult?.items.filter(eachItem => eachItem.paidBy?.name !== eachResult.person.name) || []} />
 
-              <hr className="my-2" />
+              <hr className="my-2 border-dashed border-gray-400" />
 
               {
                 Object.keys(eachResult.totalToPayFor || {})
                 .filter(eachPersonName => eachPersonName !== eachResult.person.name)
                 .map((paidByName, paidByNameIndex) => {
                   return <li key={`result-item-${paidByNameIndex}`}
-                        className="flex flex-row w-full justify-between ">
+                        className="flex flex-row w-full justify-between my-1">
                     <span className='pr-2 font-bold'>{ paidByName } total</span>
                     <b className='font-bold pl-2'>{ (eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0).toFixed(2)}</b>
                   </li>
                 })
               }
-              <hr className='border-dashed border-gray-900 w-full mt-3'/>
+              <hr className='border-gray-900 w-full my-3'/>
             </div>
           )
         }
