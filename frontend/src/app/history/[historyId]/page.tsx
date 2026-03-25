@@ -130,7 +130,7 @@ export default function HistoryPage(): JSX.Element {
           <span className="font-bold">Shared by:</span> {history.creatorName}
         </p>
       ) : null}
-      <div className="history-content rounded bg-[#faf1e6] overflow-auto p-5 my-10">
+      <div className="history-content rounded bg-[#faf1e6] overflow-auto p-5 my-5">
         {groups.map((group) => {
           const items: Item[] = group.rows.map((row) => {
             const isPercentage = row.is_percentage;
