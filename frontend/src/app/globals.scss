@@ -162,6 +162,7 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+  font-size: 1rem !important;
 }
 
 .step-3-h {
