@@ -7,6 +7,9 @@ import ItemResults from '@/components/item-results';
 import { Item } from '@/models/item.models';
 import { Person } from '@/models/person.models';
 import { HistoryResult } from '@/models/split.models';
+import { HomeOutlined, RollbackOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
+import Link from 'next/link';
 
 type HistoryGroup = {
   needToBePaidByUUID: string;
@@ -82,7 +85,10 @@ export default function HistoryPage(): JSX.Element {
 
   return (
     <div className="max-w-[500px] m-auto">
-      <div className="h-[320px] rounded bg-[#faf1e6] overflow-auto p-5">
+      <h1 className="text-center text-main text-4xl md:text-5xl">
+        Let&rsquo;s Split the Bills
+      </h1>
+      <div className="h-[calc(100dvh - 400px)] rounded bg-[#faf1e6] overflow-auto p-5 my-5">
         {groups.map((group) => {
           const items: Item[] = group.rows.map((row) => {
             const isPercentage = row.is_percentage;
@@ -139,11 +145,21 @@ export default function HistoryPage(): JSX.Element {
                     </b>
                   </li>
                 ))}
-              ----------------------------------------------------------
+              -------------------------------------------------------------------------
             </div>
           );
         })}
       </div>
+
+      <Link href="/" passHref legacyBehavior className='w-full text-center border boder-danger-500'>
+        <div className='w-full text-center'>
+          <Button
+            type="primary"
+            icon={<RollbackOutlined />}>
+            Go to Home
+          </Button>
+        </div>
+      </Link>
     </div>
   );
 }
