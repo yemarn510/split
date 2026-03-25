@@ -7,8 +7,8 @@ import ItemResults from '@/components/item-results';
 import { Item } from '@/models/item.models';
 import { Person } from '@/models/person.models';
 import { HistoryResult } from '@/models/split.models';
-import { HomeOutlined, RollbackOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
+import { RollbackOutlined, ShareAltOutlined } from '@ant-design/icons';
+import { Button, message } from 'antd';
 import Link from 'next/link';
 
 type HistoryGroup = {
@@ -24,6 +24,7 @@ export default function HistoryPage(): JSX.Element {
 
   const supabase = createClient();
 
+  const [messageApi, contextHolder] = message.useMessage();
   const [rows, setRows] = useState<HistoryResult[] | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -78,6 +79,11 @@ export default function HistoryPage(): JSX.Element {
     return orderedKeys.map((k) => map.get(k)!);
   }, [rows]);
 
+  function copyToClipboard(): void {
+    navigator.clipboard.writeText(window.location.href);
+    messageApi.info('Copied to clipboard!', 2);
+  }
+
   if (!historyId) return <div>Missing history id.</div>;
   if (errorMessage) return <div>Failed to load history: {errorMessage}</div>;
   if (!rows) return <div>Loading...</div>;
@@ -85,10 +91,11 @@ export default function HistoryPage(): JSX.Element {
 
   return (
     <div className="max-w-[500px] m-auto">
+      { contextHolder }
       <h1 className="text-center text-main text-4xl md:text-5xl">
         Let&rsquo;s Split the Bills
       </h1>
-      <div className="h-[calc(100dvh - 400px)] rounded bg-[#faf1e6] overflow-auto p-5 my-5">
+      <div className="history-content rounded bg-[#faf1e6] overflow-auto p-5 my-10">
         {groups.map((group) => {
           const items: Item[] = group.rows.map((row) => {
             const isPercentage = row.is_percentage;
@@ -151,15 +158,27 @@ export default function HistoryPage(): JSX.Element {
         })}
       </div>
 
-      <Link href="/" passHref legacyBehavior className='w-full text-center border boder-danger-500'>
-        <div className='w-full text-center'>
-          <Button
-            type="primary"
-            icon={<RollbackOutlined />}>
-            Go to Home
-          </Button>
+      <div className="w-full flex flex-row gap-3">
+        <div className='w-1/2 text-center'>
+          <Link href="/" passHref legacyBehavior>
+            <Button
+              type="default"
+              className='w-full'
+              icon={<RollbackOutlined />}>
+              Go to Home
+            </Button>
+          </Link>
         </div>
-      </Link>
+
+        <Button
+          type="primary"
+          className='w-1/2'
+          onClick={ () => copyToClipboard() }
+          icon={<ShareAltOutlined />}>
+          Share
+        </Button>
+      </div>
+        
     </div>
   );
 }

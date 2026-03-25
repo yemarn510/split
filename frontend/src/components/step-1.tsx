@@ -104,7 +104,7 @@ export default function StepOne(params: {params: StepOneParams }): JSX.Element {
                     {
                       person.selected 
                       ? <CheckCircleTwoTone twoToneColor="#52c41a" />
-                      : <MinusCircleTwoTone />
+                      : <div className='w-6 h-6 rounded-full border border-gray-400 border-2 mx-auto'></div>
                     }
                   </td>
                   <td className='text-center'> { index + 1 } </td>

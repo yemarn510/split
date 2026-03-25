@@ -278,3 +278,8 @@ input[type=number] {
 table tbody tr td {
   padding: 0.5rem;
 }
+
+.history-content {
+  max-height: calc(100dvh - 200px);
+  height: fit-content;
+}

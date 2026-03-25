@@ -3,7 +3,7 @@
 import { Result } from "@/models/results.models";
 import { ExportOutlined, ArrowRightOutlined, CopyOutlined, HistoryOutlined } from "@ant-design/icons";
 import { message, Modal, Button } from "antd";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ItemResults from "./item-results";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -22,10 +22,23 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
   const [openSharePopup, setOpenSharePopup] = useState<boolean>(false);
   const [messageApi, contextHolder] = message.useMessage();
   const [isSharing, setIsSharing] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const results = params.params.results.filter( person => person.total > 0 );
+
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (!isMounted) return;
+      setIsLoggedIn(!!data?.user && !error);
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, [supabase]);
 
   function toggleSharePopup(): void {
     setOpenSharePopup(!openSharePopup);
@@ -197,15 +210,19 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
         </Button>
       </div>
 
-      <div className='text-center mt-3'>
-        <Button
-          type="primary"
-          loading={isSharing}
-          onClick={ () => shareHistory() }
-          icon={<HistoryOutlined />}>
-          Share History
-        </Button>
-      </div>
+      
+        {isLoggedIn ? (
+          <div className='text-center mt-3'>
+            <Button
+              type="primary"
+              className="px-8"
+              loading={isSharing}
+              onClick={ () => shareHistory() }
+              icon={<HistoryOutlined />}>
+              Share History
+            </Button>
+          </div>
+        ) : null}
     </Modal>
   </>
 }
