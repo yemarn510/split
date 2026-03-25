@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
+'use client';
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import UnknownPerson from "./unknown-person";
 import { GoogleOutlined, HistoryOutlined } from "@ant-design/icons";
-import { Modal, Button } from "antd";
+import { Modal, Button, Spin } from "antd";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import Image from 'next/image';
 import { Person } from "@/models/person.models";
+import { useRouter } from "next/navigation";
 
 export interface LoginPopupProps { 
   setPeople: Function, 
@@ -17,61 +20,92 @@ export default function LoginPopup(params: LoginPopupProps ): JSX.Element {
 
   const [user, setUser] = useState<User | null>(null);
 
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
+  const router = useRouter();
+  const { setPeople, setIsPremiumUser } = params;
 
   const [openPopup, setOpenPopup] = useState(false);
-
-  useEffect(() => {
-    checkUser();
-  }, []);
+  const [histories, setHistories] = useState<Array<{ id: string; memo: string | null }> | null>(null);
+  const [historiesLoading, setHistoriesLoading] = useState(false);
+  const [historiesError, setHistoriesError] = useState<string | null>(null);
 
   function togglePopup(): void {
     setOpenPopup(!openPopup);
   }
 
-  async function checkUser(): Promise<void> {
-    const { data, error} = await supabase.auth.getUser();
-    if (error) {
-      console.error('Error getting user:', error.message);
-      logoutUser();
-      return;
-    }
-    const user = data.user;
-    setUser(user);
-    checkPremiumUser();
-    checkFriends();
-  }
+  const fetchUserHistories = useCallback(
+    async (userId: string): Promise<void> => {
+      setHistoriesLoading(true);
+      setHistoriesError(null);
+      try {
+        const { data, error } = await supabase
+          .from('history')
+          .select('id, memo')
+          .eq('creator_user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(50);
 
-  async function checkPremiumUser(): Promise<void> {
-    const { data, error } = await supabase.from('premium').select('is_premium');
-    if (error) {
-      console.error('Error getting user:', error.message);
-      return;
-    }
-    params.setIsPremiumUser(data?.at(0)?.is_premium || false);
-  }
+        if (error) throw error;
+        setHistories((data || []) as Array<{ id: string; memo: string | null }>);
+      } catch (err: any) {
+        setHistories([]);
+        setHistoriesError(err?.message || 'Failed to load history.');
+      } finally {
+        setHistoriesLoading(false);
+      }
+    },
+    [supabase]
+  );
 
-  async function checkFriends(): Promise<void> {
+  const checkFriends = useCallback(async (): Promise<void> => {
     const { data, error } = await supabase.from('friend').select('*');
     if (error) {
       console.error('Error getting friends:', error.message);
       return;
     }
-    const peopleList = (data as Person[]).map( (eachPerson) => {
+    const peopleList = (data as Person[]).map((eachPerson) => {
       return new Person({
         id: eachPerson.id,
         name: eachPerson.name,
         profile: eachPerson.profile,
-      })
+      });
     });
     peopleList.length === 0 && peopleList.push(new Person({}));
-    params.setPeople(peopleList);
-  }
+    setPeople(peopleList);
+  }, [setPeople, supabase]);
 
-  function logoutUser(): void {
+  const logoutUser = useCallback((): void => {
     supabase.auth.signOut();
     setUser(null);
-  }
+    setHistories(null);
+    setHistoriesError(null);
+  }, [supabase]);
+
+  const checkUser = useCallback(async (): Promise<void> => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) {
+      console.error('Error getting user:', error.message);
+      logoutUser();
+      return;
+    }
+
+    const user = data.user;
+    setUser(user);
+    checkFriends();
+
+    if (user?.id) {
+      await fetchUserHistories(user.id);
+    }
+  }, [
+    fetchUserHistories,
+    checkFriends,
+    logoutUser,
+    supabase,
+  ]);
+
+  useEffect(() => {
+    void checkUser();
+  }, [checkUser]);
 
   async function handleSignInWithGoogle() {
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -132,14 +166,44 @@ export default function LoginPopup(params: LoginPopupProps ): JSX.Element {
                 </div>
               </div>
 
-              <Button
-                className="min-w-[300px]"
-                disabled
-                onClick={ () => user ? logoutUser() : handleSignInWithGoogle()}
-                icon={<HistoryOutlined />}>
-                History (Coming Soon)
-              </Button>
+              <div
+                className="min-w-[300px] flex flex-row gap-2 justify-center">
+                <HistoryOutlined />
+                <span>History{histories ? ` (${histories.length})` : ''}</span>
+              </div>
 
+              <div className="w-full mt-3">
+                {historiesLoading ? (
+                  <div className="flex justify-center py-3">
+                    <Spin />
+                  </div>
+                ) : historiesError ? (
+                  <div className="text-fourth text-center py-2">
+                    {historiesError}
+                  </div>
+                ) : histories && histories.length > 0 ? (
+                  <ul className="flex flex-col gap-2 max-h-[240px] overflow-auto pr-1">
+                    {histories.map((h) => (
+                      <li key={h.id} className="rounded border border-main/20 px-3 py-2 hover:bg-main/5">
+                        <button
+                          type="button"
+                          className="w-full text-left"
+                          onClick={ () => router.push(`/history/${h.id}`)}
+                        >
+                          <div className="flex flex-row items-center justify-between gap-2">
+                            <span className="truncate font-semibold text-main">
+                              {h.memo?.trim() ? h.memo : 'Untitled history'}
+                            </span>
+                            <span className="text-fourth text-sm flex-shrink-0">Open</span>
+                          </div>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="text-fourth text-center py-3">No history yet.</div>
+                )}
+              </div>
             </div>
           }
           <Button
