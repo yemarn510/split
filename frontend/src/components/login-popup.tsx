@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import UnknownPerson from "./unknown-person";
-import { GoogleOutlined, HistoryOutlined } from "@ant-design/icons";
+import { ExportOutlined, GoogleOutlined, HistoryOutlined } from "@ant-design/icons";
 import { Modal, Button, Spin } from "antd";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -194,7 +194,10 @@ export default function LoginPopup(params: LoginPopupProps ): JSX.Element {
                             <span className="truncate font-semibold text-main">
                               {h.memo?.trim() ? h.memo : 'Untitled history'}
                             </span>
-                            <span className="text-fourth text-sm flex-shrink-0">Open</span>
+                            <div className="flex-shrink-0 text-fourth flex flex-row gap-2">
+                              <span className="text-sm">View</span>
+                              <ExportOutlined />
+                            </div>
                           </div>
                         </button>
                       </li>
