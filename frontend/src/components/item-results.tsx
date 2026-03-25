@@ -16,7 +16,7 @@ export default function ItemResults(params: { items: Item[] }): JSX.Element {
             eachItem.isPercentage 
               ? <span>{ eachItem.percent } %</span>
               : <span>
-              { eachItem.price } / { eachItem.sharedNumber } -
+              { eachItem.price } / { eachItem.sharedNumber }
               </span>
           }
 
