@@ -3,7 +3,7 @@ import UnknownPerson from "./unknown-person";
 import { GoogleOutlined, HistoryOutlined } from "@ant-design/icons";
 import { Modal, Button } from "antd";
 import { createClient } from "@/utils/supabase/client";
-import { User } from "@supabase/auth-js";
+import { User } from "@supabase/supabase-js";
 import Image from 'next/image';
 import { Person } from "@/models/person.models";
 

@@ -1,10 +1,13 @@
 'use client';
 
 import { Result } from "@/models/results.models";
-import { ExportOutlined, ArrowRightOutlined, CopyOutlined } from "@ant-design/icons";
+import { ExportOutlined, ArrowRightOutlined, CopyOutlined, HistoryOutlined } from "@ant-design/icons";
 import { message, Modal, Button } from "antd";
 import { useState } from "react";
 import ItemResults from "./item-results";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
+import { HistoryResult } from "@/models/split.models";
 
 export interface NextButtonProps {
   currentStep: number,
@@ -18,6 +21,9 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
 
   const [openSharePopup, setOpenSharePopup] = useState<boolean>(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const [isSharing, setIsSharing] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
 
   const results = params.params.results.filter( person => person.total > 0 );
 
@@ -48,6 +54,78 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
       }).join('\n');
     navigator.clipboard.writeText(text);
     messageApi.info('Copied !', 2);
+  }
+
+  async function shareHistory(): Promise<void> {
+    if (isSharing) return;
+    setIsSharing(true);
+    try {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      const user = userData?.user;
+      if (userError || !user) {
+        messageApi.error('Please login with Google before sharing history.');
+        return;
+      }
+
+      const { data: historyRow, error: historyInsertError } = await supabase
+        .from('history')
+        .insert({ creator_user_id: user.id })
+        .select('id')
+        .single();
+
+      if (historyInsertError) throw historyInsertError;
+      if (!historyRow?.id) throw new Error('Missing history id after insert.');
+
+      const historyId: string = historyRow.id;
+
+      const historyResultsRows: Array<HistoryResult> = [];
+
+      results.forEach((eachResult: Result, resultIndex: number) => {
+        const debtorName = eachResult.person.name;
+        const debtorUuid = eachResult.person.uuid;
+
+        const modalItems = (eachResult.items || []).filter(
+          (eachItem) => eachItem.paidBy?.name !== debtorName
+        );
+
+        modalItems.forEach((eachItem, itemIndex) => {
+          if (!eachItem.paidBy) return; // schema requires non-null paid_by_*
+
+          historyResultsRows.push({
+            history_id: historyId,
+            result_index: resultIndex,
+            item_index: itemIndex,
+            need_to_be_paid_by_uuid: debtorUuid,
+            need_to_be_paid_by_name: debtorName,
+            paid_by_uuid: eachItem.paidBy.uuid,
+            paid_by_name: eachItem.paidBy.name,
+            item_name: eachItem.name,
+            number_of_shared_person: eachItem.sharedNumber,
+            amount: eachItem.isPercentage ? eachItem.percent : eachItem.price,
+            final_price: eachItem.isPercentage
+              ? eachItem.price
+              : eachItem.price / eachItem.sharedNumber,
+            is_percentage: eachItem.isPercentage,
+          });
+        });
+      });
+
+      if (historyResultsRows.length) {
+        const { error: historyResultsInsertError } = await supabase
+          .from('history_results')
+          .insert(historyResultsRows);
+        if (historyResultsInsertError) throw historyResultsInsertError;
+      }
+
+      setOpenSharePopup(false);
+      router.push(`/history/${historyId}`);
+      messageApi.success('History saved. Shareable link created.');
+    } catch (err: any) {
+      console.error(err);
+      messageApi.error(err?.message || 'Failed to share history.');
+    } finally {
+      setIsSharing(false);
+    }
   }
 
   function whichButton(): JSX.Element {
@@ -116,6 +194,16 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
           onClick={ () => copyToClipboard() }
           icon={<CopyOutlined />}>
           Copy To Clipboard
+        </Button>
+      </div>
+
+      <div className='text-center mt-3'>
+        <Button
+          type="primary"
+          loading={isSharing}
+          onClick={ () => shareHistory() }
+          icon={<HistoryOutlined />}>
+          Share History
         </Button>
       </div>
     </Modal>
