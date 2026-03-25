@@ -207,6 +207,7 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
                             onChange={(e) => {
                               e.preventDefault();
                               eachItem.price = +e.target.value || 0;
+                              eachItem.percent = eachItem.isPercentage ? eachItem.price : 0;
                               delete eachItem.error.price;
                               params.items[itemIndex] = eachItem;
                               params.setItems(params.items);
