@@ -91,6 +91,8 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
       return;
     }
     params.items[itemIndex].isPercentage = isPercentage
+    params.items[itemIndex].percent = isPercentage ? params.items[itemIndex].price : 0;
+    params.items[itemIndex].price = isPercentage ? params.items[itemIndex].percent : params.items[itemIndex].price;
     params.setItems(params.items)
     setRendering(true)
     setTimeout(() => {
