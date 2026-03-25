@@ -153,7 +153,7 @@ export default function HistoryPage(): JSX.Element {
                   </li>
                 ))}
               
-              <hr className='border-dashed border-gray-900 w-full mt-3'/>
+              <hr className='border-dashed border-gray-900 w-full my-3'/>
             </div>
           );
         })}
