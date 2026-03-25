@@ -2,7 +2,7 @@
 
 import { Result } from "@/models/results.models";
 import { ExportOutlined, ArrowRightOutlined, CopyOutlined, HistoryOutlined } from "@ant-design/icons";
-import { message, Modal, Button } from "antd";
+import { message, Modal, Button, Input } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import ItemResults from "./item-results";
 import { useRouter } from "next/navigation";
@@ -20,9 +20,11 @@ export interface NextButtonProps {
 export default function GetButton(params: { params: NextButtonProps }): JSX.Element {
 
   const [openSharePopup, setOpenSharePopup] = useState<boolean>(false);
+  const [openMemoPopup, setOpenMemoPopup] = useState<boolean>(false);
   const [messageApi, contextHolder] = message.useMessage();
   const [isSharing, setIsSharing] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [memo, setMemo] = useState('');
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
@@ -69,7 +71,7 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
     messageApi.info('Copied !', 2);
   }
 
-  async function shareHistory(): Promise<void> {
+  async function shareHistory(historyMemo: string): Promise<void> {
     if (isSharing) return;
     setIsSharing(true);
     try {
@@ -80,9 +82,19 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
         return;
       }
 
+      const creatorFullName =
+        (user.user_metadata?.full_name as string | undefined) ||
+        (user.user_metadata?.name as string | undefined) ||
+        (user.email as string | undefined) ||
+        'Unknown';
+
       const { data: historyRow, error: historyInsertError } = await supabase
         .from('history')
-        .insert({ creator_user_id: user.id })
+        .insert({
+          creator_user_id: user.id,
+          creator_name: creatorFullName,
+          memo: historyMemo || null,
+        })
         .select('id')
         .single();
 
@@ -130,6 +142,8 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
         if (historyResultsInsertError) throw historyResultsInsertError;
       }
 
+      setOpenMemoPopup(false);
+      setMemo('');
       setOpenSharePopup(false);
       router.push(`/history/${historyId}`);
       messageApi.success('History saved. Shareable link created.');
@@ -139,6 +153,22 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
     } finally {
       setIsSharing(false);
     }
+  }
+
+  function openMemoDialog(): void {
+    if (!isLoggedIn) return;
+    setOpenMemoPopup(true);
+  }
+
+  function closeMemoDialog(): void {
+    if (isSharing) return;
+    setOpenMemoPopup(false);
+    setMemo('');
+  }
+
+  async function confirmShareWithMemo(): Promise<void> {
+    if (isSharing) return;
+    await shareHistory(memo.trim());
   }
 
   function whichButton(): JSX.Element {
@@ -217,12 +247,32 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
               type="primary"
               className="px-8"
               loading={isSharing}
-              onClick={ () => shareHistory() }
+              onClick={ () => openMemoDialog() }
               icon={<HistoryOutlined />}>
               Share History
             </Button>
           </div>
         ) : null}
+    </Modal>
+
+    <Modal
+      title="Add a memo"
+      centered
+      width={360}
+      open={openMemoPopup}
+      onCancel={() => closeMemoDialog()}
+      okText="Share"
+      cancelText="Cancel"
+      okButtonProps={{ loading: isSharing }}
+      onOk={() => confirmShareWithMemo()}
+    >
+      <Input
+        value={memo}
+        onChange={(e) => setMemo(e.target.value)}
+        placeholder="Optional memo (e.g., Dinner at NN)"
+        maxLength={120}
+        onPressEnter={() => confirmShareWithMemo()}
+      />
     </Modal>
   </>
 }

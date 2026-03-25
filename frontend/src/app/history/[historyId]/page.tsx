@@ -17,16 +17,21 @@ type HistoryGroup = {
   rows: HistoryResult[];
 };
 
+type History = {
+  memo: string | null;
+  creatorName: string | null;
+};
+
 export default function HistoryPage(): JSX.Element {
   const params = useParams<{ historyId: string }>();
   const historyId =
     typeof params?.historyId === 'string' ? (params.historyId as string) : undefined;
 
-  const supabase = createClient();
-
+  const supabase = useMemo(() => createClient(), []);
   const [messageApi, contextHolder] = message.useMessage();
   const [rows, setRows] = useState<HistoryResult[] | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [history, setHistory] = useState<History | null>(null);
 
   useEffect(() => {
     if (!historyId) return;
@@ -35,6 +40,26 @@ export default function HistoryPage(): JSX.Element {
     (async () => {
       setErrorMessage(null);
       setRows(null);
+      setHistory(null);
+
+      const { data: historyData, error: historyError } = await supabase
+        .from('history')
+        .select('memo, creator_name')
+        .eq('id', historyId)
+        .maybeSingle();
+
+      if (historyError) {
+        if (!isMounted) return;
+        setErrorMessage(historyError.message);
+        return;
+      }
+
+      if (!isMounted) return;
+      setHistory({
+        memo: (historyData?.memo as string | null) ?? null,
+        creatorName: (historyData?.creator_name as string | null) ?? null,
+      });
+
       const { data, error } = await supabase
         .from('history_results')
         .select('*')
@@ -55,7 +80,7 @@ export default function HistoryPage(): JSX.Element {
     return () => {
       isMounted = false;
     };
-  }, [historyId]);
+  }, [historyId, supabase]);
 
   const groups: HistoryGroup[] = useMemo(() => {
     if (!rows) return [];
@@ -95,6 +120,16 @@ export default function HistoryPage(): JSX.Element {
       <h1 className="text-center text-main text-4xl md:text-5xl">
         Let&rsquo;s Split the Bills
       </h1>
+      {history?.memo ? (
+        <p className="text-center text-main mt-4 mb-0">
+          <span className="font-bold">Memo:</span> {history.memo}
+        </p>
+      ) : null}
+      {history?.creatorName ? (
+        <p className="text-center text-main mb-0">
+          <span className="font-bold">Shared by:</span> {history.creatorName}
+        </p>
+      ) : null}
       <div className="history-content rounded bg-[#faf1e6] overflow-auto p-5 my-10">
         {groups.map((group) => {
           const items: Item[] = group.rows.map((row) => {
