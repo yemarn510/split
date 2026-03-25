@@ -90,7 +90,7 @@ export default function HistoryPage(): JSX.Element {
   if (rows.length === 0) return <div>No history results found.</div>;
 
   return (
-    <div className="max-w-[500px] m-auto">
+    <div className="max-w-[500px] m-auto px-3">
       { contextHolder }
       <h1 className="text-center text-main text-4xl md:text-5xl">
         Let&rsquo;s Split the Bills
@@ -129,7 +129,7 @@ export default function HistoryPage(): JSX.Element {
           );
 
           return (
-            <div key={group.needToBePaidByUUID} className="flex flex-col justify-between mb-1">
+            <div key={group.needToBePaidByUUID} className="flex flex-col justify-between mb-1 w-full">
               <div className="w-full mb-3">
                 <span className="font-bold">{group.needToBePaidByName}</span>
                 <span className="pl-1">has to pay</span>
@@ -152,7 +152,8 @@ export default function HistoryPage(): JSX.Element {
                     </b>
                   </li>
                 ))}
-              -------------------------------------------------------------------------
+              
+              <hr className='border-dashed border-gray-900 w-full mt-3'/>
             </div>
           );
         })}

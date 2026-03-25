@@ -197,7 +197,7 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
                   </li>
                 })
               }
-              ----------------------------------------------------------
+              <hr className='border-dashed border-gray-900 w-full mt-3'/>
             </div>
           )
         }
