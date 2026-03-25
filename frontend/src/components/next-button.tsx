@@ -87,28 +87,28 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
           results.map((eachResult: Result, resultIndex: number) =>
             <div key={`result-index-${resultIndex}`}
                 className='flex flex-col justify-between mb-1'>
-                  <div className='w-full mb-3'>
-                    <span className="font-bold">{ eachResult.person.name }</span>
-                    <span className="pl-1">has to pay</span>
-                  </div>
-                  <ItemResults items={eachResult?.items.filter(eachItem => eachItem.paidBy?.name !== eachResult.person.name) || []} />
+              <div className='w-full mb-3'>
+                <span className="font-bold">{ eachResult.person.name }</span>
+                <span className="pl-1">has to pay</span>
+              </div>
+              <ItemResults items={eachResult?.items.filter(eachItem => eachItem.paidBy?.name !== eachResult.person.name) || []} />
 
-                  <hr className="my-2" />
+              <hr className="my-2" />
 
-                  {
-                    Object.keys(eachResult.totalToPayFor || {})
-                    .filter(eachPersonName => eachPersonName !== eachResult.person.name)
-                    .map((paidByName, paidByNameIndex) => {
-                      return <li key={`result-item-${paidByNameIndex}`}
-                           className="flex flex-row w-full justify-between ">
-                        <span className='pr-2 font-bold'>{ paidByName } total</span>
-                        <b className='font-bold pl-2'>{ (eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0).toFixed(2)}</b>
-                      </li>
-                    })
-                  }
-                  ----------------------------------------------------------
-                </div>
-            )
+              {
+                Object.keys(eachResult.totalToPayFor || {})
+                .filter(eachPersonName => eachPersonName !== eachResult.person.name)
+                .map((paidByName, paidByNameIndex) => {
+                  return <li key={`result-item-${paidByNameIndex}`}
+                        className="flex flex-row w-full justify-between ">
+                    <span className='pr-2 font-bold'>{ paidByName } total</span>
+                    <b className='font-bold pl-2'>{ (eachResult.totalToPayFor ? eachResult.totalToPayFor[paidByName] : 0).toFixed(2)}</b>
+                  </li>
+                })
+              }
+              ----------------------------------------------------------
+            </div>
+          )
         }
       </div>
       <div className='text-center mt-5'>
