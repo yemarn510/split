@@ -115,7 +115,7 @@ export default function HistoryPage(): JSX.Element {
   if (rows.length === 0) return <div>No history results found.</div>;
 
   return (
-    <div className="max-w-[500px] m-auto px-3">
+    <div className="max-w-[500px] m-auto px-3 w-full">
       { contextHolder }
       <h1 className="text-center text-main text-4xl md:text-5xl">
         Let&rsquo;s Split the Bills
