@@ -1,6 +1,6 @@
 import { Item } from "@/models/item.models";
 import { CheckOutlined, CloseOutlined, EditOutlined, DeleteOutlined, LoadingOutlined, PercentageOutlined, DollarOutlined } from "@ant-design/icons";
-import { Tooltip, Popconfirm, Input } from "antd";
+import { Tooltip, Popover, Popconfirm, Input, Radio } from "antd";
 import { useEffect, useState } from "react";
 import RoundedAvatar from "./custom-avatar";
 import UnknownPerson from "./unknown-person";
@@ -214,18 +214,31 @@ export default function ItemTable(params: ItemTableParams): JSX.Element {
                               params.items[itemIndex] = eachItem;
                               params.setItems(params.items);
                             }}
-                            suffix={<Popconfirm title="Price / Percentage"
-                                                description="Change this to Price or Percentage"
-                                                onConfirm={() => (setIsPercentage(itemIndex, true))}
-                                                onCancel={ () => {setIsPercentage(itemIndex, false)}}
-                                                okText="Percentage %"
-                                                cancelText="Price $">
+                            suffix={<Popover title="Price / Percentage"
+                                             content={
+                                               <div className="flex flex-col gap-3">
+                                                 <h5>Change this to Price or Percentage</h5>
+                                                 <Radio.Group
+                                                   value={eachItem.isPercentage}
+                                                   onChange={(e) => {
+                                                     if (params.currentIndex !== itemIndex) {
+                                                       return;
+                                                     }
+                                                     const next = e.target.value as boolean;
+                                                     setIsPercentage(itemIndex, next);
+                                                   }}
+                                                 >
+                                                  <Radio value={false}>Money $</Radio>
+                                                  <Radio value={true}>Percentage %</Radio>
+                                                </Radio.Group>
+                                              </div>
+                                             }>
                                       {
                                         params.items[itemIndex].isPercentage
                                         ? <PercentageOutlined />
                                         : <DollarOutlined />
                                       }
-                                    </Popconfirm>}
+                                    </Popover>}
                             className="w-full px-1 md:px-2"
                       />
                     </div>
