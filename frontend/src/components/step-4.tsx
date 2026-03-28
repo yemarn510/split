@@ -110,18 +110,6 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
     setDetailResults(clonedResult);
   }
 
-  function saveHistory(): void {
-    // // const data = {
-    // //   results: params.params.results,
-    // //   createdAt: new Date().toISOString(),
-    // // };
-    // // const history = localStorage.getItem('history') || '[]';
-    // // const historyList = JSON.parse(history);
-    // // historyList.push(data);
-    // // localStorage.setItem('history', JSON.stringify(historyList));
-    // console.warn(params.params.results);
-  }
-
   return <>
     <div className='max-w-[500px] m-auto'>
       <div className="grid grid-cols-1 gap-4 m-auto">
@@ -153,13 +141,6 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
           <span>{params.params.results.reduce((sum, curr) => sum + curr.total, 0).toFixed(2)}</span>
         </h4>
         
-      </div>
-      <div className='flex flex-row justify-end mt-3 sticky bottom-0 hidden'>
-        <Button type='primary'
-          onClick={() => saveHistory() }
-          icon={<FileDoneOutlined />}>
-          Save History
-        </Button>
       </div>
     </div>
 
