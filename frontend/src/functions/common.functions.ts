@@ -50,8 +50,9 @@ export function calculateResults(
   });
 
   return Object.keys(personDict).map((key) => {
-    const percentItems = personDict[key].result.items.filter(each => each.isPercentage)
-    const notPercentItems = personDict[key].result.items.filter(each => !each.isPercentage)
+    const items = structuredClone(personDict[key].result.items);
+    const percentItems = items.filter(each => each.isPercentage)
+    const notPercentItems = items.filter(each => !each.isPercentage)
     const totalDict: { [personUUID in string]: number } = notPercentItems.reduce((acc, each) => {
       if (each.paidBy?.uuid) {
         acc[each.paidBy.uuid] = (acc[each.paidBy.uuid] || 0) + (each.price / (each.sharedNumber || 1));
@@ -64,13 +65,13 @@ export function calculateResults(
       const percentage = structuredClone(eachPercent.percent);
       const paidByUUID = eachPercent.paidBy?.uuid;
       const baseTotal = paidByUUID ? (totalDict[paidByUUID] || 0) : 0;
-      eachPercent.price = baseTotal * (percentage / 100);
+      eachPercent.price = structuredClone(baseTotal * (percentage / 100));
       return eachPercent
     }).forEach(each => {
       finalTotal += each.price;
     })
 
-
+    personDict[key].result.items = [...percentItems, ...notPercentItems];
     personDict[key].result.total = finalTotal;
     return personDict[key].result
   });
