@@ -208,10 +208,10 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
           results.map((eachResult: Result, resultIndex: number) =>
             <div key={`result-index-${resultIndex}`}
                 className='flex flex-col justify-between mb-1'>
-              <div className='w-full mb-3'>
-                <span className="font-bold">{ eachResult.person.name }</span>
+              <h4 className="w-full mb-3 text-center">
+                <span className="font-bold text-main">{eachResult.person.name}</span>
                 <span className="pl-1">has to pay</span>
-              </div>
+              </h4>
               <ItemResults items={eachResult?.items.filter(eachItem => eachItem.paidBy?.name !== eachResult.person.name) || []} />
 
               <hr className="my-2 border-dashed border-gray-400" />

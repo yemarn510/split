@@ -165,10 +165,10 @@ export default function HistoryPage(): JSX.Element {
 
           return (
             <div key={group.needToBePaidByUUID} className="flex flex-col justify-between mb-1 w-full">
-              <div className="w-full mb-3">
-                <span className="font-bold">{group.needToBePaidByName}</span>
+              <h4 className="w-full mb-3 text-center">
+                <span className="font-bold text-main">{group.needToBePaidByName}</span>
                 <span className="pl-1">has to pay</span>
-              </div>
+              </h4>
 
               <ItemResults items={items} />
 
