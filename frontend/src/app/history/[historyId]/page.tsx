@@ -175,7 +175,6 @@ export default function HistoryPage(): JSX.Element {
               <hr className="my-2 border-dashed border-gray-400" />
 
               {Object.keys(totalsByPaidByName)
-                .filter((paidByName) => paidByName !== group.needToBePaidByName)
                 .map((paidByName, paidByNameIndex) => (
                   <li
                     key={`history-total-${paidByNameIndex}`}

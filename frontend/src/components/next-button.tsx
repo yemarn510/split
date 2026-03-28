@@ -109,11 +109,7 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
         const debtorName = eachResult.person.name;
         const debtorUuid = eachResult.person.uuid;
 
-        const modalItems = (eachResult.items || []).filter(
-          (eachItem) => eachItem.paidBy?.name !== debtorName
-        );
-
-        modalItems.forEach((eachItem, itemIndex) => {
+        eachResult.items.forEach((eachItem, itemIndex) => {
           if (!eachItem.paidBy) return; // schema requires non-null paid_by_*
 
           historyResultsRows.push({
@@ -212,13 +208,12 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
                 <span className="font-bold text-main">{eachResult.person.name}</span>
                 <span className="pl-1">has to pay</span>
               </h4>
-              <ItemResults items={eachResult?.items.filter(eachItem => eachItem.paidBy?.name !== eachResult.person.name) || []} />
+              <ItemResults items={eachResult?.items || []} />
 
               <hr className="my-2 border-dashed border-gray-400" />
 
               {
                 Object.keys(eachResult.totalToPayFor || {})
-                .filter(eachPersonName => eachPersonName !== eachResult.person.name)
                 .map((paidByName, paidByNameIndex) => {
                   return <li key={`result-item-${paidByNameIndex}`}
                         className="flex flex-row w-full justify-between my-1">
@@ -261,7 +256,7 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
       width={360}
       open={openMemoPopup}
       onCancel={() => closeMemoDialog()}
-      okText="Share"
+      okText="Save"
       cancelText="Cancel"
       okButtonProps={{ loading: isSharing }}
       onOk={() => confirmShareWithMemo()}
