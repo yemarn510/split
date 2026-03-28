@@ -51,7 +51,8 @@ export function calculateResults(
 
   return Object.keys(personDict).map((key) => {
     const items = structuredClone(personDict[key].result.items);
-    const percentItems = items.filter(each => each.isPercentage)
+    const serviceCharges = items.find(each => each.name.toLowerCase().includes('service'));
+    const tax = items.find(each => each.name.toLowerCase().includes('tax') || each.name.toLowerCase().includes('vat') );
     const notPercentItems = items.filter(each => !each.isPercentage)
     const totalDict: { [personUUID in string]: number } = notPercentItems.reduce((acc, each) => {
       if (each.paidBy?.uuid) {
@@ -60,18 +61,36 @@ export function calculateResults(
       return acc;
     }, {} as { [personUUID: string]: number });
     let finalTotal = structuredClone(personDict[key].result.total);
+    let serviceChargesPrice = 0;
+    let taxPrice = 0;
 
-    percentItems.map(eachPercent => {
-      const percentage = structuredClone(eachPercent.percent);
-      const paidByUUID = eachPercent.paidBy?.uuid;
+    if (serviceCharges) {
+      const percentage = structuredClone(serviceCharges.percent);
+      const paidByUUID = serviceCharges.paidBy?.uuid;
       const baseTotal = paidByUUID ? (totalDict[paidByUUID] || 0) : 0;
-      eachPercent.price = structuredClone(baseTotal * (percentage / 100));
-      return eachPercent
-    }).forEach(each => {
-      finalTotal += each.price;
-    })
+      serviceCharges.price = structuredClone(baseTotal * (percentage / 100));
+      serviceChargesPrice = serviceCharges.price;
+      finalTotal += serviceCharges.price;
+    }
 
-    personDict[key].result.items = [...percentItems, ...notPercentItems];
+    if (tax) {
+      const percentage = structuredClone(tax.percent);
+      const paidByUUID = tax.paidBy?.uuid;
+      const baseTotal = paidByUUID ? (totalDict[paidByUUID] || 0) : 0;
+      tax.price = structuredClone((baseTotal + serviceChargesPrice) * (percentage / 100));
+      taxPrice = tax.price;
+      finalTotal += tax.price;
+    }
+
+    const finalItems = notPercentItems;
+    if (serviceCharges) {
+      finalItems.push(serviceCharges);
+    }
+    if (tax) {
+      finalItems.push(tax);
+    }
+
+    personDict[key].result.items = finalItems;
     personDict[key].result.total = finalTotal;
     return personDict[key].result
   });

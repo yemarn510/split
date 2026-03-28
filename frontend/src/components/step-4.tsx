@@ -147,6 +147,12 @@ export default function StepFour(params: { params: StepFourParams }): JSX.Elemen
             </div>
           })
         }
+
+        <h4 className='flex flex-row justify-between w-full border-t-2 pt-2 mt-2 px-3 border-main text-main font-bold'>
+          <span>Final Total</span>
+          <span>{params.params.results.reduce((sum, curr) => sum + curr.total, 0).toFixed(2)}</span>
+        </h4>
+        
       </div>
       <div className='flex flex-row justify-end mt-3 sticky bottom-0 hidden'>
         <Button type='primary'
