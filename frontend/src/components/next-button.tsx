@@ -227,7 +227,7 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
           )
         }
       </div>
-      <div className='text-center mt-5'>
+      <div className='text-center mt-5 hidden'>
         <Button
           onClick={ () => copyToClipboard() }
           icon={<CopyOutlined />}>
@@ -244,7 +244,7 @@ export default function GetButton(params: { params: NextButtonProps }): JSX.Elem
               loading={isSharing}
               onClick={ () => openMemoDialog() }
               icon={<HistoryOutlined />}>
-              Share History
+              Save History
             </Button>
           </div>
         ) : null}
