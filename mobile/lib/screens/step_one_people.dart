@@ -155,14 +155,17 @@ class _StepOnePeopleState extends State<StepOnePeople> {
                   child: Row(
                     children: const [
                       SizedBox(
-                        width: 50,
+                        width: 64,
                         child: Text(
                           'Selected',
                           textAlign: TextAlign.center,
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.visible,
                           style: TextStyle(
                             color: AppColors.main,
                             fontWeight: FontWeight.w700,
-                            fontSize: 13,
+                            fontSize: 12,
                           ),
                         ),
                       ),
@@ -210,7 +213,7 @@ class _StepOnePeopleState extends State<StepOnePeople> {
                     child: Row(
                       children: [
                         SizedBox(
-                          width: 50,
+                          width: 64,
                           child: GestureDetector(
                             onTap: () => _toggleSelect(index),
                             child: person.selected
@@ -223,7 +226,7 @@ class _StepOnePeopleState extends State<StepOnePeople> {
                                     width: 24,
                                     height: 24,
                                     margin: const EdgeInsets.symmetric(
-                                        horizontal: 13),
+                                        horizontal: 20),
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       border: Border.all(

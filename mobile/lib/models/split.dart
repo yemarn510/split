@@ -1,20 +1,20 @@
-class Split {
+class ItemSplit {
   String itemUUID;
   double itemPrice;
   Set<String> sharingPersonUUIDs;
 
-  Split({
+  ItemSplit({
     this.itemUUID = '',
     this.itemPrice = 0,
     Set<String>? sharingPersonUUIDs,
   }) : sharingPersonUUIDs = sharingPersonUUIDs ?? {};
 
-  Split copyWith({
+  ItemSplit copyWith({
     String? itemUUID,
     double? itemPrice,
     Set<String>? sharingPersonUUIDs,
   }) {
-    return Split(
+    return ItemSplit(
       itemUUID: itemUUID ?? this.itemUUID,
       itemPrice: itemPrice ?? this.itemPrice,
       sharingPersonUUIDs:
@@ -23,4 +23,4 @@ class Split {
   }
 }
 
-typedef SplitDictionary = Map<String, Split>;
+typedef SplitDictionary = Map<String, ItemSplit>;

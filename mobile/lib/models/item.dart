@@ -25,7 +25,7 @@ class Item {
     this.percent = 0,
     Map<String, String>? error,
   }) {
-    this.uuid = uuid ?? const Uuid().v4();
+    this.uuid = uuid ?? Uuid().v4();
     this.error = error ?? {};
   }
 

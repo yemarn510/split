@@ -36,7 +36,7 @@ class _StepThreeAssignState extends State<StepThreeAssign> {
 
   void _ensureSplitDict() {
     final peopleUUIDs = widget.people.map((p) => p.uuid).toSet();
-    final updated = Map<String, Split>.from(widget.splitDict);
+    final updated = Map<String, ItemSplit>.from(widget.splitDict);
     final items = List<Item>.from(widget.items);
 
     for (var i = 0; i < items.length; i++) {
@@ -54,7 +54,7 @@ class _StepThreeAssignState extends State<StepThreeAssign> {
               .toSet(),
         );
       } else {
-        updated[item.uuid] = Split(
+        updated[item.uuid] = ItemSplit(
           itemUUID: item.uuid,
           itemPrice: item.price,
           sharingPersonUUIDs: {},
@@ -75,7 +75,7 @@ class _StepThreeAssignState extends State<StepThreeAssign> {
   }
 
   void _toggleSelectAll(String uuid) {
-    final updated = Map<String, Split>.from(widget.splitDict);
+    final updated = Map<String, ItemSplit>.from(widget.splitDict);
     final current = updated[uuid];
     if (current == null) return;
     if (current.sharingPersonUUIDs.length == widget.people.length) {
@@ -172,7 +172,7 @@ class _StepThreeAssignState extends State<StepThreeAssign> {
                           return GestureDetector(
                             onTap: () {
                               final updated =
-                                  Map<String, Split>.from(widget.splitDict);
+                                  Map<String, ItemSplit>.from(widget.splitDict);
                               final split = updated[itemUUID]!.copyWith();
                               if (split.sharingPersonUUIDs
                                   .contains(person.uuid)) {

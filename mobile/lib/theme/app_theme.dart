@@ -14,8 +14,8 @@ ThemeData buildAppTheme() {
       error: AppColors.danger,
     ),
     checkboxTheme: CheckboxThemeData(
-      fillColor: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.selected)) return AppColors.main;
+      fillColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) return AppColors.main;
         return null;
       }),
     ),
@@ -76,7 +76,7 @@ ThemeData buildAppTheme() {
         fontSize: 16,
       ),
     ),
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),

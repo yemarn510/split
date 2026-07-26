@@ -4,6 +4,7 @@ import '../models/item.dart';
 import '../models/person.dart';
 import '../theme/app_colors.dart';
 import '../widgets/rounded_avatar.dart';
+import '../widgets/scan_receipt_sheet.dart';
 
 class StepTwoItems extends StatefulWidget {
   final List<Item> items;
@@ -332,26 +333,31 @@ class _StepTwoItemsState extends State<StepTwoItems> {
                             padding: const EdgeInsets.symmetric(horizontal: 2),
                             child: _ErrorField(
                               error: item.error['name'],
-                              child: TextFormField(
-                                initialValue: item.name,
-                                enabled: editing,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: editing
-                                      ? AppColors.main
-                                      : Colors.black54,
+                              child: SizedBox(
+                                height: _itemFieldHeight,
+                                child: TextFormField(
+                                  initialValue: item.name,
+                                  enabled: editing,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    height: 1.2,
+                                    color: editing
+                                        ? AppColors.main
+                                        : Colors.black54,
+                                  ),
+                                  decoration: _itemFieldDecoration(
+                                    hintText: 'KFC, McDonalds...',
+                                  ),
+                                  onChanged: (v) {
+                                    final items =
+                                        List<Item>.from(widget.items);
+                                    final updated =
+                                        items[index].copyWith(name: v);
+                                    updated.error.remove('name');
+                                    items[index] = updated;
+                                    widget.onItemsChanged(items);
+                                  },
                                 ),
-                                decoration: const InputDecoration(
-                                  hintText: 'KFC, McDonalds...',
-                                  isDense: true,
-                                ),
-                                onChanged: (v) {
-                                  final items = List<Item>.from(widget.items);
-                                  final updated = items[index].copyWith(name: v);
-                                  updated.error.remove('name');
-                                  items[index] = updated;
-                                  widget.onItemsChanged(items);
-                                },
                               ),
                             ),
                           ),
@@ -362,37 +368,38 @@ class _StepTwoItemsState extends State<StepTwoItems> {
                             padding: const EdgeInsets.symmetric(horizontal: 2),
                             child: _ErrorField(
                               error: item.error['quantity'],
-                              child: TextFormField(
-                                initialValue: '${item.quantity}',
-                                enabled: editing,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly
-                                ],
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: editing
-                                      ? AppColors.main
-                                      : Colors.black54,
-                                ),
-                                decoration: const InputDecoration(
-                                  hintText: '1',
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                    vertical: 8,
+                              child: SizedBox(
+                                height: _itemFieldHeight,
+                                child: TextFormField(
+                                  initialValue: '${item.quantity}',
+                                  enabled: editing,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    height: 1.2,
+                                    color: editing
+                                        ? AppColors.main
+                                        : Colors.black54,
                                   ),
+                                  decoration: _itemFieldDecoration(
+                                    hintText: '1',
+                                    horizontalPadding: 4,
+                                  ),
+                                  onChanged: (v) {
+                                    final items =
+                                        List<Item>.from(widget.items);
+                                    final updated = items[index].copyWith(
+                                      quantity: int.tryParse(v) ?? 0,
+                                    );
+                                    updated.error.remove('quantity');
+                                    items[index] = updated;
+                                    widget.onItemsChanged(items);
+                                  },
                                 ),
-                                onChanged: (v) {
-                                  final items = List<Item>.from(widget.items);
-                                  final updated = items[index].copyWith(
-                                    quantity: int.tryParse(v) ?? 0,
-                                  );
-                                  updated.error.remove('quantity');
-                                  items[index] = updated;
-                                  widget.onItemsChanged(items);
-                                },
                               ),
                             ),
                           ),
@@ -403,53 +410,58 @@ class _StepTwoItemsState extends State<StepTwoItems> {
                             padding: const EdgeInsets.symmetric(horizontal: 2),
                             child: _ErrorField(
                               error: item.error['price'],
-                              child: TextFormField(
-                                initialValue: item.isPercentage
-                                    ? '${item.percent == 0 ? item.price : item.percent}'
-                                    : (item.price == 0
-                                        ? ''
-                                        : '${item.price}'),
-                                enabled: editing,
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                        decimal: true),
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: editing
-                                      ? AppColors.main
-                                      : Colors.black54,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: '0.00',
-                                  isDense: true,
-                                  suffixIcon: IconButton(
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(
-                                      minWidth: 28,
-                                      minHeight: 28,
-                                    ),
-                                    onPressed: () => _showPriceType(index),
-                                    icon: Icon(
-                                      item.isPercentage
-                                          ? Icons.percent
-                                          : Icons.attach_money,
-                                      size: 16,
-                                      color: AppColors.main,
+                              child: SizedBox(
+                                height: _itemFieldHeight,
+                                child: TextFormField(
+                                  initialValue: item.isPercentage
+                                      ? '${item.percent == 0 ? item.price : item.percent}'
+                                      : (item.price == 0
+                                          ? ''
+                                          : '${item.price}'),
+                                  enabled: editing,
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    height: 1.2,
+                                    color: editing
+                                        ? AppColors.main
+                                        : Colors.black54,
+                                  ),
+                                  decoration: _itemFieldDecoration(
+                                    hintText: '0.00',
+                                    suffix: GestureDetector(
+                                      onTap: () => _showPriceType(index),
+                                      behavior: HitTestBehavior.opaque,
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 4),
+                                        child: Icon(
+                                          item.isPercentage
+                                              ? Icons.percent
+                                              : Icons.attach_money,
+                                          size: 16,
+                                          color: AppColors.main,
+                                        ),
+                                      ),
                                     ),
                                   ),
+                                  onChanged: (v) {
+                                    final items =
+                                        List<Item>.from(widget.items);
+                                    final value = double.tryParse(v) ?? 0;
+                                    final updated = items[index].copyWith(
+                                      price: value,
+                                      percent: items[index].isPercentage
+                                          ? value
+                                          : 0,
+                                    );
+                                    updated.error.remove('price');
+                                    items[index] = updated;
+                                    widget.onItemsChanged(items);
+                                  },
                                 ),
-                                onChanged: (v) {
-                                  final items = List<Item>.from(widget.items);
-                                  final value = double.tryParse(v) ?? 0;
-                                  final updated = items[index].copyWith(
-                                    price: value,
-                                    percent:
-                                        items[index].isPercentage ? value : 0,
-                                  );
-                                  updated.error.remove('price');
-                                  items[index] = updated;
-                                  widget.onItemsChanged(items);
-                                },
                               ),
                             ),
                           ),
@@ -530,11 +542,20 @@ class _StepTwoItemsState extends State<StepTwoItems> {
                   height: 36,
                   child: ElevatedButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Receipt scan coming soon in the mobile app',
-                          ),
+                      showDialog<void>(
+                        context: context,
+                        builder: (_) => ScanReceiptSheet(
+                          people: widget.people,
+                          onMergeItems: (scanned) {
+                            final kept = widget.items
+                                .where((e) => e.name.isNotEmpty || e.price != 0)
+                                .toList();
+                            widget.onItemsChanged([...kept, ...scanned]);
+                            setState(() {
+                              _editingIndex = null;
+                              _originalItem = null;
+                            });
+                          },
                         ),
                       );
                     },
@@ -548,6 +569,28 @@ class _StepTwoItemsState extends State<StepTwoItems> {
       ],
     );
   }
+}
+
+const double _itemFieldHeight = 36;
+
+InputDecoration _itemFieldDecoration({
+  required String hintText,
+  double horizontalPadding = 8,
+  Widget? suffix,
+}) {
+  return InputDecoration(
+    hintText: hintText,
+    isDense: true,
+    contentPadding: EdgeInsets.symmetric(
+      horizontal: horizontalPadding,
+      vertical: 8,
+    ),
+    suffixIcon: suffix,
+    suffixIconConstraints: const BoxConstraints(
+      minWidth: 20,
+      minHeight: 20,
+    ),
+  );
 }
 
 class _ErrorField extends StatelessWidget {

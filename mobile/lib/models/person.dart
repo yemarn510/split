@@ -22,7 +22,7 @@ class Person {
     this.selected = false,
     String? uuid,
   }) {
-    this.uuid = uuid ?? const Uuid().v4();
+    this.uuid = uuid ?? Uuid().v4();
     this.profile = profile ?? '$avatarUrlBase${generateRandomInteger(1, 400)}';
   }
 

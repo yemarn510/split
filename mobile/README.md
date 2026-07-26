@@ -20,12 +20,20 @@ Font: **Quicksand** (via `google_fonts`)
 3. **Assign People & Items** – participants per item
 4. **Review & Split** – totals + share sheet
 
-## Run
+## Integrations
 
-```bash
-cd mobile
-flutter pub get
-flutter run
+Same backend as the [PWA](https://split-my-bill.vercel.app/):
+
+- **Google login** via Supabase Auth OAuth
+- **Receipt scan** via `POST https://split-my-bill.vercel.app/scan`
+- **Friends / history** via Supabase tables `friend`, `history`, `history_results`
+
+### One-time Supabase setup
+
+In Supabase → Authentication → URL Configuration → Redirect URLs, add:
+
+```
+com.splitmybill.app://login-callback/
 ```
 
-Requires Flutter SDK (this project targets Dart `>=2.19.6 <3.0.0`).
+Without this, Google login cannot return to the app.
