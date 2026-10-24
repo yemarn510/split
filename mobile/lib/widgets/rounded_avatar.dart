@@ -9,12 +9,12 @@ class RoundedAvatar extends StatelessWidget {
   final VoidCallback? onTap;
 
   const RoundedAvatar({
-    Key? key,
+    super.key,
     required this.person,
     this.size = AvatarSize.sm,
     this.bg,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,10 +60,10 @@ class UnknownPerson extends StatelessWidget {
   final VoidCallback? onTap;
 
   const UnknownPerson({
-    Key? key,
+    super.key,
     this.size = AvatarSize.sm,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -95,12 +95,12 @@ class PersonAvatarOnly extends StatelessWidget {
   final VoidCallback? onTap;
 
   const PersonAvatarOnly({
-    Key? key,
+    super.key,
     required this.profileUrl,
     this.size = 48,
     this.ringColor = AppColors.third,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

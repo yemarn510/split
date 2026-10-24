@@ -10,12 +10,12 @@ class StepOnePeople extends StatefulWidget {
   final ValueChanged<bool> onSaveFriendsChanged;
 
   const StepOnePeople({
-    Key? key,
+    super.key,
     required this.people,
     required this.onPeopleChanged,
     required this.saveFriends,
     required this.onSaveFriendsChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<StepOnePeople> createState() => _StepOnePeopleState();
@@ -40,9 +40,8 @@ class _StepOnePeopleState extends State<StepOnePeople> {
   }
 
   void _syncControllers() {
-    _controllers = widget.people
-        .map((p) => TextEditingController(text: p.name))
-        .toList();
+    _controllers =
+        widget.people.map((p) => TextEditingController(text: p.name)).toList();
   }
 
   void _disposeControllers() {
@@ -71,7 +70,8 @@ class _StepOnePeopleState extends State<StepOnePeople> {
 
   void _toggleSelect(int index) {
     final updated = List<Person>.from(widget.people);
-    updated[index] = updated[index].copyWith(selected: !updated[index].selected);
+    updated[index] =
+        updated[index].copyWith(selected: !updated[index].selected);
     widget.onPeopleChanged(updated);
   }
 
@@ -151,7 +151,8 @@ class _StepOnePeopleState extends State<StepOnePeople> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                   child: Row(
                     children: const [
                       SizedBox(
@@ -318,8 +319,7 @@ class _StepOnePeopleState extends State<StepOnePeople> {
                   children: [
                     Checkbox(
                       value: widget.saveFriends,
-                      onChanged: (v) =>
-                          widget.onSaveFriendsChanged(v ?? false),
+                      onChanged: (v) => widget.onSaveFriendsChanged(v ?? false),
                     ),
                     const Text(
                       'Save This List',

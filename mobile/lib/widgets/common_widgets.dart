@@ -10,14 +10,14 @@ class CircleNavButton extends StatelessWidget {
   final bool labelAfter;
 
   const CircleNavButton({
-    Key? key,
+    super.key,
     required this.icon,
     required this.label,
     this.onTap,
     this.enabled = true,
     this.dimmed = false,
     this.labelAfter = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -65,12 +65,12 @@ class PrimaryStickyButton extends StatelessWidget {
   final bool expanded;
 
   const PrimaryStickyButton({
-    Key? key,
+    super.key,
     required this.label,
     this.onPressed,
     this.icon,
     this.expanded = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -102,11 +102,11 @@ class StepBadge extends StatelessWidget {
   final String title;
 
   const StepBadge({
-    Key? key,
+    super.key,
     required this.current,
     required this.total,
     required this.title,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -147,10 +147,10 @@ class DesktopStepper extends StatelessWidget {
   final List<String> steps;
 
   const DesktopStepper({
-    Key? key,
+    super.key,
     required this.currentStep,
     required this.steps,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +162,7 @@ class DesktopStepper extends StatelessWidget {
             return Expanded(
               child: Container(
                 height: 1,
-                color: AppColors.fourth.withOpacity(0.5),
+                color: AppColors.fourth.withValues(alpha: 0.5),
               ),
             );
           }
@@ -179,16 +179,20 @@ class DesktopStepper extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: current
                       ? AppColors.main
-                      : (active ? AppColors.main.withOpacity(0.7) : Colors.transparent),
+                      : (active
+                          ? AppColors.main.withValues(alpha: 0.7)
+                          : Colors.transparent),
                   border: Border.all(
-                    color: current || active ? AppColors.main : AppColors.fourth,
+                    color:
+                        current || active ? AppColors.main : AppColors.fourth,
                   ),
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   '${index + 1}',
                   style: TextStyle(
-                    color: current || active ? AppColors.white : AppColors.fourth,
+                    color:
+                        current || active ? AppColors.white : AppColors.fourth,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),

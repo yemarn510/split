@@ -8,9 +8,9 @@ class StepFourReview extends StatefulWidget {
   final List<Result> results;
 
   const StepFourReview({
-    Key? key,
+    super.key,
     required this.results,
-  }) : super(key: key);
+  });
 
   @override
   State<StepFourReview> createState() => _StepFourReviewState();
@@ -66,9 +66,8 @@ class _StepFourReviewState extends State<StepFourReview> {
   }
 
   void _showDetails(Result result, String paidByName) {
-    final filtered = result.items
-        .where((e) => e.paidBy?.name == paidByName)
-        .toList();
+    final filtered =
+        result.items.where((e) => e.paidBy?.name == paidByName).toList();
 
     showDialog<void>(
       context: context,
@@ -123,13 +122,13 @@ class _StepFourReviewState extends State<StepFourReview> {
             child: Column(
               children: [
                 Theme(
-                  data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                  data: Theme.of(context)
+                      .copyWith(dividerColor: Colors.transparent),
                   child: ExpansionTile(
                     initiallyExpanded: prepared.expanded,
                     onExpansionChanged: (open) {
                       setState(() {
-                        _prepared[index] =
-                            prepared.copyWith(expanded: open);
+                        _prepared[index] = prepared.copyWith(expanded: open);
                       });
                     },
                     tilePadding: const EdgeInsets.symmetric(horizontal: 8),
@@ -164,8 +163,7 @@ class _StepFourReviewState extends State<StepFourReview> {
                       ],
                     ),
                     children: prepared.totalToPayFor.entries.map((e) {
-                      final count =
-                          prepared.paidByNItems[e.key]?.length ?? 0;
+                      final count = prepared.paidByNItems[e.key]?.length ?? 0;
                       return InkWell(
                         onTap: () => _showDetails(result, e.key),
                         child: Padding(

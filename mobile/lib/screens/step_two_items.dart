@@ -12,11 +12,11 @@ class StepTwoItems extends StatefulWidget {
   final ValueChanged<List<Item>> onItemsChanged;
 
   const StepTwoItems({
-    Key? key,
+    super.key,
     required this.items,
     required this.people,
     required this.onItemsChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<StepTwoItems> createState() => _StepTwoItemsState();
@@ -349,8 +349,7 @@ class _StepTwoItemsState extends State<StepTwoItems> {
                                     hintText: 'KFC, McDonalds...',
                                   ),
                                   onChanged: (v) {
-                                    final items =
-                                        List<Item>.from(widget.items);
+                                    final items = List<Item>.from(widget.items);
                                     final updated =
                                         items[index].copyWith(name: v);
                                     updated.error.remove('name');
@@ -390,8 +389,7 @@ class _StepTwoItemsState extends State<StepTwoItems> {
                                     horizontalPadding: 4,
                                   ),
                                   onChanged: (v) {
-                                    final items =
-                                        List<Item>.from(widget.items);
+                                    final items = List<Item>.from(widget.items);
                                     final updated = items[index].copyWith(
                                       quantity: int.tryParse(v) ?? 0,
                                     );
@@ -448,14 +446,12 @@ class _StepTwoItemsState extends State<StepTwoItems> {
                                     ),
                                   ),
                                   onChanged: (v) {
-                                    final items =
-                                        List<Item>.from(widget.items);
+                                    final items = List<Item>.from(widget.items);
                                     final value = double.tryParse(v) ?? 0;
                                     final updated = items[index].copyWith(
                                       price: value,
-                                      percent: items[index].isPercentage
-                                          ? value
-                                          : 0,
+                                      percent:
+                                          items[index].isPercentage ? value : 0,
                                     );
                                     updated.error.remove('price');
                                     items[index] = updated;

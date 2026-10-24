@@ -10,7 +10,7 @@ ThemeData buildAppTheme() {
     colorScheme: const ColorScheme.light(
       primary: AppColors.main,
       secondary: AppColors.third,
-      background: AppColors.second,
+      surface: AppColors.second,
       error: AppColors.danger,
     ),
     checkboxTheme: CheckboxThemeData(
@@ -69,7 +69,7 @@ ThemeData buildAppTheme() {
       ),
       disabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(6),
-        borderSide: BorderSide(color: Colors.black.withOpacity(0.15)),
+        borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.15)),
       ),
       hintStyle: GoogleFonts.quicksand(
         color: AppColors.fourth,

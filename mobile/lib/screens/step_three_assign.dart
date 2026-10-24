@@ -15,13 +15,13 @@ class StepThreeAssign extends StatefulWidget {
   final ValueChanged<List<Item>> onItemsChanged;
 
   const StepThreeAssign({
-    Key? key,
+    super.key,
     required this.items,
     required this.people,
     required this.splitDict,
     required this.onSplitDictChanged,
     required this.onItemsChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<StepThreeAssign> createState() => _StepThreeAssignState();
@@ -49,9 +49,8 @@ class _StepThreeAssignState extends State<StepThreeAssign> {
       final existing = updated[item.uuid];
       if (existing != null) {
         updated[item.uuid] = existing.copyWith(
-          sharingPersonUUIDs: existing.sharingPersonUUIDs
-              .where(peopleUUIDs.contains)
-              .toSet(),
+          sharingPersonUUIDs:
+              existing.sharingPersonUUIDs.where(peopleUUIDs.contains).toSet(),
         );
       } else {
         updated[item.uuid] = ItemSplit(
