@@ -1,12 +1,20 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 import '../models/item.dart';
 import '../models/person.dart';
 import '../models/split.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_theme.dart';
 import '../utils/calculations.dart';
+import '../utils/format.dart';
+import '../widgets/ant/ant.dart';
+import '../widgets/common_widgets.dart';
 import '../widgets/rounded_avatar.dart';
 
+/// Port of step-3.tsx.
 class StepThreeAssign extends StatefulWidget {
   final List<Item> items;
   final List<Person> people;
@@ -31,347 +39,289 @@ class _StepThreeAssignState extends State<StepThreeAssign> {
   @override
   void initState() {
     super.initState();
-    _ensureSplitDict();
-  }
-
-  void _ensureSplitDict() {
+    // The mount effect: a random icon for every item and a split per item,
+    // keeping only people who are still selected.
     final peopleUUIDs = widget.people.map((p) => p.uuid).toSet();
-    final updated = Map<String, ItemSplit>.from(widget.splitDict);
-    final items = List<Item>.from(widget.items);
-
-    for (var i = 0; i < items.length; i++) {
-      final item = items[i];
-      if (item.image.isEmpty) {
-        items[i] = item.copyWith(
-          image: foodImages[generateRandomInteger(0, foodImages.length - 1)],
-        );
-      }
-      final existing = updated[item.uuid];
-      if (existing != null) {
-        updated[item.uuid] = existing.copyWith(
-          sharingPersonUUIDs:
-              existing.sharingPersonUUIDs.where(peopleUUIDs.contains).toSet(),
-        );
+    final splitDict = widget.splitDict;
+    for (final item in widget.items) {
+      item.image = foodImages[generateRandomInteger(0, 20)];
+      final split = splitDict[item.uuid];
+      if (split != null) {
+        split.sharingPersonUUIDs =
+            split.sharingPersonUUIDs.where(peopleUUIDs.contains).toSet();
       } else {
-        updated[item.uuid] = ItemSplit(
+        splitDict[item.uuid] = ItemSplit(
           itemUUID: item.uuid,
           itemPrice: item.price,
-          sharingPersonUUIDs: {},
+          sharingPersonUUIDs: <String>{},
         );
       }
     }
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.onItemsChanged(items);
-      widget.onSplitDictChanged(updated);
+      if (!mounted) return;
+      widget.onSplitDictChanged(splitDict);
+      widget.onItemsChanged(widget.items);
     });
   }
 
-  bool _isAllSelected(String uuid) {
+  Map<String, Person> get _peopleDict => {for (final p in widget.people) p.uuid: p};
+
+  bool _isAllSelected(String? uuid) {
+    if (uuid == null) return false;
+    return widget.splitDict[uuid]?.sharingPersonUUIDs.length == widget.people.length;
+  }
+
+  void _toggleSelectAll(String? uuid) {
+    if (uuid == null) return;
     final split = widget.splitDict[uuid];
-    if (split == null) return false;
-    return split.sharingPersonUUIDs.length == widget.people.length;
+    if (split == null) return;
+    split.sharingPersonUUIDs = split.sharingPersonUUIDs.length == widget.people.length
+        ? <String>{}
+        : widget.people.map((p) => p.uuid).toSet();
+    widget.onSplitDictChanged(widget.splitDict);
   }
 
-  void _toggleSelectAll(String uuid) {
-    final updated = Map<String, ItemSplit>.from(widget.splitDict);
-    final current = updated[uuid];
-    if (current == null) return;
-    if (current.sharingPersonUUIDs.length == widget.people.length) {
-      updated[uuid] = current.copyWith(sharingPersonUUIDs: {});
-    } else {
-      updated[uuid] = current.copyWith(
-        sharingPersonUUIDs: widget.people.map((p) => p.uuid).toSet(),
-      );
-    }
-    widget.onSplitDictChanged(updated);
+  void _assignPerson(String itemUUID, String personUUID) {
+    final sharing = widget.splitDict[itemUUID]!.sharingPersonUUIDs;
+    sharing.contains(personUUID) ? sharing.remove(personUUID) : sharing.add(personUUID);
+    widget.onSplitDictChanged(widget.splitDict);
   }
 
-  Future<void> _changeIcon(int itemIndex) async {
-    await showDialog<void>(
+  void _openChangeIcon(int itemIndex) {
+    final md = Breakpoints.md(context);
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    // Modal body width minus `p-5` and the grid gaps.
+    final bodyWidth = math.min(520.0, screenWidth - (md ? 32 : 16)) - (md ? 32 : 16);
+    final columns = md ? 4 : 3;
+    final cellWidth = (bodyWidth - 40 - 16 * (columns - 1)) / columns;
+    final tile = math.min(104.0, cellWidth);
+
+    showAntModal<void>(
       context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          title: const Text('Change Icon'),
-          content: SizedBox(
-            width: double.maxFinite,
-            height: 320,
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-              ),
-              itemCount: foodImages.length,
-              itemBuilder: (_, i) {
-                return GestureDetector(
+      title: 'Change Icon',
+      builder: (modalContext) => SizedBox(
+        height: 320,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: CssGrid(
+            columns: columns,
+            gap: 16,
+            children: [
+              for (final image in foodImages)
+                GestureDetector(
                   onTap: () {
-                    final items = List<Item>.from(widget.items);
-                    items[itemIndex] =
-                        items[itemIndex].copyWith(image: foodImages[i]);
-                    widget.onItemsChanged(items);
-                    Navigator.pop(ctx);
+                    widget.items[itemIndex].image = image;
+                    widget.onItemsChanged(List.of(widget.items));
+                    Navigator.of(modalContext).pop();
                   },
-                  child: _ItemImage(image: foodImages[i]),
-                );
-              },
-            ),
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: ItemImage(image: image, size: tile),
+                  ),
+                ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
-  Future<void> _chooseParticipants(String itemUUID) async {
-    await showDialog<void>(
+  void _openParticipants(String itemUUID) {
+    showAntModal<void>(
       context: context,
-      barrierDismissible: true,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setModalState) {
-            final selected =
-                widget.splitDict[itemUUID]?.sharingPersonUUIDs ?? {};
-            final allSelected = selected.length == widget.people.length;
-
-            return AlertDialog(
-              title: const Text('Choose Participants'),
-              content: SizedBox(
-                width: double.maxFinite,
-                height: 380,
-                child: Column(
-                  children: [
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor:
-                            allSelected ? AppColors.main : AppColors.second,
-                        foregroundColor:
-                            allSelected ? AppColors.white : AppColors.main,
-                        minimumSize: const Size(160, 36),
-                      ),
-                      onPressed: () {
-                        _toggleSelectAll(itemUUID);
-                        setModalState(() {});
-                      },
-                      child: Text(allSelected ? 'Deselect All' : 'Select All'),
-                    ),
-                    const SizedBox(height: 12),
-                    Expanded(
-                      child: GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 8,
-                          childAspectRatio: 0.75,
-                        ),
-                        itemCount: widget.people.length,
-                        itemBuilder: (_, i) {
-                          final person = widget.people[i];
-                          final isSelected = selected.contains(person.uuid);
-                          return GestureDetector(
+      title: 'Choose Participants',
+      closable: false,
+      builder: (modalContext) => StatefulBuilder(
+        builder: (context, setModalState) {
+          final md = Breakpoints.md(context);
+          final allSelected = _isAllSelected(itemUUID);
+          final sharing = widget.splitDict[itemUUID]?.sharingPersonUUIDs ?? <String>{};
+          // `mt-3` collapses with the title's 8px bottom margin: 12px in total.
+          return Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: AntButton(
+                    minWidth: 160,
+                    label: allSelected ? 'Deselect All' : 'Select All',
+                    background: allSelected ? AppColors.main : null,
+                    foreground: allSelected ? AppColors.white : null,
+                    onPressed: () {
+                      _toggleSelectAll(itemUUID);
+                      setModalState(() {});
+                    },
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 320,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: CssGrid(
+                      columns: md ? 4 : 3,
+                      gap: md ? 16 : 8,
+                      children: [
+                        for (final person in widget.people)
+                          GestureDetector(
+                            behavior: HitTestBehavior.opaque,
                             onTap: () {
-                              final updated =
-                                  Map<String, ItemSplit>.from(widget.splitDict);
-                              final split = updated[itemUUID]!.copyWith();
-                              if (split.sharingPersonUUIDs
-                                  .contains(person.uuid)) {
-                                split.sharingPersonUUIDs.remove(person.uuid);
-                              } else {
-                                split.sharingPersonUUIDs.add(person.uuid);
-                              }
-                              updated[itemUUID] = split;
-                              widget.onSplitDictChanged(updated);
+                              _assignPerson(itemUUID, person.uuid);
                               setModalState(() {});
                             },
-                            child: Column(
-                              children: [
-                                Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: isSelected
-                                            ? AppColors.fourth
-                                            : AppColors.third,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: CircleAvatar(
-                                        radius: 24,
-                                        backgroundImage:
-                                            NetworkImage(person.profile),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 0,
-                                      top: 0,
-                                      child: AnimatedOpacity(
-                                        opacity: isSelected ? 1 : 0,
-                                        duration:
-                                            const Duration(milliseconds: 150),
-                                        child: Container(
-                                          width: 22,
-                                          height: 22,
-                                          decoration: BoxDecoration(
-                                            color: AppColors.main,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: AppColors.white,
-                                              width: 2,
-                                            ),
-                                          ),
-                                          child: const Icon(
-                                            Icons.check,
-                                            size: 12,
-                                            color: AppColors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  person.name.isEmpty ? '-' : person.name,
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
+                            child: Center(
+                              child: _ParticipantChoice(
+                                person: person,
+                                selected: sharing.contains(person.uuid),
+                              ),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                      ],
                     ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        child: const Text('Close'),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            );
-          },
-        );
-      },
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: AntButton(
+                    label: 'Close',
+                    onPressed: () => Navigator.of(modalContext).pop(),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final peopleDict = {for (final p in widget.people) p.uuid: p};
+    final md = Breakpoints.md(context);
+    final peopleDict = _peopleDict;
 
     return ListView.builder(
+      padding: EdgeInsets.zero,
       itemCount: widget.items.length,
-      itemBuilder: (_, itemIndex) {
+      itemBuilder: (context, itemIndex) {
         final item = widget.items[itemIndex];
-        final sharing =
-            widget.splitDict[item.uuid]?.sharingPersonUUIDs ?? <String>{};
-        final priceLabel = item.isPercentage
-            ? '${item.name} - ${item.percent} %'
-            : '${item.name} - ${item.price}';
+        final sharing = widget.splitDict[item.uuid]?.sharingPersonUUIDs ?? <String>{};
 
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: AppColors.main),
-            ),
-          ),
-          child: Column(
-            children: [
-              GestureDetector(
-                onTap: () => _changeIcon(itemIndex),
+        final imageBlock = Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _openChangeIcon(itemIndex),
+              child: Center(
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    _ItemImage(image: item.image),
+                    ItemImage(image: item.image),
                     if (item.paidBy != null)
                       Positioned(
-                        top: -12,
-                        left: -24,
-                        child: Column(
-                          children: [
-                            const Text(
-                              'Paid By',
-                              style: TextStyle(fontSize: 10),
-                            ),
-                            RoundedAvatar(
-                              person: item.paidBy!,
-                              bg: AppColors.main,
-                            ),
-                          ],
+                        top: -16,
+                        left: -32,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('Paid By', style: cssText(size: 12, lineHeight: 16)),
+                              RoundedAvatar(person: item.paidBy!, ringColor: AppColors.main),
+                            ],
+                          ),
                         ),
                       ),
                   ],
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                priceLabel,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.main,
-                ),
-              ),
-              const SizedBox(height: 12),
-              GestureDetector(
-                onTap: () => _chooseParticipants(item.uuid),
-                child: sharing.isEmpty
-                    ? const Padding(
-                        padding: EdgeInsets.only(bottom: 10),
-                        child: UnknownPerson(size: AvatarSize.lg),
-                      )
-                    : _SharedPeoplePreview(
-                        peopleDict: peopleDict,
-                        sharing: sharing,
-                      ),
-              ),
-              const SizedBox(height: 8),
-              Row(
+            ),
+            Text(
+              '${item.name} - ${item.isPercentage ? '${jsNum(item.percent)} %' : jsNum(item.price)}',
+              textAlign: TextAlign.center,
+              style: cssText(size: 24, lineHeight: 36),
+            ),
+          ],
+        );
+
+        final participantsBlock = Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _openParticipants(item.uuid),
+              child: sharing.isNotEmpty
+                  ? _SharedPeople(peopleDict: peopleDict, sharing: sharing)
+                  : const Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: Center(child: UnknownPerson(size: AvatarSize.lg)),
+                    ),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: EdgeInsets.only(bottom: md ? 0 : 12),
+              child: Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _chooseParticipants(item.uuid),
-                      icon: const Icon(Icons.person_add_alt_1, size: 18),
-                      label: const Text(
-                        'Select Participants',
-                        style: TextStyle(fontSize: 13),
-                      ),
+                    child: AntButton.primary(
+                      block: true,
+                      icon: AntIconData.userAdd,
+                      label: 'Select Participants',
+                      horizontalPadding: 4,
+                      onPressed: () => _openParticipants(item.uuid),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: md ? 12 : 4),
                   Expanded(
-                    child: OutlinedButton.icon(
+                    child: AntButton(
+                      block: true,
+                      icon: AntIconData.usergroupAdd,
+                      label: _isAllSelected(item.uuid) ? 'Deselect All' : 'Select All',
+                      background: AppColors.second,
+                      borderColor: AppColors.main,
                       onPressed: () => _toggleSelectAll(item.uuid),
-                      icon: const Icon(Icons.group_add, size: 18),
-                      label: Text(
-                        _isAllSelected(item.uuid)
-                            ? 'Deselect All'
-                            : 'Select All',
-                        style: const TextStyle(fontSize: 13),
-                      ),
                     ),
                   ),
                 ],
               ),
-            ],
+            ),
+          ],
+        );
+
+        return Container(
+          margin: const EdgeInsets.only(top: 8),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: md ? 8 : 0),
+          decoration: const BoxDecoration(
+            border: Border(bottom: BorderSide(color: AppColors.main)),
           ),
+          child: md
+              ? Row(
+                  children: [
+                    Expanded(child: imageBlock),
+                    const SizedBox(width: 20),
+                    Expanded(flex: 2, child: participantsBlock),
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [imageBlock, const SizedBox(height: 20), participantsBlock],
+                ),
         );
       },
     );
   }
 }
 
-class _ItemImage extends StatelessWidget {
+/// `ItemImage` in step-3.tsx: an 80px icon in a `bg-third p-3 rounded-md` box.
+class ItemImage extends StatelessWidget {
   final String image;
+  final double size;
 
-  const _ItemImage({required this.image});
+  const ItemImage({super.key, required this.image, this.size = 104});
 
   @override
   Widget build(BuildContext context) {
@@ -383,70 +333,113 @@ class _ItemImage extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: image.isEmpty
-          ? const SizedBox(width: 80, height: 80)
-          : SvgPicture.asset(
-              image,
-              width: 80,
-              height: 80,
-            ),
+          ? const SizedBox.shrink()
+          : SvgPicture.asset(image, width: size - 24, height: size - 24),
     );
   }
 }
 
-class _SharedPeoplePreview extends StatelessWidget {
+/// `ShowSomeSharedPeople`: the first three participants and a "+N" bubble.
+class _SharedPeople extends StatelessWidget {
   final Map<String, Person> peopleDict;
   final Set<String> sharing;
 
-  const _SharedPeoplePreview({
-    required this.peopleDict,
-    required this.sharing,
-  });
+  /// The web component starts at 3 and only changes on a window resize.
+  static const int _shown = 3;
+
+  const _SharedPeople({required this.peopleDict, required this.sharing});
 
   @override
   Widget build(BuildContext context) {
-    final maxShow = MediaQuery.of(context).size.width < 500 ? 2 : 3;
+    final md = Breakpoints.md(context);
     final list = sharing.toList();
-    final visible = list.take(maxShow).toList();
-    final overflow = list.length - maxShow;
+    final textStyle = cssText();
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ...visible.map((uuid) {
-          final person = peopleDict[uuid];
-          if (person == null) return const SizedBox.shrink();
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Column(
-              children: [
-                PersonAvatarOnly(profileUrl: person.profile, size: 32),
-                Text(
-                  person.name.isEmpty ? '-' : person.name,
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ],
-            ),
-          );
-        }),
-        if (overflow > 0)
-          Container(
-            width: 48,
-            height: 48,
-            margin: const EdgeInsets.only(left: 4),
-            decoration: const BoxDecoration(
-              color: AppColors.fourth,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              '+$overflow',
-              style: const TextStyle(
-                color: AppColors.white,
-                fontWeight: FontWeight.w600,
+        for (var i = 0; i < math.min(_shown, list.length); i++) ...[
+          if (i > 0) const SizedBox(width: 4),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(color: AppColors.third, shape: BoxShape.circle),
+                child: ProfileImage(url: peopleDict[list[i]]?.profile ?? '', size: md ? 48 : 32),
               ),
-            ),
+              Text(
+                (peopleDict[list[i]]?.name ?? '').isEmpty ? '-' : peopleDict[list[i]]!.name,
+                textAlign: TextAlign.center,
+                style: textStyle,
+              ),
+            ],
           ),
+        ],
+        if (list.length > _shown) ...[
+          const SizedBox(width: 4),
+          Container(
+            width: md ? 64 : 48,
+            height: md ? 64 : 48,
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(color: AppColors.fourth, shape: BoxShape.circle),
+            child: Text('+${list.length - _shown}', style: textStyle.copyWith(color: AppColors.white)),
+          ),
+        ],
       ],
+    );
+  }
+}
+
+/// One avatar in the "Choose Participants" grid.
+class _ParticipantChoice extends StatelessWidget {
+  final Person person;
+  final bool selected;
+
+  const _ParticipantChoice({required this.person, required this.selected});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 80,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: selected ? AppColors.fourth : AppColors.third,
+                  shape: BoxShape.circle,
+                ),
+                child: ProfileImage(url: person.profile, size: 48),
+              ),
+              Positioned(
+                right: 0,
+                top: 0,
+                child: Opacity(
+                  opacity: selected ? 1 : 0,
+                  child: Container(
+                    width: 25,
+                    height: 25,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: AppColors.main,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.white, width: 2),
+                    ),
+                    child: const AntIcon(AntIconData.check, size: 14, color: AppColors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Text(person.name.isEmpty ? '-' : person.name, textAlign: TextAlign.center),
+        ],
+      ),
     );
   }
 }

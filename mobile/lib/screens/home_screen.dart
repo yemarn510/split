@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -14,10 +14,12 @@ import '../services/auth_service.dart';
 import '../services/friends_service.dart';
 import '../services/history_service.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_theme.dart';
 import '../utils/calculations.dart';
+import '../widgets/ant/ant.dart';
 import '../widgets/common_widgets.dart';
-import '../widgets/login_sheet.dart';
-import '../widgets/rounded_avatar.dart';
+import '../widgets/login_popup.dart';
+import '../widgets/next_button.dart';
 import 'history_screen.dart';
 import 'step_four_review.dart';
 import 'step_one_people.dart';
@@ -31,6 +33,7 @@ const List<String> kSteps = [
   'Review & Split',
 ];
 
+/// Port of frontend/src/app/page.tsx (plus the data loading in login-popup.tsx).
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -40,40 +43,35 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _auth = AuthService();
-  late final FriendsService _friends =
-      FriendsService(Supabase.instance.client);
-  late final HistoryService _history =
-      HistoryService(Supabase.instance.client);
-
+  late final FriendsService _friends = FriendsService(Supabase.instance.client);
+  late final HistoryService _history = HistoryService(Supabase.instance.client);
+  final LoginState _login = LoginState();
   StreamSubscription<AuthState>? _authSub;
 
+  /// Bumped to re-mount the page, like navigating back to "/" on the web.
+  int _mountKey = 0;
   int _currentStep = 0;
-  List<Person> _people = [Person()];
   List<Item> _items = [Item()];
+  List<Person> _people = [Person()];
   SplitDictionary _splitDict = {};
   List<Result> _results = [];
   bool _saveFriends = false;
-  bool _savingHistory = false;
-  User? _user;
+  final bool _isPremiumUser = false;
 
   @override
   void initState() {
     super.initState();
-    _user = _auth.currentUser;
-    _loadFriends();
-    _authSub = _auth.authStateChanges.listen((state) async {
-      setState(() => _user = state.session?.user);
-      if (state.session?.user != null) {
-        try {
-          final people = await _friends.fetchFriends();
-          if (!mounted) return;
-          setState(() {
-            _people = people;
-            _saveFriends = true;
-          });
-        } catch (_) {
-          // Keep local people if remote fetch fails.
-        }
+    _resetState();
+    _loadPeople();
+    _authSub = _auth.authStateChanges.listen((state) {
+      if (state.event == AuthChangeEvent.signedIn) {
+        _checkUser();
+      } else if (state.event == AuthChangeEvent.signedOut) {
+        _login.update((s) {
+          s.user = null;
+          s.histories = null;
+          s.historiesError = null;
+        });
       }
     });
   }
@@ -81,68 +79,78 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _authSub?.cancel();
+    _login.dispose();
     super.dispose();
   }
 
-  Future<void> _loadFriends() async {
-    if (_user != null) {
-      try {
-        final people = await _friends.fetchFriends();
-        if (!mounted) return;
-        setState(() {
-          _people = people;
-          _saveFriends = true;
-        });
-        return;
-      } catch (_) {}
-    }
+  /// The initial state of page.tsx.
+  void _resetState() {
+    _mountKey++;
+    _currentStep = 0;
+    _items = [Item()];
+    _people = [Person()];
+    _splitDict = {};
+    _results = [];
+    _saveFriends = false;
+  }
 
+  /// page.tsx's mount effect followed by login-popup.tsx's `checkUser`.
+  Future<void> _loadPeople() async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString('friends');
-    if (raw != null && raw.isNotEmpty) {
-      final list = (jsonDecode(raw) as List)
+    final friends = prefs.getString('friends') ?? '';
+    if (friends.isNotEmpty && mounted) {
+      final list = (jsonDecode(friends) as List)
           .map((e) => Person.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList();
       setState(() {
-        _people = list.isEmpty ? [Person()] : list;
+        _people = list;
         _saveFriends = true;
       });
     }
+    await _checkUser();
   }
 
-  Future<void> _persistFriendsIfNeeded() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (_saveFriends) {
-      await prefs.setString(
-        'friends',
-        jsonEncode(_people.map((p) => p.toJson()).toList()),
-      );
-      if (_user != null) {
-        try {
-          await _friends.createOrUpdateFriends(_people);
-        } catch (e) {
-          if (!mounted) return;
-          _showMessage('Could not sync friends: $e');
-        }
-      }
-    } else {
-      await prefs.remove('friends');
+  Future<void> _checkUser() async {
+    final user = _auth.currentUser;
+    _login.update((s) => s.user = user);
+    if (user == null) return;
+    unawaited(_checkFriends());
+    await _fetchUserHistories(user.id);
+  }
+
+  Future<void> _checkFriends() async {
+    try {
+      final people = await _friends.fetchFriends();
+      if (mounted) setState(() => _people = people);
+    } catch (e) {
+      debugPrint('Error getting friends: $e');
     }
   }
 
-  List<Person> get _selectedPeople =>
-      _people.where((p) => p.selected).toList();
-
-  bool _selectedPeopleMissingNames() {
-    return _selectedPeople.any((p) => p.name.trim().isEmpty);
+  Future<void> _fetchUserHistories(String userId) async {
+    _login.update((s) {
+      s.historiesLoading = true;
+      s.historiesError = null;
+    });
+    try {
+      final histories = await _history.fetchUserHistories(userId);
+      _login.update((s) => s.histories = histories);
+    } catch (e) {
+      _login.update((s) {
+        s.histories = [];
+        s.historiesError = e is PostgrestException ? e.message : 'Failed to load history.';
+      });
+    } finally {
+      _login.update((s) => s.historiesLoading = false);
+    }
   }
 
-  bool _goNextDisabled() {
+  List<Person> get _selectedPeople => _people.where((p) => p.selected).toList();
+
+  bool _goNextButtonDisabled() {
     switch (_currentStep) {
       case 0:
-        return _people.isEmpty ||
-            _people.every((p) => !p.selected) ||
-            _selectedPeopleMissingNames();
+        return _people.isEmpty || _people.every((p) => !p.selected);
       case 1:
         return _items.isEmpty;
       case 2:
@@ -153,24 +161,23 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool _isStepTwoValid() {
-    final checking = _items.map((e) {
-      e.isValid();
-      return e;
-    }).toList();
-    final valid = checking.every((e) => e.error.isEmpty);
-    setState(() => _items = checking);
-    return valid;
+    for (final item in _items) {
+      item.isValid();
+    }
+    final isValid = _items.every((e) => e.isValid());
+    if (isValid) return true;
+    setState(() => _items = List.of(_items));
+    return false;
   }
 
   Future<void> _goNext() async {
-    if (_goNextDisabled()) {
+    if (_goNextButtonDisabled()) {
       if (_currentStep == 0 && _people.every((p) => !p.selected)) {
-        _showMessage('Please select at least one person to continue');
-      } else if (_currentStep == 0 && _selectedPeopleMissingNames()) {
-        _showMessage('Please enter a name for every selected person');
+        AntMessage.error(context, 'Please select at least one person to continue');
       }
       if (_currentStep == 2 && someStepsAreEmpty(_splitDict)) {
-        _showMessage(
+        AntMessage.error(
+          context,
           'Some items are not assigned to anyone. Please assign them to continue',
         );
       }
@@ -179,26 +186,33 @@ class _HomeScreenState extends State<HomeScreen> {
 
     switch (_currentStep) {
       case 0:
-        await _persistFriendsIfNeeded();
+        if (_saveFriends) {
+          // The web call runs unauthenticated too, where RLS rejects it.
+          if (_login.user != null) {
+            unawaited(_friends
+                .createOrUpdateFriends(_people)
+                .catchError((Object e) => debugPrint('$e')));
+          }
+        } else {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove('friends');
+        }
         setState(() => _currentStep = 1);
         break;
       case 1:
         if (_isStepTwoValid()) {
-          final newDict = <String, ItemSplit>{};
-          for (final item in _items) {
-            if (_splitDict.containsKey(item.uuid)) {
-              newDict[item.uuid] = _splitDict[item.uuid]!;
-            }
-          }
+          final itemUUIDs = _items.map((e) => e.uuid).toSet();
           setState(() {
-            _splitDict = newDict;
             _currentStep = 2;
+            _splitDict = {
+              for (final uuid in _splitDict.keys)
+                if (itemUUIDs.contains(uuid)) uuid: _splitDict[uuid]!,
+            };
           });
         }
         break;
       case 2:
-        final results =
-            calculateResults(_items, _selectedPeople, _splitDict);
+        final results = calculateResults(_items, _selectedPeople, _splitDict);
         setState(() {
           _results = results;
           _currentStep = 3;
@@ -208,204 +222,34 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _goBack() {
-    if (_currentStep > 0) {
-      setState(() => _currentStep -= 1);
-    }
+    if (_currentStep > 0) setState(() => _currentStep -= 1);
   }
 
-  void _showMessage(String text, {Color color = AppColors.danger}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(text), backgroundColor: color),
-    );
-  }
-
-  void _showLogin() {
-    showDialog<void>(
-      context: context,
-      builder: (_) => LoginSheet(
-        onPeopleLoaded: (people) {
-          setState(() {
-            _people = people;
-            _saveFriends = true;
-          });
-        },
-      ),
-    );
-  }
-
-  Future<void> _saveHistory(String memo) async {
-    final user = _auth.currentUser;
-    if (user == null) {
-      _showMessage('Please login with Google before sharing history.');
-      return;
-    }
-
-    setState(() => _savingHistory = true);
+  Future<void> _signIn() async {
     try {
-      final results = _results.where((r) => r.total > 0).toList();
-      final historyId = await _history.saveHistory(
-        user: user,
-        results: results,
-        memo: memo,
-      );
-      if (!mounted) return;
-      Navigator.of(context).pop(); // close memo dialog if open
-      Navigator.of(context).pop(); // close share dialog
-      _showMessage('History saved.', color: AppColors.main);
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => HistoryScreen(historyId: historyId),
-        ),
-      );
+      await _auth.signInWithGoogle();
     } catch (e) {
-      if (!mounted) return;
-      _showMessage(e.toString());
-    } finally {
-      if (mounted) setState(() => _savingHistory = false);
+      if (mounted) AntMessage.error(context, 'Login failed: $e');
     }
   }
 
-  void _openMemoDialog() {
-    if (_auth.currentUser == null) return;
-    final controller = TextEditingController();
-    showDialog<void>(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          title: const Text('Add a memo'),
-          content: TextField(
-            controller: controller,
-            maxLength: 120,
-            decoration: const InputDecoration(
-              hintText: 'Optional memo (e.g., Dinner at NN)',
-            ),
-            onSubmitted: (_) => _saveHistory(controller.text),
-          ),
-          actions: [
-            TextButton(
-              onPressed: _savingHistory ? null : () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: _savingHistory
-                  ? null
-                  : () => _saveHistory(controller.text),
-              child: _savingHistory
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
+  void _logout() {
+    _auth.signOut();
+    _login.update((s) {
+      s.user = null;
+      s.histories = null;
+      s.historiesError = null;
+    });
   }
 
-  void _showShare() {
-    final results = _results.where((r) => r.total > 0).toList();
-    showDialog<void>(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          title: const Text('Share with your friends'),
-          content: SizedBox(
-            width: 340,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 320,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.shareBg,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: ListView(
-                    children: results.map((result) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          RichText(
-                            textAlign: TextAlign.center,
-                            text: TextSpan(
-                              style: const TextStyle(
-                                color: AppColors.main,
-                                fontSize: 18,
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: result.person.name,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const TextSpan(text: ' has to pay'),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          ...result.items.map((item) {
-                            final share = item.sharedNumber == 0
-                                ? 1
-                                : item.sharedNumber;
-                            final line = item.isPercentage
-                                ? '${item.paidBy?.name} - ${item.name} ${item.percent} % - ${item.price.toStringAsFixed(2)}'
-                                : '${item.paidBy?.name} - ${item.name} ${item.price} / $share - ${(item.price / share).toStringAsFixed(2)}';
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 2),
-                              child: Text(
-                                line,
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                            );
-                          }),
-                          const SizedBox(height: 8),
-                          ...((result.totalToPayFor ?? {}).entries.map((e) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 2),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '${e.key} total',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  Text(
-                                    e.value.toStringAsFixed(2),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          })),
-                          const Divider(color: Colors.black87, thickness: 1),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                ),
-                if (_user != null) ...[
-                  const SizedBox(height: 12),
-                  ElevatedButton.icon(
-                    onPressed: _savingHistory ? null : _openMemoDialog,
-                    icon: const Icon(Icons.history),
-                    label: const Text('Save History'),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        );
-      },
+  /// `router.push('/history/:id')`; coming back re-mounts the home page.
+  Future<void> _openHistory(String historyId) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => HistoryScreen(historyId: historyId)),
     );
+    if (!mounted) return;
+    setState(_resetState);
+    await _loadPeople();
   }
 
   Widget _currentStepUI() {
@@ -416,6 +260,8 @@ class _HomeScreenState extends State<HomeScreen> {
           onPeopleChanged: (v) => setState(() => _people = v),
           saveFriends: _saveFriends,
           onSaveFriendsChanged: (v) => setState(() => _saveFriends = v),
+          items: _items,
+          onItemsChanged: (v) => setState(() => _items = v),
         );
       case 1:
         return StepTwoItems(
@@ -434,133 +280,104 @@ class _HomeScreenState extends State<HomeScreen> {
       case 3:
         return StepFourReview(results: _results);
       default:
-        return const SizedBox.shrink();
+        return const Text('Not Implemented yet!');
     }
-  }
-
-  Widget _loginButton() {
-    final avatar = _auth.avatarUrl;
-    final name = _auth.displayName;
-    if (_user == null) {
-      return GestureDetector(
-        onTap: _showLogin,
-        child: const Row(
-          children: [
-            UnknownPerson(),
-            SizedBox(width: 6),
-            Text('Login', style: TextStyle(color: AppColors.main)),
-          ],
-        ),
-      );
-    }
-
-    return GestureDetector(
-      onTap: _showLogin,
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: const BoxDecoration(
-          color: AppColors.third,
-          borderRadius: BorderRadius.all(Radius.circular(999)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundImage: avatar != null ? NetworkImage(avatar) : null,
-              child: avatar == null ? const Icon(Icons.person, size: 16) : null,
-            ),
-            const SizedBox(width: 6),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 90),
-              child: Text(
-                name ?? 'User',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: AppColors.main, fontSize: 13),
-              ),
-            ),
-            const SizedBox(width: 4),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final isMobile = width < 768;
+    final media = MediaQuery.of(context);
+    final fullHeight = media.size.height - media.viewPadding.top - media.viewPadding.bottom;
+    final width = media.size.width;
+    final md = width >= 768;
+    // `.main-content`: 95vw x (100dvh - 220px) on phones,
+    // min(90vw, 600px) x (100dvh - 340px) with a 0.5rem margin from md up.
+    final contentWidth = md ? math.min(width * 0.9, 600.0) : width * 0.95;
+    final contentHeight = math.max(0.0, fullHeight - (md ? 340 : 220));
 
     return Scaffold(
       backgroundColor: AppColors.second,
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 16),
-              child: Column(
-                children: [
-                  const SizedBox(height: 12),
-                  Text(
-                    "Let's Split the Bills",
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.quicksand(
-                      fontSize: isMobile ? 32 : 40,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.main,
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: SizedBox(
+            height: fullHeight,
+            child: Center(
+              child: SizedBox(
+                width: contentWidth + (md ? 16 : 0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Let’s Split the Bills',
+                      textAlign: TextAlign.center,
+                      style: md
+                          ? cssText(size: 48, lineHeight: 48, color: AppColors.main)
+                          : cssText(size: 36, lineHeight: 40, color: AppColors.main),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  if (isMobile)
-                    StepBadge(
-                      current: _currentStep + 1,
-                      total: kSteps.length,
-                      title: kSteps[_currentStep],
-                    )
-                  else
-                    DesktopStepper(
-                      currentStep: _currentStep,
-                      steps: kSteps,
-                    ),
-                  const SizedBox(height: 8),
-                  Expanded(child: _currentStepUI()),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _loginButton(),
-                      Row(
-                        children: [
-                          CircleNavButton(
-                            icon: Icons.arrow_back,
-                            label: 'Go Back',
-                            labelAfter: false,
-                            enabled: _currentStep > 0,
-                            onTap: _goBack,
-                          ),
-                          const SizedBox(width: 16),
-                          if (_currentStep == 3)
-                            CircleNavButton(
-                              icon: Icons.open_in_new,
-                              label: 'Share',
-                              onTap: _showShare,
-                            )
-                          else
-                            CircleNavButton(
-                              icon: Icons.arrow_forward,
-                              label: 'Go Next',
-                              enabled: true,
-                              dimmed: _goNextDisabled(),
-                              onTap: _goNext,
-                            ),
-                        ],
+                    const SizedBox(height: 12),
+                    if (md)
+                      AntSteps(current: _currentStep, steps: kSteps)
+                    else ...[
+                      StepBadge(
+                        current: _currentStep + 1,
+                        total: kSteps.length,
+                        title: kSteps[_currentStep],
                       ),
+                      const SizedBox(height: 8),
                     ],
-                  ),
-                  const SizedBox(height: 12),
-                ],
+                    Padding(
+                      padding: EdgeInsets.all(md ? 8 : 0),
+                      child: SizedBox(
+                        height: contentHeight,
+                        child: KeyedSubtree(
+                          key: ValueKey('$_mountKey-$_currentStep'),
+                          child: _currentStepUI(),
+                        ),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        LoginPopup(
+                          state: _login,
+                          auth: _auth,
+                          isPremiumUser: _isPremiumUser,
+                          onLogin: _signIn,
+                          onLogout: _logout,
+                          onOpenHistory: _openHistory,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircleNavButton(
+                                icon: AntIconData.arrowLeft,
+                                label: 'Go Back',
+                                labelFirst: true,
+                                dimmed: _currentStep == 0,
+                                onTap: _goBack,
+                              ),
+                              SizedBox(width: md ? 20 : 12),
+                              NextButton(
+                                currentStep: _currentStep,
+                                stepsLength: kSteps.length,
+                                results: _results,
+                                goNextDisabled: _goNextButtonDisabled(),
+                                goNext: _goNext,
+                                login: _login,
+                                onHistorySaved: _openHistory,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

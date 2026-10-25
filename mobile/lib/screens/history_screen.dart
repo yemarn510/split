@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../config/app_config.dart';
+import '../models/history.dart';
+import '../models/item.dart';
+import '../models/person.dart';
 import '../services/history_service.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_theme.dart';
+import '../widgets/ant/ant.dart';
+import '../widgets/next_button.dart';
 
+/// Port of frontend/src/app/history/[historyId]/page.tsx.
 class HistoryScreen extends StatefulWidget {
   final String historyId;
 
@@ -14,14 +23,12 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  late final HistoryService _history =
-      HistoryService(Supabase.instance.client);
+  late final HistoryService _history = HistoryService(Supabase.instance.client);
 
-  bool _loading = true;
-  String? _error;
+  List<HistoryResultRow>? _rows;
+  String? _errorMessage;
   String? _memo;
   String? _creatorName;
-  Map<String, List<Map<String, dynamic>>> _grouped = {};
 
   @override
   void initState() {
@@ -32,107 +39,158 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Future<void> _load() async {
     try {
       final data = await _history.fetchHistory(widget.historyId);
-      final grouped = <String, List<Map<String, dynamic>>>{};
-      for (final row in data.rows) {
-        grouped.putIfAbsent(row.needToBePaidByName, () => []).add({
-          'paidBy': row.paidByName,
-          'item': row.itemName,
-          'amount': row.amount,
-          'final': row.finalPrice,
-          'shared': row.numberOfSharedPerson,
-          'isPercentage': row.isPercentage,
-        });
-      }
       if (!mounted) return;
       setState(() {
         _memo = data.memo;
         _creatorName = data.creatorName;
-        _grouped = grouped;
-        _loading = false;
+        _rows = data.rows;
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
+      setState(() => _errorMessage = e is PostgrestException ? e.message : '$e');
     }
+  }
+
+  void _copyToClipboard() {
+    Clipboard.setData(
+      ClipboardData(text: '${AppConfig.webBaseUrl}/history/${widget.historyId}'),
+    );
+    AntMessage.info(context, 'Copied to clipboard!', seconds: 2);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.second,
-      appBar: AppBar(
-        backgroundColor: AppColors.second,
-        foregroundColor: AppColors.main,
-        elevation: 0,
-        title: const Text("Let's Split the Bills"),
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? Center(child: Text(_error!))
-              : ListView(
-                  padding: const EdgeInsets.all(16),
+      body: SafeArea(child: _body(context)),
+    );
+  }
+
+  Widget _body(BuildContext context) {
+    Widget plain(String text) => Align(alignment: Alignment.topLeft, child: Text(text));
+
+    if (_errorMessage != null) return plain('Failed to load history: $_errorMessage');
+    final rows = _rows;
+    if (rows == null) return plain('Loading...');
+    if (rows.isEmpty) return plain('No history results found.');
+
+    final media = MediaQuery.of(context);
+    final fullHeight = media.size.height - media.viewPadding.top - media.viewPadding.bottom;
+    final md = media.size.width >= 768;
+    final mainStyle = cssText(color: AppColors.main);
+    final boldMain = mainStyle.copyWith(fontWeight: FontWeight.w700);
+
+    final groups = <String, List<HistoryResultRow>>{};
+    for (final row in rows) {
+      groups.putIfAbsent(row.needToBePaidByUuid, () => []).add(row);
+    }
+
+    return Center(
+      child: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Let’s Split the Bills',
+                  textAlign: TextAlign.center,
+                  style: md
+                      ? cssText(size: 48, lineHeight: 48, color: AppColors.main)
+                      : cssText(size: 36, lineHeight: 40, color: AppColors.main),
+                ),
+                if ((_memo ?? '').isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text.rich(
+                      TextSpan(children: [
+                        TextSpan(text: 'Memo:', style: boldMain),
+                        TextSpan(text: ' $_memo'),
+                      ]),
+                      textAlign: TextAlign.center,
+                      style: mainStyle,
+                    ),
+                  ),
+                if ((_creatorName ?? '').isNotEmpty)
+                  Text.rich(
+                    TextSpan(children: [
+                      TextSpan(text: 'Shared by:', style: boldMain),
+                      TextSpan(text: ' $_creatorName'),
+                    ]),
+                    textAlign: TextAlign.center,
+                    style: mainStyle,
+                  ),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 20),
+                  constraints: BoxConstraints(maxHeight: fullHeight - 200),
+                  decoration: BoxDecoration(
+                    color: AppColors.shareBg,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final group in groups.values) _group(group),
+                      ],
+                    ),
+                  ),
+                ),
+                Row(
                   children: [
-                    if ((_memo ?? '').isNotEmpty)
-                      Text(
-                        _memo!,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.main,
-                        ),
+                    Expanded(
+                      child: AntButton(
+                        block: true,
+                        icon: AntIconData.rollback,
+                        label: 'Go to Home',
+                        onPressed: () => Navigator.of(context).pop(),
                       ),
-                    if ((_creatorName ?? '').isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4, bottom: 12),
-                        child: Text(
-                          'Shared by $_creatorName',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.fourth),
-                        ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: AntButton.primary(
+                        block: true,
+                        icon: AntIconData.shareAlt,
+                        label: 'Share',
+                        onPressed: _copyToClipboard,
                       ),
-                    ..._grouped.entries.map((entry) {
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.shareBg,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppColors.fourth),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              '${entry.key} has to pay',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.main,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            ...entry.value.map((item) {
-                              final line = item['isPercentage'] == true
-                                  ? '${item['paidBy']} - ${item['item']} ${item['amount']} % - ${(item['final'] as double).toStringAsFixed(2)}'
-                                  : '${item['paidBy']} - ${item['item']} ${item['amount']} / ${item['shared']} - ${(item['final'] as double).toStringAsFixed(2)}';
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 2),
-                                child: Text(line),
-                              );
-                            }),
-                          ],
-                        ),
-                      );
-                    }),
+                    ),
                   ],
                 ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _group(List<HistoryResultRow> rows) {
+    final items = rows.map((row) {
+      return Item(
+        name: row.itemName,
+        price: row.isPercentage ? row.finalPrice : row.amount,
+        sharedNumber: row.numberOfSharedPerson == 0 ? 1 : row.numberOfSharedPerson,
+        paidBy: Person(name: row.paidByName),
+        isPercentage: row.isPercentage,
+        percent: row.isPercentage ? row.amount : 0,
+      );
+    }).toList();
+
+    final totals = <String, double>{};
+    for (final row in rows) {
+      totals[row.paidByName] = (totals[row.paidByName] ?? 0) + row.finalPrice;
+    }
+
+    return HasToPayGroup(
+      name: rows.first.needToBePaidByName,
+      items: items,
+      totals: totals,
+      headingLineHeight: 36,
     );
   }
 }

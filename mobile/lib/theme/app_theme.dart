@@ -1,91 +1,68 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
+
+const String kFontFamily = 'Quicksand';
+
+/// Builds a [TextStyle] the way CSS would lay it out: `lineHeight` is the
+/// CSS line-height in px and leading is split evenly above and below.
+TextStyle cssText({
+  double size = 16,
+  double? lineHeight,
+  FontWeight weight = FontWeight.w400,
+  Color? color,
+}) {
+  return TextStyle(
+    fontFamily: kFontFamily,
+    fontSize: size,
+    height: (lineHeight ?? size * 1.5) / size,
+    fontWeight: weight,
+    color: color,
+    leadingDistribution: TextLeadingDistribution.even,
+  );
+}
+
+class AppText {
+  /// `body` on the web: browser default 16px black with Tailwind's 1.5 line-height.
+  static final TextStyle page = cssText(color: AppColors.black);
+
+  /// Text inside antd components (modal, popover, message): 14px / 22px.
+  static final TextStyle ant = cssText(size: 14, lineHeight: 22, color: AppColors.text);
+}
+
+/// Tailwind breakpoints used by the web app.
+class Breakpoints {
+  /// `md:` (min-width: 768px).
+  static bool md(BuildContext context) => MediaQuery.sizeOf(context).width >= 768;
+
+  /// globals.scss `(max-width: 575px)` overrides apply below this.
+  static bool sm(BuildContext context) => MediaQuery.sizeOf(context).width >= 576;
+}
 
 ThemeData buildAppTheme() {
   final base = ThemeData(
     useMaterial3: false,
+    fontFamily: kFontFamily,
     primaryColor: AppColors.main,
     scaffoldBackgroundColor: AppColors.second,
+    splashFactory: NoSplash.splashFactory,
+    highlightColor: Colors.transparent,
     colorScheme: const ColorScheme.light(
       primary: AppColors.main,
       secondary: AppColors.third,
       surface: AppColors.second,
       error: AppColors.danger,
     ),
-    checkboxTheme: CheckboxThemeData(
-      fillColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) return AppColors.main;
-        return null;
-      }),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.main,
-        foregroundColor: AppColors.white,
-        elevation: 0,
-        shadowColor: Colors.transparent,
-        minimumSize: const Size.fromHeight(32),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-        ),
-        textStyle: GoogleFonts.quicksand(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.main,
-        side: const BorderSide(color: AppColors.main),
-        backgroundColor: AppColors.second,
-        elevation: 0,
-        minimumSize: const Size.fromHeight(32),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-        ),
-        textStyle: GoogleFonts.quicksand(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    ),
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: AppColors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
-        borderSide: const BorderSide(color: AppColors.main),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
-        borderSide: const BorderSide(color: AppColors.main),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
-        borderSide: const BorderSide(color: AppColors.main, width: 1.5),
-      ),
-      disabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
-        borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.15)),
-      ),
-      hintStyle: GoogleFonts.quicksand(
-        color: AppColors.fourth,
-        fontSize: 16,
-      ),
-    ),
-    dialogTheme: DialogThemeData(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    textSelectionTheme: const TextSelectionThemeData(
+      cursorColor: AppColors.main,
+      selectionHandleColor: AppColors.main,
     ),
   );
 
   return base.copyWith(
-    textTheme: GoogleFonts.quicksandTextTheme(base.textTheme).apply(
-      bodyColor: AppColors.main,
-      displayColor: AppColors.main,
+    textTheme: base.textTheme.copyWith(
+      bodyMedium: AppText.page,
+      bodyLarge: AppText.page,
+      titleMedium: AppText.page,
     ),
   );
 }

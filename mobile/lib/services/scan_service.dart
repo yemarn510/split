@@ -30,16 +30,15 @@ class ScanService {
     return ScanResponse.fromJson(decoded);
   }
 
-  List<Item> toItems(ScanResponse response, Person paidBy) {
+  /// `seeTheResult` in scan-receipt.tsx.
+  List<Item> toItems(ScanResponse response, Person? paidBy) {
     return response.items
         .map(
           (each) => Item(
-            name: each.translatedName.isEmpty ? each.name : each.translatedName,
-            price: each.isPercentage
-                ? each.percent
-                : each.price * each.quantity,
+            name: each.translatedName,
+            price: each.isPercentage ? each.percent : each.price * each.quantity,
             paidBy: paidBy,
-            quantity: each.quantity <= 0 ? 1 : each.quantity,
+            quantity: each.quantity,
             isPercentage: each.isPercentage,
             percent: each.percent,
           ),

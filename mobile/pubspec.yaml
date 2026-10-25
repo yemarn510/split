@@ -10,7 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  google_fonts: ^6.2.1
   flutter_svg: ^2.0.10+1
   shared_preferences: ^2.3.3
   uuid: ^4.5.1
@@ -31,3 +30,19 @@ flutter:
   assets:
     - assets/images/
     - assets/svgs/
+
+  # Static Quicksand weights (same files google_fonts downloads), matching the
+  # web app's `Quicksand:wght@300..700`.
+  fonts:
+    - family: Quicksand
+      fonts:
+        - asset: assets/fonts/Quicksand-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Quicksand-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Quicksand-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Quicksand-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Quicksand-Bold.ttf
+          weight: 700

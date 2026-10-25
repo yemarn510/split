@@ -3,7 +3,7 @@ class OrderItem {
   final String translatedName;
   final String description;
   final double price;
-  final int quantity;
+  final double quantity;
   final double total;
   final bool isPercentage;
   final double percent;
@@ -22,10 +22,10 @@ class OrderItem {
   factory OrderItem.fromJson(Map<String, dynamic> json) {
     return OrderItem(
       name: (json['name'] ?? '').toString(),
-      translatedName: (json['translated_name'] ?? json['name'] ?? '').toString(),
+      translatedName: (json['translated_name'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
       price: _toDouble(json['price']),
-      quantity: _toInt(json['quantity'], fallback: 1),
+      quantity: _toDouble(json['quantity']),
       total: _toDouble(json['total']),
       isPercentage: json['isPercentage'] == true,
       percent: _toDouble(json['percent']),

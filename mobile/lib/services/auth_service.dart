@@ -22,20 +22,16 @@ class AuthService {
     await client.auth.signOut();
   }
 
-  String? get displayName {
-    final user = currentUser;
-    if (user == null) return null;
-    return (user.userMetadata?['full_name'] as String?) ??
-        (user.userMetadata?['name'] as String?) ??
-        user.email;
+  /// `user.identities.at(0).identity_data`, which login-popup.tsx reads.
+  Map<String, dynamic> get _identityData {
+    final identities = currentUser?.identities;
+    if (identities == null || identities.isEmpty) return const {};
+    return identities.first.identityData ?? const {};
   }
 
-  String? get avatarUrl {
-    final user = currentUser;
-    if (user == null) return null;
-    return (user.userMetadata?['avatar_url'] as String?) ??
-        (user.userMetadata?['picture'] as String?);
-  }
+  String get fullName => (_identityData['full_name'] as String?) ?? '';
 
-  String? get email => currentUser?.email;
+  String? get avatarUrl => _identityData['avatar_url'] as String?;
+
+  String get email => (_identityData['email'] as String?) ?? '';
 }

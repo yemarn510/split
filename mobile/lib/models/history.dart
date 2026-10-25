@@ -59,17 +59,23 @@ class HistoryResultRow {
   factory HistoryResultRow.fromJson(Map<String, dynamic> json) {
     return HistoryResultRow(
       historyId: json['history_id'] as String,
-      resultIndex: json['result_index'] as int,
-      itemIndex: json['item_index'] as int,
+      resultIndex: _toNum(json['result_index']).toInt(),
+      itemIndex: _toNum(json['item_index']).toInt(),
       needToBePaidByUuid: json['need_to_be_paid_by_uuid'] as String,
       needToBePaidByName: json['need_to_be_paid_by_name'] as String,
       paidByUuid: json['paid_by_uuid'] as String,
       paidByName: json['paid_by_name'] as String,
       itemName: json['item_name'] as String,
-      numberOfSharedPerson: json['number_of_shared_person'] as int,
-      amount: (json['amount'] as num).toDouble(),
-      finalPrice: (json['final_price'] as num).toDouble(),
+      numberOfSharedPerson: _toNum(json['number_of_shared_person']).toInt(),
+      amount: _toNum(json['amount']).toDouble(),
+      finalPrice: _toNum(json['final_price']).toDouble(),
       isPercentage: json['is_percentage'] as bool? ?? false,
     );
   }
+}
+
+/// `Number(value)` for PostgREST numerics, which may arrive as strings.
+num _toNum(dynamic value) {
+  if (value is num) return value;
+  return num.tryParse('$value') ?? 0;
 }

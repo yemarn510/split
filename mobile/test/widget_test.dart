@@ -22,7 +22,7 @@ void main() {
   testWidgets('App loads with title', (WidgetTester tester) async {
     await tester.pumpWidget(const SplitMyBillApp());
     await tester.pump();
-    expect(find.text("Let's Split the Bills"), findsOneWidget);
+    expect(find.text('Let\u2019s Split the Bills'), findsOneWidget);
     expect(find.text('Add Person'), findsOneWidget);
   });
 }

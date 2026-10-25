@@ -12,9 +12,9 @@ class FriendsService {
         .map((row) {
           final map = Map<String, dynamic>.from(row as Map);
           return Person(
-            id: map['id'] as int?,
+            id: (map['id'] as num?)?.toInt(),
             name: (map['name'] as String?) ?? '',
-            profile: map['profile'] as String?,
+            profile: (map['profile'] as String?) ?? '',
           );
         })
         .toList();
@@ -34,7 +34,7 @@ class FriendsService {
     final existing = await _client.from('friend').select('id');
     final toDelete = <int>{
       for (final row in (existing as List))
-        if (row['id'] != null) row['id'] as int,
+        if (row['id'] != null) (row['id'] as num).toInt(),
     };
 
     if (peopleToCreate.isNotEmpty) {
